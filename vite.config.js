@@ -19,6 +19,9 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    optimizeDeps: {
+        include: ['leaflet', '@vue-leaflet/vue-leaflet']
+    },
     server: {
         watch: {
             usePolling: true,

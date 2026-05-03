@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Models\Activity;
 
 trait HasAuditTrail
 {
@@ -14,10 +15,12 @@ trait HasAuditTrail
         return LogOptions::defaults()
             ->logAll()
             ->logOnlyDirty()
-            ->dontSubmitEmptyLogs()
-            ->tap(function ($activity) {
-                $activity->ip_address = request()->ip();
-                $activity->user_agent = request()->userAgent();
-            });
+            ->dontSubmitEmptyLogs();
+    }
+
+    public function tapActivity(Activity $activity, string $eventName)
+    {
+        $activity->ip_address = request()->ip();
+        $activity->user_agent = request()->userAgent();
     }
 }

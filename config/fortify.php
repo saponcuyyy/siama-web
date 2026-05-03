@@ -64,16 +64,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Home Path
+    | Fortify Home Path
     |--------------------------------------------------------------------------
     |
-    | Here you may configure the path where users will get redirected during
-    | authentication or password reset when the operations are successful
-    | and the user is authenticated. You are free to change this value.
+    | Here you may configure the path where users will be redirected after
+    | they are authenticated by Fortify. You are free to change this to
+    | any path that you want, such as a dashboard or a user's profile.
     |
     */
 
-    'home' => '/home',
+    'home' => '/dashboard',
 
     /*
     |--------------------------------------------------------------------------
