@@ -32,7 +32,7 @@ class RolePermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::findOrCreate($permission, 'web');
+            Permission::create(['name' => $permission, 'guard_name' => 'web']);
         }
 
         // Create Roles and Assign Permissions
