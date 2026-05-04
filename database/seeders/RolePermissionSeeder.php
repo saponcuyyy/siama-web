@@ -49,7 +49,7 @@ class RolePermissionSeeder extends Seeder
 
         foreach ($roles as $roleName => $rolePermissions) {
             $role = Role::findOrCreate($roleName, 'web');
-            $role->syncPermissions($rolePermissions);
+            $role->syncPermissions(Permission::whereIn('name', $rolePermissions)->where('guard_name', 'web')->get());
         }
     }
 }
