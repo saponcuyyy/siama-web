@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
+    // use WithoutModelEvents;
 
     /**
      * Seed the application's database.
@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RolePermissionSeeder::class);
 
-        $admin = \App\Models\User::factory()->create([
+        $admin = \App\Models\User::create([
             'name' => 'Super Admin',
             'email' => 'admin@siama.sch.id',
             'password' => bcrypt('password'), // You should change this in production
