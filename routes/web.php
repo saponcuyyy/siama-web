@@ -13,9 +13,16 @@ use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\PesanController;
 use App\Http\Controllers\Admin\WebSettingController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\SiswaKelulusanController;
 
 // ─── PUBLIC ROUTES ───────────────────────────────────────────────────────────
 Route::get('/', [App\Http\Controllers\LandingController::class, 'index'])->name('home');
+
+// Halaman Pengumuman Kelulusan
+Route::get('/kelulusan', [App\Http\Controllers\Public\KelulusanController::class, 'index'])->name('public.kelulusan');
+Route::post('/kelulusan', [App\Http\Controllers\Public\KelulusanController::class, 'cek'])->name('public.kelulusan.cek');
+Route::get('/kelulusan/hasil', [App\Http\Controllers\Public\KelulusanController::class, 'hasil'])->name('public.kelulusan.hasil');
+
 
 // Halaman Publik - Connected to real controllers
 Route::get('/berita', [App\Http\Controllers\Public\BeritaPublikController::class, 'index'])->name('public.berita.index');
@@ -86,4 +93,12 @@ Route::prefix('admin/web')
         Route::get('pesan', [PesanController::class, 'index'])->name('pesan.index');
         Route::get('pesan/{pesan}', [PesanController::class, 'show'])->name('pesan.show');
         Route::delete('pesan/{pesan}', [PesanController::class, 'destroy'])->name('pesan.destroy');
+
+        // Manajemen Kelulusan Siswa
+        Route::get('kelulusan', [SiswaKelulusanController::class, 'index'])->name('kelulusan.index');
+        Route::post('kelulusan/import', [SiswaKelulusanController::class, 'import'])->name('kelulusan.import');
+        Route::put('kelulusan/{siswa}', [SiswaKelulusanController::class, 'update'])->name('kelulusan.update');
+        Route::delete('kelulusan/all', [SiswaKelulusanController::class, 'destroyAll'])->name('kelulusan.destroyAll');
+        Route::delete('kelulusan/{siswa}', [SiswaKelulusanController::class, 'destroy'])->name('kelulusan.destroy');
+        Route::get('kelulusan/template', [SiswaKelulusanController::class, 'downloadTemplate'])->name('kelulusan.template');
     });

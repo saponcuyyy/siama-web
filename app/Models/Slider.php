@@ -21,7 +21,7 @@ class Slider extends Model
                 isset($attributes['file_path']) 
                     ? (str_starts_with($attributes['file_path'], 'http') 
                         ? $attributes['file_path'] 
-                        : Storage::disk('minio')->url($attributes['file_path']))
+                        : Storage::disk('public')->url($attributes['file_path']))
                     : null,
         );
     }

@@ -17,7 +17,8 @@ import {
     LogOut,
     Building2,
     ListTree,
-    FolderTree
+    FolderTree,
+    GraduationCap
 } from 'lucide-vue-next';
 
 const page = usePage();
@@ -58,6 +59,7 @@ const navGroups = [
         label: 'Interaksi & Sistem',
         items: [
             { name: 'Pesan Masuk', href: route('admin.web.pesan.index'), icon: Mail },
+            { name: 'Data Kelulusan', href: route('admin.web.kelulusan.index'), icon: GraduationCap },
             { name: 'Pengaturan Web', href: route('admin.web.setting'), icon: Settings },
         ],
     },

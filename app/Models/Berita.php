@@ -52,7 +52,7 @@ class Berita extends Model
                 isset($attributes['thumbnail']) 
                     ? (str_starts_with($attributes['thumbnail'], 'http') 
                         ? $attributes['thumbnail'] 
-                        : Storage::disk('minio')->url($attributes['thumbnail']))
+                        : Storage::disk('public')->url($attributes['thumbnail']))
                     : null,
         );
     }

@@ -35,7 +35,7 @@ class Fasilitas extends Model
                 isset($attributes['foto']) 
                     ? (str_starts_with($attributes['foto'], 'http') 
                         ? $attributes['foto'] 
-                        : Storage::disk('minio')->url($attributes['foto']))
+                        : Storage::disk('public')->url($attributes['foto']))
                     : null,
         );
     }

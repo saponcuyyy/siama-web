@@ -34,7 +34,7 @@ class Album extends Model
                 isset($attributes['cover']) 
                     ? (str_starts_with($attributes['cover'], 'http') 
                         ? $attributes['cover'] 
-                        : Storage::disk('minio')->url($attributes['cover']))
+                        : Storage::disk('public')->url($attributes['cover']))
                     : null,
         );
     }

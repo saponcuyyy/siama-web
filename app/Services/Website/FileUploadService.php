@@ -14,7 +14,7 @@ class FileUploadService
 
     public function __construct()
     {
-        $this->disk = config('filesystems.default', 'minio');
+        $this->disk = 'public';
     }
 
     /**

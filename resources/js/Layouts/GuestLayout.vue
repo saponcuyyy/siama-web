@@ -69,6 +69,13 @@ onUnmounted(() => {
                     </div>
                     
                     <Link 
+                        :href="route('public.kelulusan')" 
+                        class="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors py-2 block mr-4"
+                    >
+                        Pengumuman Kelulusan
+                    </Link>
+                    
+                    <Link 
                         :href="route('login')" 
                         class="bg-slate-900 text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-blue-600 transition-all active:scale-95 shadow-xl shadow-slate-200"
                     >
@@ -106,8 +113,14 @@ onUnmounted(() => {
                         </div>
                     </div>
                     <Link 
+                        :href="route('public.kelulusan')" 
+                        class="bg-emerald-50 text-emerald-600 border border-emerald-200 w-full py-4 rounded-2xl text-center font-black text-xl shadow-sm mt-2"
+                    >
+                        Pengumuman Kelulusan
+                    </Link>
+                    <Link 
                         :href="route('login')" 
-                        class="bg-blue-600 text-white w-full py-4 rounded-2xl text-center font-black text-xl shadow-xl shadow-blue-100 mt-4"
+                        class="bg-blue-600 text-white w-full py-4 rounded-2xl text-center font-black text-xl shadow-xl shadow-blue-100 mt-2"
                     >
                         Login Portal
                     </Link>
