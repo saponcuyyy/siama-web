@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
+
+class Guru extends Model
+{
+    use SoftDeletes;
+
+    protected $table = 'guru';
+
+    protected $fillable = ['user_id', 'nip', 'nama'];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function bankSoal(): HasMany
+    {
+        return $this->hasMany(BankSoal::class);
+    }
+
+    public function paketUjian(): HasMany
+    {
+        return $this->hasMany(PaketUjian::class);
+    }
+
+    public function rombelWali(): HasMany
+    {
+        return $this->hasMany(Rombel::class, 'guru_id');
+    }
+}

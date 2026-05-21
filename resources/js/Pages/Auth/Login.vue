@@ -51,9 +51,7 @@ const submit = () => {
             <div class="relative z-10 w-full flex flex-col justify-between p-16">
                 <!-- Logo/Brand -->
                 <div class="flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-700">
-                    <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-2xl">
-                        <span class="text-indigo-600 font-black text-2xl">S</span>
-                    </div>
+                    <img src="/images/logo.png" alt="Logo SMA N 2 Perbaungan" class="w-14 h-14 object-contain drop-shadow-xl" />
                     <div class="text-white">
                         <h1 class="text-xl font-black tracking-tight leading-none uppercase">Siama</h1>
                         <p class="text-[10px] font-bold tracking-[0.3em] uppercase opacity-60">System Akademik</p>
@@ -80,10 +78,8 @@ const submit = () => {
         <!-- Right Side: Login Form -->
         <div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 bg-slate-50 relative">
             <!-- Mobile Logo (Shown only on small screens) -->
-            <div class="lg:hidden absolute top-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3">
-                <div class="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-100 mb-2">
-                    <span class="text-white font-black text-3xl">S</span>
-                </div>
+            <div class="lg:hidden absolute top-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3">
+                <img src="/images/logo.png" alt="Logo SMA N 2 Perbaungan" class="w-16 h-16 object-contain drop-shadow-lg" />
             </div>
 
             <div class="w-full max-w-[420px] bg-white p-8 sm:p-10 rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-white animate-in fade-in zoom-in-95 duration-700 delay-200">
@@ -94,20 +90,20 @@ const submit = () => {
 
                 <form @submit.prevent="submit" class="space-y-6">
                     <div class="space-y-2 group">
-                        <label class="block text-xs font-black text-slate-400 uppercase tracking-widest px-1 group-focus-within:text-indigo-600 transition-colors" for="email">Alamat Email</label>
+                        <label class="block text-xs font-black text-slate-400 uppercase tracking-widest px-1 group-focus-within:text-indigo-600 transition-colors" for="email">Email / NISN</label>
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12.75V12a10 10 0 1 0-4.5 8.43"/><circle cx="12" cy="12" r="4"/><path d="M22 13a2 2 0 0 0-4 0v4.25"/></svg>
                             </span>
                             <input
                                 id="email"
-                                type="email"
+                                type="text"
                                 v-model="form.email"
                                 class="w-full bg-slate-50 border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 rounded-2xl py-3.5 pl-12 pr-4 transition-all placeholder:text-slate-300 font-medium text-slate-900"
                                 required
                                 autofocus
                                 autocomplete="username"
-                                placeholder="nama@siama.sch.id"
+                                placeholder="Masukkan Email atau NISN"
                             />
                         </div>
                         <p v-if="form.errors.email" class="text-red-500 text-[10px] font-bold px-1 mt-1 animate-in fade-in slide-in-from-top-1">{{ form.errors.email }}</p>

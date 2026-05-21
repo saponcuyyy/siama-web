@@ -27,23 +27,27 @@ class RolePermissionSeeder extends Seeder
             'guru.view', 'guru.manage',
             'perpustakaan.view', 'perpustakaan.manage',
             'ujian.view', 'ujian.manage', 'ujian.participate',
+            // CBT Permissions
+            'ujian.bank-soal.manage', 'ujian.soal.manage', 'ujian.paket.manage', 
+            'ujian.sesi.manage', 'ujian.sesi.monitor', 'ujian.penilaian.essay', 
+            'ujian.laporan.view', 'ujian.laporan.export',
             'settings.view', 'settings.manage',
             'audit.view'
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission, 'guard_name' => 'web']);
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
         // Create Roles and Assign Permissions
         $roles = [
             'super_admin' => $permissions,
-            'kepala_sekolah' => ['dashboard.view', 'nilai.view', 'siswa.view', 'guru.view', 'audit.view'],
-            'wakil_kepala' => ['dashboard.view', 'jadwal.manage', 'nilai.view', 'siswa.view', 'guru.view'],
+            'kepala_sekolah' => ['dashboard.view', 'nilai.view', 'siswa.view', 'guru.view', 'audit.view', 'ujian.laporan.view', 'ujian.laporan.export'],
+            'wakil_kepala' => ['dashboard.view', 'jadwal.manage', 'nilai.view', 'siswa.view', 'guru.view', 'ujian.bank-soal.manage', 'ujian.soal.manage', 'ujian.paket.manage', 'ujian.sesi.manage', 'ujian.sesi.monitor', 'ujian.penilaian.essay', 'ujian.laporan.view', 'ujian.laporan.export', 'ujian.view'],
             'tata_usaha' => ['dashboard.view', 'siswa.manage', 'guru.manage', 'settings.view'],
             'wali_kelas' => ['dashboard.view', 'nilai.create', 'nilai.edit', 'siswa.view'],
-            'guru' => ['dashboard.view', 'nilai.create', 'nilai.edit', 'jadwal.view'],
-            'siswa' => ['dashboard.view', 'nilai.view', 'jadwal.view', 'ujian.participate', 'perpustakaan.view'],
+            'guru' => ['dashboard.view', 'nilai.create', 'nilai.edit', 'jadwal.view', 'ujian.bank-soal.manage', 'ujian.soal.manage', 'ujian.paket.manage', 'ujian.sesi.manage', 'ujian.penilaian.essay', 'ujian.laporan.view', 'ujian.laporan.export', 'ujian.view'],
+            'siswa' => ['ujian.view', 'ujian.participate'],
             'pustakawan' => ['dashboard.view', 'perpustakaan.manage']
         ];
 

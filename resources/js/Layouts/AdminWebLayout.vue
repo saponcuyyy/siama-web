@@ -80,8 +80,8 @@ const isActive = (href) => {
         <!-- Sidebar -->
         <aside :class="['flex flex-col bg-slate-900 transition-all duration-300 flex-shrink-0 z-20', sidebarOpen ? 'w-64' : 'w-20']">
             <!-- Logo -->
-            <div class="h-16 flex items-center gap-3 px-6 border-b border-white/5">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 font-black text-white text-sm shadow-lg shadow-blue-500/20">S</div>
+            <div class="h-16 flex items-center gap-3 px-4 border-b border-white/5">
+                <img src="/images/logo.png" alt="Logo SMA N 2 Perbaungan" class="w-10 h-10 object-contain flex-shrink-0" />
                 <div v-if="sidebarOpen" class="overflow-hidden whitespace-nowrap">
                     <p class="text-white font-black text-sm leading-tight">SIAMA CMS</p>
                     <p class="text-slate-500 font-bold text-[9px] uppercase tracking-tighter">Web Management</p>

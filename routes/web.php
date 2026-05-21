@@ -14,6 +14,9 @@ use App\Http\Controllers\Admin\PesanController;
 use App\Http\Controllers\Admin\WebSettingController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\SiswaKelulusanController;
+use App\Http\Controllers\Admin\SiswaController;
+use App\Http\Controllers\Admin\RombelController;
+use App\Http\Controllers\Admin\LaporanUjianController;
 
 // ─── PUBLIC ROUTES ───────────────────────────────────────────────────────────
 Route::get('/', [App\Http\Controllers\LandingController::class, 'index'])->name('home');
@@ -44,13 +47,16 @@ Route::get('/halaman/{slug}', [App\Http\Controllers\Public\PagePublikController:
 
 // Dashboard akademik
 Route::get('/dashboard', function () {
+    if (auth()->user()->hasRole('siswa')) {
+        return redirect()->route('ujian.index');
+    }
     return \Inertia\Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // ─── CMS / MANAJEMEN WEBSITE ───────────────────────────────────────────────
 Route::prefix('admin/web')
     ->name('admin.web.')
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'can:dashboard.view'])
     ->group(function () {
 
         // Dashboard Web
@@ -101,4 +107,99 @@ Route::prefix('admin/web')
         Route::delete('kelulusan/all', [SiswaKelulusanController::class, 'destroyAll'])->name('kelulusan.destroyAll');
         Route::delete('kelulusan/{siswa}', [SiswaKelulusanController::class, 'destroy'])->name('kelulusan.destroy');
         Route::get('kelulusan/template', [SiswaKelulusanController::class, 'downloadTemplate'])->name('kelulusan.template');
+
+        // ── Master Akademik ──────────────────────────────────────────────────
+        // Rombel
+        Route::resource('rombel', RombelController::class)->except(['create', 'edit', 'show']);
+
+        // Siswa
+        Route::resource('siswa', SiswaController::class)->except(['create', 'edit', 'show']);
+    });
+
+// ─── UJIAN ONLINE (CBT) - ADMIN / GURU ─────────────────────────────────────
+Route::prefix('admin/ujian')
+    ->name('admin.ujian.')
+    ->middleware(['auth', 'verified'])
+    ->group(function () {
+        // Mata Pelajaran
+        Route::resource('mata-pelajaran', App\Http\Controllers\Admin\MataPelajaranController::class)
+             ->only(['index', 'store', 'update', 'destroy']);
+
+        // Bank Soal
+        Route::resource('bank-soal', App\Http\Controllers\Admin\BankSoalController::class)
+             ->middleware('can:ujian.bank-soal.manage');
+
+        // Soal dalam bank
+        Route::resource('bank-soal.soal', App\Http\Controllers\Admin\SoalController::class)
+             ->middleware('can:ujian.soal.manage');
+
+        // Import soal via Excel
+        Route::post('bank-soal/{bankSoal}/import-excel', [App\Http\Controllers\Admin\SoalController::class, 'importExcel'])
+             ->name('bank-soal.import-excel')
+             ->middleware('can:ujian.soal.manage');
+
+        // Download template Excel
+        Route::get('soal/template/excel', [App\Http\Controllers\Admin\SoalController::class, 'downloadTemplate'])
+             ->name('soal.template.excel');
+
+        // Import soal via Word
+        Route::post('bank-soal/{bankSoal}/import-word', [App\Http\Controllers\Admin\SoalController::class, 'import'])
+             ->name('bank-soal.import-word')
+             ->middleware('can:ujian.soal.manage');
+
+        // Download template Word
+        Route::get('soal/template/word', [App\Http\Controllers\Admin\SoalController::class, 'downloadWordTemplate'])
+             ->name('soal.template.word');
+
+        // Paket Ujian
+        Route::resource('paket', App\Http\Controllers\Admin\PaketUjianController::class)
+             ->middleware('can:ujian.paket.manage');
+        Route::post('paket/{paket}/tambah-soal',
+                    [App\Http\Controllers\Admin\PaketUjianController::class, 'tambahSoal'])->name('paket.tambah-soal');
+        Route::delete('paket/{paket}/soal/{soal}',
+                      [App\Http\Controllers\Admin\PaketUjianController::class, 'hapusSoal'])->name('paket.hapus-soal');
+
+        // Sesi Ujian
+        Route::resource('sesi', App\Http\Controllers\Admin\SesiUjianController::class)
+             ->middleware('can:ujian.sesi.manage');
+        Route::post('sesi/{sesi}/tambah-peserta',
+                    [App\Http\Controllers\Admin\SesiUjianController::class, 'tambahPeserta'])->name('sesi.tambah-peserta');
+        Route::patch('sesi/{sesi}/toggle-status',
+                     [App\Http\Controllers\Admin\SesiUjianController::class, 'toggleStatus'])->name('sesi.toggle');
+        Route::post('sesi/{sesi}/generate-peserta',
+                    [App\Http\Controllers\Admin\SesiUjianController::class, 'generatePeserta'])->name('sesi.generate-peserta');
+        Route::get('sesi/{sesi}/monitor',
+                   [App\Http\Controllers\Admin\SesiUjianController::class, 'monitor'])->name('sesi.monitor');
+
+        // Penilaian Essay
+        Route::get('penilaian',
+                   [App\Http\Controllers\Admin\PenilaianEssayController::class, 'index'])->name('penilaian.index');
+        Route::post('penilaian/{jawaban}/nilai',
+                    [App\Http\Controllers\Admin\PenilaianEssayController::class, 'nilai'])->name('penilaian.nilai');
+
+        // Laporan & Export
+        Route::get('laporan', [LaporanUjianController::class, 'index'])->name('laporan.index');
+        Route::get('laporan/sesi/{sesi}', [LaporanUjianController::class, 'perSesi'])->name('laporan.sesi');
+        Route::get('laporan/sesi/{sesi}/export/{format}', [LaporanUjianController::class, 'export'])
+             ->name('laporan.export')
+             ->where('format', 'excel|pdf');
+
+        // Soal (standalone store/destroy for BankSoal Show page)
+        Route::post('soal', [App\Http\Controllers\Admin\SoalController::class, 'store'])->name('soal.store');
+        Route::delete('soal/{soal}', [App\Http\Controllers\Admin\SoalController::class, 'destroy'])->name('soal.destroy');
+    });
+
+// ─── UJIAN ONLINE (CBT) - SISWA ────────────────────────────────────────────
+Route::prefix('ujian')
+    ->name('ujian.')
+    ->middleware(['auth', 'verified'])
+    ->group(function () {
+        Route::get('/', [App\Http\Controllers\Ujian\RuangUjianController::class, 'index'])->name('index');
+        Route::get('/{sesi}/masuk', [App\Http\Controllers\Ujian\RuangUjianController::class, 'masuk'])->name('masuk');
+        Route::post('/{sesi}/mulai', [App\Http\Controllers\Ujian\RuangUjianController::class, 'mulai'])->name('mulai');
+        Route::get('/{sesi}/ruang', [App\Http\Controllers\Ujian\RuangUjianController::class, 'ruang'])->name('ruang');
+        Route::post('/{sesi}/simpan', [App\Http\Controllers\Ujian\RuangUjianController::class, 'simpan'])->name('simpan');
+        Route::post('/{sesi}/selesai', [App\Http\Controllers\Ujian\RuangUjianController::class, 'selesai'])->name('selesai');
+        Route::post('/{sesi}/pelanggaran', [App\Http\Controllers\Ujian\RuangUjianController::class, 'pelanggaran'])->name('pelanggaran');
+        Route::get('/{sesi}/hasil', [App\Http\Controllers\Ujian\RuangUjianController::class, 'hasil'])->name('hasil');
     });

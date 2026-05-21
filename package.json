@@ -8,6 +8,7 @@
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
+        "@types/dompurify": "^3.0.5",
         "axios": "^1.11.0",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^2.0.0",
@@ -21,6 +22,8 @@
         "@vitejs/plugin-vue": "^6.0.6",
         "@vue-leaflet/vue-leaflet": "^0.10.1",
         "clsx": "^2.1.1",
+        "dayjs": "^1.11.20",
+        "dompurify": "^3.4.5",
         "leaflet": "^1.9.4",
         "lucide-vue-next": "^1.0.0",
         "pinia": "^3.0.4",

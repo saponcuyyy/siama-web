@@ -23,6 +23,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \Illuminate\Support\Facades\Gate::define('ikutUjian', function (\App\Models\User $user, \App\Models\SesiUjian $sesi) {
+            if (!$user->siswa) {
+                return false;
+            }
+            return \App\Models\PesertaUjian::where('sesi_ujian_id', $sesi->id)
+                ->where('siswa_id', $user->siswa->id)
+                ->exists();
+        });
     }
 }
