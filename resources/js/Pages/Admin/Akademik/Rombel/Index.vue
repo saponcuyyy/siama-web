@@ -50,7 +50,7 @@ const handleSearch = () => {
 
 const submitForm = () => {
     if (editTarget.value) {
-        form.put(route('admin.web.rombel.update', editTarget.value.id), {
+        form.put(route('admin.web.rombel.update', editTarget.value.hashid), {
             onSuccess: () => { showModal.value = false; form.reset(); },
         });
     } else {
@@ -62,7 +62,7 @@ const submitForm = () => {
 
 const hapus = (rombel) => {
     if (confirm(`Hapus rombel "${rombel.nama}"? Rombel yang masih memiliki siswa tidak dapat dihapus.`)) {
-        router.delete(route('admin.web.rombel.destroy', rombel.id));
+        router.delete(route('admin.web.rombel.destroy', rombel.hashid));
     }
 };
 

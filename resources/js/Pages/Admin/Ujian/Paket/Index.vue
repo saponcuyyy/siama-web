@@ -116,7 +116,7 @@ const submitForm = () => {
                                     </span>
                                 </td>
                                 <td class="p-4 pr-6 text-right space-x-2">
-                                    <Link :href="route('admin.ujian.paket.show', paket.id)" class="inline-flex p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors" title="Lihat & Kelola Soal">
+                                    <Link :href="route('admin.ujian.paket.show', paket.hashid)" class="inline-flex p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors" title="Lihat & Kelola Soal">
                                         <Eye class="w-4 h-4" />
                                     </Link>
                                     <button class="p-2 text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors" title="Pengaturan">

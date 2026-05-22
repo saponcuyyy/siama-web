@@ -6,7 +6,7 @@ const props = defineProps({ pesan: Object });
 
 const confirmDelete = () => {
     if (confirm('Yakin hapus pesan ini?')) {
-        router.delete(route('admin.web.pesan.destroy', props.pesan.id));
+        router.delete(route('admin.web.pesan.destroy', props.pesan.hashid));
     }
 };
 </script>

@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { 
-    Database, Plus, Search, Eye, FileText, Check, X, BookOpen
+    Database, Plus, Search, Eye, FileText, Check, X, BookOpen, Trash2, AlertTriangle
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -32,6 +32,27 @@ const submitForm = () => {
             showModal.value = false;
             form.reset();
         }
+    });
+};
+
+// ─── Delete Confirm ────────────────────────────
+const showDeleteModal = ref(false);
+const deleteTarget = ref(null);
+const isDeleting = ref(false);
+
+const openDelete = (bank) => {
+    deleteTarget.value = bank;
+    showDeleteModal.value = true;
+};
+
+const confirmDelete = () => {
+    isDeleting.value = true;
+    router.delete(route('admin.ujian.bank-soal.destroy', deleteTarget.value.hashid), {
+        onSuccess: () => {
+            showDeleteModal.value = false;
+            deleteTarget.value = null;
+        },
+        onFinish: () => { isDeleting.value = false; },
     });
 };
 </script>
@@ -109,9 +130,12 @@ const submitForm = () => {
                                     {{ bank.guru?.nama || '-' }}
                                 </td>
                                 <td class="p-4 pr-6 text-right space-x-2">
-                                    <Link :href="route('admin.ujian.bank-soal.show', bank.id)" class="inline-flex p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors" title="Kelola Soal">
+                                    <Link :href="route('admin.ujian.bank-soal.show', bank.hashid)" class="inline-flex p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors" title="Kelola Soal">
                                         <Eye class="w-4 h-4" />
                                     </Link>
+                                    <button @click="openDelete(bank)" class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors" title="Hapus">
+                                        <Trash2 class="w-4 h-4" />
+                                    </button>
                                 </td>
                             </tr>
                             <tr v-if="bankSoalList.data.length === 0">
@@ -191,6 +215,33 @@ const submitForm = () => {
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+        <!-- Confirm Delete Modal -->
+        <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+            <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden text-center">
+                <div class="p-8">
+                    <div class="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                        <AlertTriangle class="w-8 h-8" />
+                    </div>
+                    <h3 class="text-xl font-black text-slate-900 mb-2">Hapus Bank Soal?</h3>
+                    <p class="text-slate-500 text-sm font-medium leading-relaxed mb-2">
+                        Bank soal <span class="font-bold text-slate-900">{{ deleteTarget?.judul }}</span> akan dihapus beserta seluruh soal di dalamnya.
+                    </p>
+                    <p class="text-xs text-slate-400 font-medium mb-7">Tindakan ini tidak dapat dibatalkan.</p>
+                    <div class="flex gap-3">
+                        <button @click="showDeleteModal = false" :disabled="isDeleting"
+                            class="flex-1 py-3 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
+                            Batal
+                        </button>
+                        <button @click="confirmDelete" :disabled="isDeleting"
+                            class="flex-1 py-3 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors flex items-center justify-center gap-2">
+                            <span v-if="isDeleting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <Trash2 v-else class="w-4 h-4" />
+                            {{ isDeleting ? 'Menghapus...' : 'Ya, Hapus' }}
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>

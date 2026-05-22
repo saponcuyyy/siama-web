@@ -60,4 +60,11 @@ class BankSoalController extends Controller
             'bankSoal' => $bankSoal
         ]);
     }
+
+    public function destroy(BankSoal $bankSoal)
+    {
+        $bankSoal->delete();
+
+        return back()->with('success', 'Bank soal berhasil dihapus.');
+    }
 }

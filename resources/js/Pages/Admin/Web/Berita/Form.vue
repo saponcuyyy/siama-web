@@ -35,7 +35,7 @@ const handleThumbnail = (e) => {
 const submit = () => {
     if (props.berita) {
         // We use post with _method=PUT because of multipart/form-data limitations in PHP for PUT requests
-        form.post(route('admin.web.berita.update', props.berita.id));
+        form.post(route('admin.web.berita.update', props.berita.hashid));
     } else {
         form.post(route('admin.web.berita.store'));
     }

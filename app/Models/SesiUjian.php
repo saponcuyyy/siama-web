@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany, BelongsToMany};
 
 class SesiUjian extends Model
 {
+    use HasHashId;
     use SoftDeletes;
 
     protected $table = 'sesi_ujian';
@@ -43,6 +45,11 @@ class SesiUjian extends Model
     public function rombel(): BelongsTo
     {
         return $this->belongsTo(Rombel::class);
+    }
+
+    public function rombels(): BelongsToMany
+    {
+        return $this->belongsToMany(Rombel::class, 'rombel_sesi_ujian', 'sesi_ujian_id', 'rombel_id');
     }
 
     public function dibuatOleh(): BelongsTo

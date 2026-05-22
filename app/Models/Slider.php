@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Slider extends Model
 {
+    use HasHashId;
     use HasFactory, \Illuminate\Database\Eloquent\SoftDeletes;
     protected $fillable = ['judul','subjudul','file_path','link_url','link_text','urutan','status'];
 

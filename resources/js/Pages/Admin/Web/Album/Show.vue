@@ -19,7 +19,7 @@ const handleFiles = (e) => {
 
 const upload = () => {
     isUploading.value = true;
-    form.post(route('admin.web.album.photos.upload', props.album.id), {
+    form.post(route('admin.web.album.photos.upload', props.album.hashid), {
         onSuccess: () => {
             form.reset();
             isUploading.value = false;

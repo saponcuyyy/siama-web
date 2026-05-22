@@ -22,7 +22,7 @@ defineProps({
 
                 <div v-if="albums.data.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     <Link v-for="album in albums.data" :key="album.id"
-                        :href="route('public.galeri.show', album.id)"
+                        :href="route('public.galeri.show', album.hashid)"
                         class="group relative aspect-square rounded-3xl overflow-hidden shadow-sm bg-slate-200 block">
                         <img v-if="album.image_url" :src="album.image_url" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                         <div v-else class="w-full h-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-5xl">📁</div>

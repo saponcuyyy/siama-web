@@ -70,22 +70,37 @@ class PaketUjianController extends Controller
     public function tambahSoal(Request $request, PaketUjian $paket)
     {
         $request->validate([
-            'soal_ids' => 'required|array',
-            'soal_ids.*' => 'exists:soal,id'
+            'soal_ids' => 'nullable|array',
+            'soal_ids.*' => 'exists:soal,id',
+            'bank_soal_id' => 'nullable|exists:bank_soal,id',
         ]);
+
+        if ($request->bank_soal_id) {
+            $existingSoalIds = $paket->soal()->pluck('soal.id')->toArray();
+            $soalIds = Soal::where('bank_soal_id', $request->bank_soal_id)
+                ->whereNotIn('id', $existingSoalIds)
+                ->pluck('id')
+                ->toArray();
+        } else {
+            $soalIds = $request->soal_ids ?? [];
+        }
+
+        if (empty($soalIds)) {
+            return back()->with('error', 'Tidak ada soal yang dapat ditambahkan.');
+        }
 
         $currentMaxUrutan = DB::table('paket_soal')
             ->where('paket_ujian_id', $paket->id)
             ->max('urutan') ?? 0;
 
         $attachData = [];
-        foreach ($request->soal_ids as $index => $soalId) {
+        foreach ($soalIds as $index => $soalId) {
             $attachData[$soalId] = ['urutan' => $currentMaxUrutan + $index + 1];
         }
 
         $paket->soal()->syncWithoutDetaching($attachData);
 
-        return back()->with('success', count($request->soal_ids) . ' soal berhasil ditambahkan ke paket.');
+        return back()->with('success', count($soalIds) . ' soal berhasil ditambahkan ke paket.');
     }
 
     public function hapusSoal(PaketUjian $paket, Soal $soal)

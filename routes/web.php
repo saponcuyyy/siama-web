@@ -192,7 +192,7 @@ Route::prefix('admin/ujian')
 // ─── UJIAN ONLINE (CBT) - SISWA ────────────────────────────────────────────
 Route::prefix('ujian')
     ->name('ujian.')
-    ->middleware(['auth', 'verified'])
+    ->middleware(['exam.auth', 'verified'])
     ->group(function () {
         Route::get('/', [App\Http\Controllers\Ujian\RuangUjianController::class, 'index'])->name('index');
         Route::get('/{sesi}/masuk', [App\Http\Controllers\Ujian\RuangUjianController::class, 'masuk'])->name('masuk');

@@ -1,10 +1,12 @@
 <?php
 namespace App\Models;
+use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Page extends Model {
+    use HasHashId;
     use SoftDeletes;
     protected $fillable = ['title','slug','content','meta_title','meta_description','status','created_by'];
 

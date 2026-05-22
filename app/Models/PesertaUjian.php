@@ -57,9 +57,17 @@ class PesertaUjian extends Model
     {
         if (!$this->mulai_at) return 0;
 
-        $durasi  = $this->sesiUjian->paketUjian->durasi_menit * 60;
+        $durasi = $this->sesiUjian->paketUjian->durasi_menit * 60;
         $terpakai = now()->diffInSeconds($this->mulai_at);
-        return max(0, $durasi - $terpakai);
+        $sisaDariDurasi = max(0, $durasi - $terpakai);
+
+        // Batasi dengan waktu_selesai sesi sebagai batas mutlak
+        if ($this->sesiUjian->waktu_selesai && now()->lt($this->sesiUjian->waktu_selesai)) {
+            $sisaDariSesi = now()->diffInSeconds($this->sesiUjian->waktu_selesai);
+            return min($sisaDariDurasi, $sisaDariSesi);
+        }
+
+        return $sisaDariDurasi;
     }
 
     // Apakah siswa sedang aktif mengerjakan di device lain?

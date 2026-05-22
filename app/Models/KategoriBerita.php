@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class KategoriBerita extends Model
 {
+    use HasHashId;
     use HasFactory;
 
     protected $table = 'kategori_berita';

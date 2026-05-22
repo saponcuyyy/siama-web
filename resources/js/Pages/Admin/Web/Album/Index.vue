@@ -49,7 +49,7 @@ const openEdit = (album) => {
 
 const submit = () => {
     if (isEditing.value) {
-        form.post(route('admin.web.album.update', isEditing.value.id), {
+        form.post(route('admin.web.album.update', isEditing.value.hashid), {
             onSuccess: () => {
                 showModal.value = false;
                 form.reset();
@@ -108,7 +108,7 @@ const confirmDelete = (id) => {
                         <p class="text-xs text-slate-500 line-clamp-2 mt-1 flex-1">{{ album.deskripsi || 'Tidak ada deskripsi.' }}</p>
                         
                         <div class="mt-4 flex items-center justify-between gap-3 pt-3 border-t border-slate-50">
-                            <Link :href="route('admin.web.album.show', album.id)" class="text-xs font-bold text-purple-600 hover:underline">Kelola Foto →</Link>
+                            <Link :href="route('admin.web.album.show', album.hashid)" class="text-xs font-bold text-purple-600 hover:underline">Kelola Foto →</Link>
                             <div class="flex gap-3">
                                 <button @click="openEdit(album)" class="text-[10px] font-bold text-slate-400 hover:text-blue-600 uppercase tracking-wider transition-colors">Edit</button>
                                 <button @click="confirmDelete(album.id)" class="text-[10px] font-bold text-slate-400 hover:text-red-500 uppercase tracking-wider transition-colors">Hapus</button>

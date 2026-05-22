@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { 
-    Package, ArrowLeft, Plus, Search, Trash2, ListChecks, Check, X, AlertTriangle
+    Package, ArrowLeft, Plus, Search, Trash2, ListChecks, Check, X, AlertTriangle, Database
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -17,6 +17,23 @@ const showAddModal = ref(false);
 const attachForm = useForm({
     soal_ids: [],
 });
+
+const selectedBankId = ref(null);
+const isAddingBank = ref(false);
+
+const availableBanks = computed(() => {
+    const seen = new Map();
+    props.availableSoal.forEach(s => {
+        if (s.bank_soal && !seen.has(s.bank_soal.id)) {
+            seen.set(s.bank_soal.id, s.bank_soal);
+        }
+    });
+    return Array.from(seen.values());
+});
+
+const bankSoalCount = (bankId) => {
+    return props.availableSoal.filter(s => s.bank_soal?.id === bankId).length;
+};
 
 const filteredAvailableSoal = computed(() => {
     if (!searchSoal.value) return props.availableSoal;
@@ -36,11 +53,27 @@ const toggleSoalSelection = (id) => {
 };
 
 const submitAddSoal = () => {
-    attachForm.post(route('admin.ujian.paket.tambah-soal', props.paket.id), {
+    attachForm.post(route('admin.ujian.paket.tambah-soal', props.paket.hashid), {
         onSuccess: () => {
             showAddModal.value = false;
             attachForm.reset();
         }
+    });
+};
+
+const submitAddBankSoal = () => {
+    if (!selectedBankId.value) return;
+    isAddingBank.value = true;
+    router.post(route('admin.ujian.paket.tambah-soal', props.paket.hashid), {
+        bank_soal_id: selectedBankId.value,
+    }, {
+        onSuccess: () => {
+            showAddModal.value = false;
+            selectedBankId.value = null;
+        },
+        onFinish: () => {
+            isAddingBank.value = false;
+        },
     });
 };
 
@@ -49,14 +82,14 @@ const showDeleteSoalModal = ref(false);
 const deleteSoalTarget = ref(null);
 const isDeletingSoal = ref(false);
 
-const hapusSoal = (soalId) => {
-    deleteSoalTarget.value = soalId;
+const hapusSoal = (soal) => {
+    deleteSoalTarget.value = soal;
     showDeleteSoalModal.value = true;
 };
 
 const confirmHapusSoal = () => {
     isDeletingSoal.value = true;
-    router.delete(route('admin.ujian.paket.hapus-soal', { paket: props.paket.id, soal: deleteSoalTarget.value }), {
+    router.delete(route('admin.ujian.paket.hapus-soal', { paket: props.paket.hashid, soal: deleteSoalTarget.value.hashid }), {
         onSuccess: () => { showDeleteSoalModal.value = false; },
         onFinish: () => { isDeletingSoal.value = false; }
     });
@@ -120,7 +153,7 @@ const confirmHapusSoal = () => {
                                 </div>
                                 <div class="prose prose-sm prose-slate max-w-none text-slate-800 font-medium line-clamp-2" v-html="soal.pertanyaan"></div>
                             </div>
-                            <button @click="hapusSoal(soal.id)" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors opacity-0 group-hover:opacity-100">
+                            <button @click="hapusSoal(soal)" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors opacity-0 group-hover:opacity-100">
                                 <Trash2 class="w-5 h-5" />
                             </button>
                         </div>
@@ -142,6 +175,26 @@ const confirmHapusSoal = () => {
                     </button>
                 </div>
                 
+                <div class="p-4 border-b border-slate-100 bg-indigo-50/50 shrink-0">
+                    <label class="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1.5">
+                        <Database class="w-3.5 h-3.5" /> Tambah Semua dari Bank Soal
+                    </label>
+                    <div class="flex items-end gap-3">
+                        <div class="flex-1">
+                            <select v-model="selectedBankId" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-indigo-600 focus:border-indigo-600">
+                                <option :value="null">— Pilih Bank Soal —</option>
+                                <option v-for="bank in availableBanks" :key="bank.id" :value="bank.id">
+                                    {{ bank.nama }} ({{ bankSoalCount(bank.id) }} soal)
+                                </option>
+                            </select>
+                        </div>
+                        <button @click="submitAddBankSoal" :disabled="!selectedBankId || isAddingBank"
+                            class="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:hover:bg-indigo-600 rounded-xl transition-colors flex items-center gap-2 shrink-0">
+                            <Plus class="w-4 h-4" /> Tambah Semua
+                        </button>
+                    </div>
+                </div>
+
                 <div class="p-4 border-b border-slate-100 bg-slate-50 shrink-0">
                     <div class="relative">
                         <input type="text" v-model="searchSoal" placeholder="Cari pertanyaan atau nama bank soal..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-indigo-600 focus:border-indigo-600 text-sm">

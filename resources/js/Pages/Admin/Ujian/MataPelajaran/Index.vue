@@ -37,7 +37,7 @@ const openEdit = (mapel) => {
 };
 
 const submitEdit = () => {
-    editForm.put(route('admin.ujian.mata-pelajaran.update', editTarget.value.id), {
+    editForm.put(route('admin.ujian.mata-pelajaran.update', editTarget.value.hashid), {
         onSuccess: () => {
             showEditModal.value = false;
             editForm.reset();
@@ -57,7 +57,7 @@ const openDelete = (mapel) => {
 
 const confirmDelete = () => {
     isDeleting.value = true;
-    router.delete(route('admin.ujian.mata-pelajaran.destroy', deleteTarget.value.id), {
+    router.delete(route('admin.ujian.mata-pelajaran.destroy', deleteTarget.value.hashid), {
         onSuccess: () => {
             showDeleteModal.value = false;
             deleteTarget.value = null;

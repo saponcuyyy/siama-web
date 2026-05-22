@@ -36,7 +36,7 @@ const confirmDelete = (id) => {
                         
                         <!-- Overlay actions -->
                         <div class="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                            <Link :href="route('admin.web.galeri.edit', g.id)" class="w-8 h-8 bg-white rounded-full flex items-center justify-center text-blue-600 hover:scale-110 transition-transform">✏️</Link>
+                            <Link :href="route('admin.web.galeri.edit', g.hashid)" class="w-8 h-8 bg-white rounded-full flex items-center justify-center text-blue-600 hover:scale-110 transition-transform">✏️</Link>
                             <button @click="confirmDelete(g.id)" class="w-8 h-8 bg-white rounded-full flex items-center justify-center text-red-600 hover:scale-110 transition-transform">🗑️</button>
                         </div>
                     </div>

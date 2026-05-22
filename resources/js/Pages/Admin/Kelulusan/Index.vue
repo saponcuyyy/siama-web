@@ -61,7 +61,7 @@ const startEdit = (siswa) => {
 };
 
 const saveEdit = (siswa) => {
-    editForm.put(route('admin.web.kelulusan.update', siswa.id), {
+    editForm.put(route('admin.web.kelulusan.update', siswa.hashid), {
         onSuccess: () => { editingId.value = null; },
     });
 };
@@ -69,7 +69,7 @@ const saveEdit = (siswa) => {
 // ─── Delete ───────────────────────────────────────────────────────────────
 const deleteSiswa = (siswa) => {
     if (!confirm(`Hapus data ${siswa.nama}?`)) return;
-    router.delete(route('admin.web.kelulusan.destroy', siswa.id));
+    router.delete(route('admin.web.kelulusan.destroy', siswa.hashid));
 };
 
 const deleteAll = () => {

@@ -12,7 +12,7 @@ class SesiUjianController extends Controller
 {
     public function index(Request $request)
     {
-        $query = SesiUjian::with(['paketUjian.mataPelajaran', 'rombel', 'dibuatOleh'])
+        $query = SesiUjian::with(['paketUjian.mataPelajaran', 'rombel', 'rombels', 'dibuatOleh'])
             ->latest();
 
         if ($request->search) {
@@ -31,7 +31,8 @@ class SesiUjianController extends Controller
     {
         $validated = $request->validate([
             'paket_ujian_id' => 'required|exists:paket_ujian,id',
-            'rombel_id' => 'nullable|exists:rombel,id',
+            'rombel_ids' => 'nullable|array',
+            'rombel_ids.*' => 'exists:rombel,id',
             'nama_sesi' => 'required|string|max:255',
             'waktu_mulai' => 'required|date',
             'waktu_selesai' => 'required|date|after:waktu_mulai',
@@ -45,7 +46,11 @@ class SesiUjianController extends Controller
         $validated['dibuat_oleh'] = Auth::id();
         $validated['status'] = 'menunggu';
 
-        SesiUjian::create($validated);
+        $sesi = SesiUjian::create($validated);
+
+        if ($request->rombel_ids) {
+            $sesi->rombels()->sync($request->rombel_ids);
+        }
 
         return back()->with('success', 'Sesi ujian berhasil ditambahkan.');
     }
@@ -57,7 +62,7 @@ class SesiUjianController extends Controller
         $sesi->update(['status' => $newStatus]);
 
         // Auto-generate peserta dari rombel saat sesi mulai berlangsung
-        if ($newStatus === 'berlangsung' && $sesi->rombel_id) {
+        if ($newStatus === 'berlangsung') {
             $this->generatePesertaFromRombel($sesi);
         }
 
@@ -69,11 +74,12 @@ class SesiUjianController extends Controller
      */
     public function generatePeserta(SesiUjian $sesi)
     {
-        if (!$sesi->rombel_id) {
+        $jumlah = $this->generatePesertaFromRombel($sesi);
+
+        if ($jumlah === 0 && !$this->getRombelIds($sesi)) {
             return back()->with('error', 'Sesi ini tidak memiliki rombel yang ditugaskan.');
         }
 
-        $jumlah = $this->generatePesertaFromRombel($sesi);
         return back()->with('success', "{$jumlah} siswa berhasil didaftarkan sebagai peserta.");
     }
 
@@ -83,7 +89,10 @@ class SesiUjianController extends Controller
      */
     private function generatePesertaFromRombel(SesiUjian $sesi): int
     {
-        $siswaList = \App\Models\Siswa::where('rombel_id', $sesi->rombel_id)->get();
+        $rombelIds = $this->getRombelIds($sesi);
+        if (empty($rombelIds)) return 0;
+
+        $siswaList = \App\Models\Siswa::whereIn('rombel_id', $rombelIds)->get();
         $count = 0;
 
         foreach ($siswaList as $siswa) {
@@ -97,20 +106,30 @@ class SesiUjianController extends Controller
         return $count;
     }
 
-    public function monitor(SesiUjian $sesi)
+    private function getRombelIds(SesiUjian $sesi): array
     {
-        $sesi->load(['paketUjian.mataPelajaran', 'rombel']);
-        
+        if ($sesi->rombels()->count() > 0) {
+            return $sesi->rombels()->pluck('rombel.id')->toArray();
+        }
+
+        if ($sesi->rombel_id) {
+            return [$sesi->rombel_id];
+        }
+
+        return [];
+    }
+
+    public function monitor(Request $request, SesiUjian $sesi)
+    {
+        $sesi->load(['paketUjian.mataPelajaran', 'rombel', 'rombels']);
+
+        $perPage = $request->input('per_page', 50);
+
         $peserta = PesertaUjian::with('siswa')
             ->where('sesi_ujian_id', $sesi->id)
-            ->get()
-            ->map(function ($p) {
-                // Calculate progress
+            ->paginate($perPage)
+            ->through(function ($p) {
                 $total = count($p->urutan_soal ?? []);
-                $answered = count($p->urutan_jawaban ? array_filter($p->urutan_jawaban) : []);
-                
-                // Fetch answers from JawabanSiswa to get actual answered count if needed, 
-                // but for simplicity we assume urutan_jawaban is populated or we count JawabanSiswa records
                 $jawabanTersimpan = \App\Models\JawabanSiswa::where('peserta_ujian_id', $p->id)
                     ->where(function($q) {
                         $q->whereNotNull('jawaban')->orWhereNotNull('jawaban_menjodohkan');
@@ -122,9 +141,24 @@ class SesiUjianController extends Controller
                 return $p;
             });
 
+        $maxScore = $sesi->paketUjian->soal()->sum('bobot') ?: 100;
+
+        $stats = [
+            'total'           => PesertaUjian::where('sesi_ujian_id', $sesi->id)->count(),
+            'mengerjakan'     => PesertaUjian::where('sesi_ujian_id', $sesi->id)->where('status', 'mengerjakan')->count(),
+            'selesai'         => PesertaUjian::where('sesi_ujian_id', $sesi->id)->where('status', 'selesai')->count(),
+            'didiskualifikasi'=> PesertaUjian::where('sesi_ujian_id', $sesi->id)->where('status', 'didiskualifikasi')->count(),
+            'rata_nilai'      => round(PesertaUjian::where('sesi_ujian_id', $sesi->id)
+                ->where('status', 'selesai')
+                ->whereNotNull('nilai_akhir')
+                ->avg('nilai_akhir') ?? 0, 2),
+        ];
+
         return Inertia::render('Admin/Ujian/Sesi/Monitor', [
-            'sesi' => $sesi,
-            'peserta' => $peserta,
+            'sesi'      => $sesi,
+            'peserta'   => $peserta,
+            'stats'     => $stats,
+            'maxScore'  => $maxScore,
         ]);
     }
 }

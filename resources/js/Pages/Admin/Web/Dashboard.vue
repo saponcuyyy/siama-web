@@ -90,7 +90,7 @@ defineProps({ stats: Object, berita_terbaru: Array, pengumuman_aktif: Array, pes
                                 <p class="text-sm font-medium text-slate-900 truncate">{{ p.nama }}</p>
                                 <p class="text-xs text-slate-400 truncate">{{ p.subjek }}</p>
                             </div>
-                            <Link :href="route('admin.web.pesan.show', p.id)" class="text-xs text-blue-600 hover:underline ml-3 flex-shrink-0">Baca</Link>
+                            <Link :href="route('admin.web.pesan.show', p.hashid)" class="text-xs text-blue-600 hover:underline ml-3 flex-shrink-0">Baca</Link>
                         </div>
                         <div v-if="!pesan_terbaru?.length" class="px-5 py-6 text-center text-slate-400 text-sm">Tidak ada pesan baru</div>
                     </div>

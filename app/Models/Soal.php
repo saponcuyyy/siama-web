@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\{
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Soal extends Model
 {
+    use HasHashId;
     use SoftDeletes;
 
     protected $table = 'soal';

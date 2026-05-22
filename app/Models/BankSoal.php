@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
 
 class BankSoal extends Model
 {
+    use HasHashId;
     use SoftDeletes;
 
     protected $table = 'bank_soal';

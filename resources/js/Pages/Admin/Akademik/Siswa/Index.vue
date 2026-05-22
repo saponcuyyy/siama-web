@@ -47,7 +47,7 @@ const handleSearch = () => {
 
 const submitForm = () => {
     if (editTarget.value) {
-        form.put(route('admin.web.siswa.update', editTarget.value.id), {
+        form.put(route('admin.web.siswa.update', editTarget.value.hashid), {
             onSuccess: () => { showModal.value = false; form.reset(); },
         });
     } else {
@@ -59,7 +59,7 @@ const submitForm = () => {
 
 const hapus = (siswa) => {
     if (confirm(`Hapus data siswa "${siswa.nama}"? Akun login siswa ini juga akan dihapus secara permanen.`)) {
-        router.delete(route('admin.web.siswa.destroy', siswa.id));
+        router.delete(route('admin.web.siswa.destroy', siswa.hashid));
     }
 };
 

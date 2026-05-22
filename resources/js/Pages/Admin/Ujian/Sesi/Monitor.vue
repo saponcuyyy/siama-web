@@ -2,11 +2,13 @@
 import { Head, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { ref, onMounted, onUnmounted } from 'vue';
-import { RefreshCcw, Activity, AlertOctagon, CheckCircle2, Clock, Users, ServerOff, Maximize, AlertTriangle } from 'lucide-vue-next';
+import { RefreshCcw, Activity, AlertOctagon, CheckCircle2, Clock, Users, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 
 const props = defineProps({
     sesi: Object,
-    peserta: Array,
+    peserta: Object,
+    stats: Object,
+    maxScore: Number,
 });
 
 const autoRefresh = ref(true);
@@ -15,7 +17,7 @@ const lastUpdated = ref(new Date());
 
 const fetchLatestData = () => {
     router.reload({
-        only: ['peserta'],
+        only: ['peserta', 'stats'],
         preserveScroll: true,
         preserveState: true,
         onSuccess: () => {
@@ -25,9 +27,7 @@ const fetchLatestData = () => {
 };
 
 onMounted(() => {
-    if (autoRefresh.value) {
-        startAutoRefresh();
-    }
+    if (autoRefresh.value) startAutoRefresh();
 });
 
 onUnmounted(() => {
@@ -35,7 +35,7 @@ onUnmounted(() => {
 });
 
 const startAutoRefresh = () => {
-    refreshInterval.value = setInterval(fetchLatestData, 10000); // refresh every 10 seconds
+    refreshInterval.value = setInterval(fetchLatestData, 10000);
 };
 
 const stopAutoRefresh = () => {
@@ -44,15 +44,28 @@ const stopAutoRefresh = () => {
 
 const toggleAutoRefresh = () => {
     autoRefresh.value = !autoRefresh.value;
-    if (autoRefresh.value) {
-        startAutoRefresh();
-    } else {
-        stopAutoRefresh();
-    }
+    if (autoRefresh.value) startAutoRefresh();
+    else stopAutoRefresh();
 };
 
 const formatTime = (date) => {
     return new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(date);
+};
+
+const goToPage = (page) => {
+    router.get(route('admin.ujian.sesi.monitor', props.sesi.hashid), { page }, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
+
+const formatNilaiPreview = (p) => {
+    if (p.status === 'belum_mulai') return null;
+    if (p.status === 'mengerjakan') return null;
+    if (p.status === 'didiskualifikasi') return 0;
+    if (p.nilai_akhir !== null && p.nilai_akhir !== undefined) return Number(p.nilai_akhir).toFixed(2);
+    if (p.sudah_dikoreksi && !p.essay_sudah_dinilai) return 'Essay';
+    return null;
 };
 
 const getStatusColor = (status) => {
@@ -77,8 +90,7 @@ const diskualifikasiManual = (peserta) => {
 
 const confirmDiskualifikasi = () => {
     isDiskualifying.value = true;
-    // Endpoint diskualifikasi manual — kirim request ke backend
-    router.post(route('admin.ujian.sesi.monitor', props.sesi.id), 
+    router.post(route('admin.ujian.sesi.monitor', props.sesi.hashid), 
         { _method: 'patch', peserta_id: diskualTarget.value.id, action: 'diskualifikasi' },
         {
             onSuccess: () => {
@@ -131,14 +143,14 @@ const confirmDiskualifikasi = () => {
             </div>
 
             <!-- Stats Grid -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-4">
                     <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-500">
                         <Users class="w-6 h-6" />
                     </div>
                     <div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Total Peserta</p>
-                        <p class="text-2xl font-black text-slate-900">{{ peserta.length }}</p>
+                        <p class="text-2xl font-black text-slate-900">{{ stats.total }}</p>
                     </div>
                 </div>
                 
@@ -148,7 +160,7 @@ const confirmDiskualifikasi = () => {
                     </div>
                     <div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Mengerjakan</p>
-                        <p class="text-2xl font-black text-slate-900">{{ peserta.filter(p => p.status === 'mengerjakan').length }}</p>
+                        <p class="text-2xl font-black text-slate-900">{{ stats.mengerjakan }}</p>
                     </div>
                 </div>
 
@@ -158,7 +170,7 @@ const confirmDiskualifikasi = () => {
                     </div>
                     <div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Selesai</p>
-                        <p class="text-2xl font-black text-slate-900">{{ peserta.filter(p => p.status === 'selesai').length }}</p>
+                        <p class="text-2xl font-black text-slate-900">{{ stats.selesai }}</p>
                     </div>
                 </div>
 
@@ -168,7 +180,17 @@ const confirmDiskualifikasi = () => {
                     </div>
                     <div>
                         <p class="text-xs font-bold text-rose-400 uppercase tracking-widest mb-0.5">Diskualifikasi</p>
-                        <p class="text-2xl font-black text-rose-700">{{ peserta.filter(p => p.status === 'didiskualifikasi').length }}</p>
+                        <p class="text-2xl font-black text-rose-700">{{ stats.didiskualifikasi }}</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600">
+                        <Activity class="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Rata-rata Nilai</p>
+                        <p class="text-2xl font-black text-slate-900">{{ stats.rata_nilai }}</p>
                     </div>
                 </div>
             </div>
@@ -183,12 +205,13 @@ const confirmDiskualifikasi = () => {
                                 <th class="p-4">Status</th>
                                 <th class="p-4">Progress</th>
                                 <th class="p-4">Pelanggaran</th>
+                                <th class="p-4 text-center">Nilai</th>
                                 <th class="p-4">IP / Browser</th>
                                 <th class="p-4 pr-6 text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            <tr v-for="p in peserta" :key="p.id" class="hover:bg-slate-50/50 transition-colors">
+                            <tr v-for="p in peserta.data" :key="p.id" class="hover:bg-slate-50/50 transition-colors">
                                 <td class="p-4 pl-6">
                                     <p class="font-bold text-slate-900">{{ p.siswa?.nama }}</p>
                                     <p class="text-xs font-medium text-slate-500">{{ p.siswa?.nisn }}</p>
@@ -217,6 +240,21 @@ const confirmDiskualifikasi = () => {
                                         <span>{{ p.jumlah_pelanggaran }} / {{ sesi.max_pelanggaran }}</span>
                                     </div>
                                 </td>
+                                <td class="p-4 text-center">
+                                    <template v-if="formatNilaiPreview(p) === null">
+                                        <span class="text-slate-300 text-xs font-medium">&mdash;</span>
+                                    </template>
+                                    <template v-else-if="formatNilaiPreview(p) === 'Essay'">
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-700 rounded-md text-xs font-bold">
+                                            <Clock class="w-3 h-3" /> Essay
+                                        </span>
+                                    </template>
+                                    <template v-else>
+                                        <span class="text-sm font-black" :class="Number(formatNilaiPreview(p)) >= maxScore * 0.7 ? 'text-emerald-600' : 'text-rose-600'">
+                                            {{ formatNilaiPreview(p) }} / {{ maxScore }}
+                                        </span>
+                                    </template>
+                                </td>
                                 <td class="p-4 text-xs font-medium text-slate-500">
                                     <p>{{ p.ip_address || '-' }}</p>
                                     <p class="truncate w-32" :title="p.browser">{{ p.browser || '-' }}</p>
@@ -233,13 +271,40 @@ const confirmDiskualifikasi = () => {
                                 </td>
                             </tr>
                             
-                            <tr v-if="peserta.length === 0">
-                                <td colspan="6" class="p-8 text-center text-slate-500 font-medium">
+                            <tr v-if="peserta.data.length === 0">
+                                <td colspan="7" class="p-8 text-center text-slate-500 font-medium">
                                     Belum ada peserta di sesi ini.
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Pagination -->
+                <div v-if="peserta.meta?.last_page > 1" class="p-4 border-t border-slate-100 flex items-center justify-between gap-4">
+                    <div class="text-xs font-medium text-slate-500">
+                        Menampilkan {{ peserta.meta.from }} &ndash; {{ peserta.meta.to }} dari {{ peserta.meta.total }} peserta
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button @click="goToPage(peserta.meta.current_page - 1)" :disabled="!peserta.meta.prev_page_url"
+                            class="p-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            :class="peserta.meta.prev_page_url ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-300'">
+                            <ChevronLeft class="w-4 h-4" />
+                        </button>
+                        <template v-for="link in peserta.meta.links" :key="link.label">
+                            <button v-if="link.url && !isNaN(link.label)"
+                                @click="goToPage(link.label)"
+                                class="min-w-[32px] h-8 px-2 rounded-lg text-xs font-bold transition-colors"
+                                :class="link.active ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-100'"
+                                v-html="link.label"
+                            />
+                        </template>
+                        <button @click="goToPage(peserta.meta.current_page + 1)" :disabled="!peserta.meta.next_page_url"
+                            class="p-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            :class="peserta.meta.next_page_url ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-300'">
+                            <ChevronRight class="w-4 h-4" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

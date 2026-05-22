@@ -26,8 +26,8 @@ props.jawabanList.data.forEach(j => {
     });
 });
 
-const submitNilai = (id) => {
-    forms.value[id].post(route('admin.ujian.penilaian.nilai', id), {
+const submitNilai = (jawaban) => {
+    forms.value[jawaban.id].post(route('admin.ujian.penilaian.nilai', jawaban.hashid), {
         preserveScroll: true,
         onSuccess: () => {
             // Remove from list or show success state
@@ -127,8 +127,8 @@ const submitNilai = (id) => {
                             >
                         </div>
                         
-                        <button 
-                            @click="submitNilai(jawaban.id)"
+                            <button 
+                            @click="submitNilai(jawaban)"
                             :disabled="forms[jawaban.id].processing || forms[jawaban.id].skor > jawaban.soal?.bobot"
                             class="w-full mt-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                         >

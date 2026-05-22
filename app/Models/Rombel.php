@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany, BelongsToMany};
 
 class Rombel extends Model
 {
+    use HasHashId;
     protected $table = 'rombel';
 
     protected $fillable = ['nama', 'tingkat', 'tahun_ajaran_id', 'guru_id'];
@@ -26,7 +28,12 @@ class Rombel extends Model
         return $this->hasMany(Siswa::class);
     }
 
-    public function sesiUjian(): HasMany
+    public function sesiUjian(): BelongsToMany
+    {
+        return $this->belongsToMany(SesiUjian::class, 'rombel_sesi_ujian', 'rombel_id', 'sesi_ujian_id');
+    }
+
+    public function sesiUjianLegacy(): HasMany
     {
         return $this->hasMany(SesiUjian::class);
     }

@@ -65,7 +65,7 @@ const confirmDelete = (id) => {
                             </td>
                             <td class="px-5 py-3 text-right">
                                 <div class="flex items-center justify-end gap-2">
-                                    <Link :href="route('admin.web.berita.edit', b.id)" class="text-xs text-blue-600 hover:underline font-medium">Edit</Link>
+                                    <Link :href="route('admin.web.berita.edit', b.hashid)" class="text-xs text-blue-600 hover:underline font-medium">Edit</Link>
                                     <button @click="confirmDelete(b.id)" class="text-xs text-red-500 hover:underline font-medium">Hapus</button>
                                 </div>
                             </td>

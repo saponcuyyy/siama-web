@@ -17,7 +17,7 @@ const form = useForm({
 
 const submit = () => {
     if (props.pengumuman) {
-        form.put(route('admin.web.pengumuman.update', props.pengumuman.id));
+        form.put(route('admin.web.pengumuman.update', props.pengumuman.hashid));
     } else {
         form.post(route('admin.web.pengumuman.store'));
     }

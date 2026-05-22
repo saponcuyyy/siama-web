@@ -41,7 +41,7 @@ watch(() => props.bankSoal.soal, () => {
 }, { deep: true });
 
 const submitImport = () => {
-    importForm.post(route('admin.ujian.bank-soal.import-excel', props.bankSoal.id), {
+    importForm.post(route('admin.ujian.bank-soal.import-excel', props.bankSoal.hashid), {
         onSuccess: () => {
             showImportModal.value = false;
             importForm.reset();
@@ -51,7 +51,7 @@ const submitImport = () => {
 };
 
 const submitImportWord = () => {
-    importWordForm.post(route('admin.ujian.bank-soal.import-word', props.bankSoal.id), {
+    importWordForm.post(route('admin.ujian.bank-soal.import-word', props.bankSoal.hashid), {
         onSuccess: () => {
             showImportWordModal.value = false;
             importWordForm.reset();
@@ -107,14 +107,14 @@ const showDeleteSoalModal = ref(false);
 const deleteSoalTarget = ref(null);
 const isDeletingSoal = ref(false);
 
-const hapusSoal = (soalId) => {
-    deleteSoalTarget.value = soalId;
+const hapusSoal = (soal) => {
+    deleteSoalTarget.value = soal;
     showDeleteSoalModal.value = true;
 };
 
 const confirmHapusSoal = () => {
     isDeletingSoal.value = true;
-    router.delete(route('admin.ujian.soal.destroy', deleteSoalTarget.value), {
+    router.delete(route('admin.ujian.soal.destroy', deleteSoalTarget.value.hashid), {
         onSuccess: () => { showDeleteSoalModal.value = false; },
         onFinish: () => { isDeletingSoal.value = false; }
     });
@@ -190,7 +190,7 @@ const hapusPasangan = (index) => {
                     <div v-else class="space-y-6">
                         <div v-for="(soal, index) in bankSoal.soal" :key="soal.id" class="p-6 border border-slate-200 rounded-2xl hover:border-indigo-300 transition-colors group relative">
                             <!-- Aksi hapus -->
-                            <button @click="hapusSoal(soal.id)" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors opacity-0 group-hover:opacity-100">
+                            <button @click="hapusSoal(soal)" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors opacity-0 group-hover:opacity-100">
                                 <Trash2 class="w-5 h-5" />
                             </button>
 

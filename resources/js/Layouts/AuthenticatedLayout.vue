@@ -25,6 +25,7 @@ import {
     ClipboardList,
     Video,
     MonitorPlay,
+    BookOpen,
 } from 'lucide-vue-next';
 
 const page = usePage();
@@ -119,6 +120,12 @@ const navigation = [
         group: 'ujian',
         prefix: '/admin/ujian',
         children: [
+            { 
+                name: 'Mata Pelajaran', 
+                href: route('admin.ujian.mata-pelajaran.index'), 
+                icon: BookOpen, 
+                permission: 'ujian.view' 
+            },
             { 
                 name: 'Bank Soal', 
                 href: route('admin.ujian.bank-soal.index'), 

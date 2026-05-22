@@ -37,7 +37,7 @@ const formatDate = (date) => dayjs(date).format('DD MMM YYYY HH:mm');
                     </div>
                 </div>
                 
-                <a :href="route('admin.ujian.laporan.export', { sesi: sesi.id, format: 'pdf' })" target="_blank" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-rose-200">
+                <a :href="route('admin.ujian.laporan.export', { sesi: sesi.hashid, format: 'pdf' })" target="_blank" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-rose-200">
                     <Download class="w-5 h-5" /> Export PDF
                 </a>
             </div>

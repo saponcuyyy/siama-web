@@ -25,7 +25,7 @@ class RuangUjianController extends Controller
         }
         
         // Sesi aktif: siswa terdaftar peserta ATAU rombel siswa ditugaskan ke sesi ini
-        $sesiAktif = SesiUjian::with('paketUjian')
+        $sesiAktif = SesiUjian::with('paketUjian.mataPelajaran')
             ->where(function ($q) use ($siswa) {
                 $q->whereHas('pesertaUjian', fn($q2) => $q2->where('siswa_id', $siswa->id))
                   ->orWhere('rombel_id', $siswa->rombel_id);
@@ -61,11 +61,11 @@ class RuangUjianController extends Controller
 
         // Jika sudah selesai atau diskualifikasi, redirect ke hasil
         if (in_array($peserta->status, ['selesai', 'didiskualifikasi'])) {
-            return redirect()->route('ujian.hasil', $sesi->id);
+            return redirect()->route('ujian.hasil', $sesi);
         }
 
         return Inertia::render('Ujian/Masuk', [
-            'sesi'    => $sesi->load('paketUjian'),
+            'sesi'    => $sesi->load('paketUjian.mataPelajaran'),
             'peserta' => $peserta
         ]);
     }
@@ -98,7 +98,7 @@ class RuangUjianController extends Controller
             $request->userAgent()
         );
 
-        return redirect()->route('ujian.ruang', $sesi->id);
+        return redirect()->route('ujian.ruang', $sesi);
     }
 
     // GET /ujian/{sesi}/ruang — interface utama ujian siswa
@@ -111,15 +111,15 @@ class RuangUjianController extends Controller
                                ->firstOrFail();
 
         if (in_array($peserta->status, ['selesai', 'didiskualifikasi'])) {
-            return redirect()->route('ujian.hasil', $sesi->id);
+            return redirect()->route('ujian.hasil', $sesi);
         }
 
         if ($peserta->status !== 'mengerjakan') {
-            return redirect()->route('ujian.masuk', $sesi->id);
+            return redirect()->route('ujian.masuk', $sesi);
         }
 
         return Inertia::render('Ujian/Ruang', [
-            'sesi'        => $sesi->load('paketUjian'),
+            'sesi'        => $sesi->load('paketUjian.mataPelajaran'),
             'peserta'     => $peserta,
             'soal_list'   => $this->ujianService->getSoalUntukSiswa($peserta),
             'sisa_waktu'  => $peserta->sisa_waktu
@@ -196,7 +196,7 @@ class RuangUjianController extends Controller
             $request->userAgent()
         );
 
-        return redirect()->route('ujian.hasil', $sesi->id);
+        return redirect()->route('ujian.hasil', $sesi);
     }
 
     // GET /ujian/{sesi}/hasil — tampilan hasil
@@ -210,7 +210,7 @@ class RuangUjianController extends Controller
                                ->firstOrFail();
 
         return Inertia::render('Ujian/Hasil', [
-            'sesi'    => $sesi->load('paketUjian'),
+            'sesi'    => $sesi->load('paketUjian.mataPelajaran'),
             'peserta' => $peserta
         ]);
     }

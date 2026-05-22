@@ -31,7 +31,7 @@ const handleFoto = (e) => {
 
 const submit = () => {
     if (isEditing.value) {
-        form.post(route('admin.web.fasilitas.update', isEditing.value.id), {
+        form.post(route('admin.web.fasilitas.update', isEditing.value.hashid), {
             onSuccess: () => {
                 isEditing.value = null;
                 form.reset();

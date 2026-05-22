@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany};
@@ -9,6 +10,7 @@ use App\Models\User;
 
 class PaketUjian extends Model
 {
+    use HasHashId;
     use SoftDeletes;
 
     protected $table = 'paket_ujian';

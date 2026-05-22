@@ -86,7 +86,7 @@ const formatDate = (date) => dayjs(date).format('DD MMM YYYY');
                                     </span>
                                 </td>
                                 <td class="p-4 pr-6 text-right">
-                                    <Link :href="route('admin.ujian.laporan.sesi', sesi.id)" class="inline-flex px-4 py-2 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 font-bold text-sm rounded-xl transition-colors items-center gap-2">
+                                    <Link :href="route('admin.ujian.laporan.sesi', sesi.hashid)" class="inline-flex px-4 py-2 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 font-bold text-sm rounded-xl transition-colors items-center gap-2">
                                         <Eye class="w-4 h-4" /> Lihat Nilai
                                     </Link>
                                 </td>

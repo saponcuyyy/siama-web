@@ -14,7 +14,7 @@ const form = useForm({
 
 const submit = () => {
     if (isEditing.value) {
-        form.put(route('admin.web.kategori-berita.update', isEditing.value.id), {
+        form.put(route('admin.web.kategori-berita.update', isEditing.value.hashid), {
             onSuccess: () => {
                 isEditing.value = null;
                 form.reset();
@@ -107,7 +107,7 @@ const cancelEdit = () => {
                                         <div class="flex items-center justify-end gap-3">
                                             <button @click="editKategori(kat)" class="text-blue-600 hover:underline font-semibold">Edit</button>
                                             <button 
-                                                @click="form.delete(route('admin.web.kategori-berita.destroy', kat.id))" 
+                                                @click="form.delete(route('admin.web.kategori-berita.destroy', kat.hashid))" 
                                                 class="text-red-500 hover:underline font-semibold"
                                             >
                                                 Hapus

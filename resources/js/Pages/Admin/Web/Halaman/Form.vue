@@ -17,7 +17,7 @@ const form = useForm({
 
 const submit = () => {
     if (props.page) {
-        form.put(route('admin.web.halaman.update', props.page.id));
+        form.put(route('admin.web.halaman.update', props.page.hashid));
     } else {
         form.post(route('admin.web.halaman.store'));
     }
