@@ -11,6 +11,7 @@ dayjs.locale('id');
 const props = defineProps({
     sesi: Object,
     peserta: Array,
+    perRombel: Array,
 });
 
 const formatDate = (date) => dayjs(date).format('DD MMM YYYY HH:mm');
@@ -40,6 +41,41 @@ const formatDate = (date) => dayjs(date).format('DD MMM YYYY HH:mm');
                 <a :href="route('admin.ujian.laporan.export', { sesi: sesi.hashid, format: 'pdf' })" target="_blank" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-rose-200">
                     <Download class="w-5 h-5" /> Export PDF
                 </a>
+            </div>
+
+            <!-- Recap per Rombel -->
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" v-if="perRombel.length > 1">
+                <div v-for="r in perRombel" :key="r.rombel"
+                     class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-slate-900 text-lg">{{ r.rombel }}</h3>
+                        <span class="px-2.5 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg">
+                            {{ r.jumlah }} peserta
+                        </span>
+                    </div>
+                    <div class="flex items-end gap-4">
+                        <div class="text-center flex-1">
+                            <p class="text-2xl font-black text-slate-900">{{ r.rata_rata }}</p>
+                            <p class="text-xs text-slate-500 font-medium mt-0.5">Rata-rata</p>
+                        </div>
+                        <div class="text-center flex-1">
+                            <p class="text-2xl font-black text-emerald-600">{{ r.tertinggi }}</p>
+                            <p class="text-xs text-slate-500 font-medium mt-0.5">Tertinggi</p>
+                        </div>
+                        <div class="text-center flex-1">
+                            <p class="text-2xl font-black text-rose-600">{{ r.terendah }}</p>
+                            <p class="text-xs text-slate-500 font-medium mt-0.5">Terendah</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 text-xs font-bold pt-2 border-t border-slate-100">
+                        <span class="px-2 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-200">
+                            Lulus: {{ r.lulus }}
+                        </span>
+                        <span class="px-2 py-1 bg-rose-50 text-rose-700 rounded-lg border border-rose-200">
+                            Tidak Lulus: {{ r.tidak_lulus }}
+                        </span>
+                    </div>
+                </div>
             </div>
 
             <!-- Table -->

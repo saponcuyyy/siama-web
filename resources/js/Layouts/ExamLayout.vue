@@ -44,7 +44,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick));
                             Daftar Ujian
                         </Link>
                         <div class="border-t border-slate-100 my-1"></div>
-                        <Link :href="route('logout')" method="post" as="button" class="w-full flex items-center gap-2 px-4 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors">
+                        <Link :href="route('ujian.logout')" method="post" as="button" class="w-full flex items-center gap-2 px-4 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                             Keluar
                         </Link>

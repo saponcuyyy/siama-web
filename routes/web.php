@@ -51,12 +51,12 @@ Route::get('/dashboard', function () {
         return redirect()->route('ujian.index');
     }
     return \Inertia\Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth'])->name('dashboard');
 
 // ─── CMS / MANAJEMEN WEBSITE ───────────────────────────────────────────────
 Route::prefix('admin/web')
     ->name('admin.web.')
-    ->middleware(['auth', 'verified', 'can:dashboard.view'])
+    ->middleware(['auth', 'can:dashboard.view'])
     ->group(function () {
 
         // Dashboard Web
@@ -114,12 +114,14 @@ Route::prefix('admin/web')
 
         // Siswa
         Route::resource('siswa', SiswaController::class)->except(['create', 'edit', 'show']);
+        Route::post('siswa/import', [SiswaController::class, 'import'])->name('siswa.import');
+        Route::get('siswa/template', [SiswaController::class, 'downloadTemplate'])->name('siswa.template');
     });
 
 // ─── UJIAN ONLINE (CBT) - ADMIN / GURU ─────────────────────────────────────
 Route::prefix('admin/ujian')
     ->name('admin.ujian.')
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth'])
     ->group(function () {
         // Mata Pelajaran
         Route::resource('mata-pelajaran', App\Http\Controllers\Admin\MataPelajaranController::class)
@@ -183,18 +185,30 @@ Route::prefix('admin/ujian')
         Route::get('laporan/sesi/{sesi}/export/{format}', [LaporanUjianController::class, 'export'])
              ->name('laporan.export')
              ->where('format', 'excel|pdf');
+        Route::get('laporan/rekap-rombel/export', [LaporanUjianController::class, 'rekapRombel'])->name('laporan.rekap-rombel');
+
+        // Nilai (Rekap nilai siswa per rombel per mata pelajaran)
+        Route::get('nilai', [App\Http\Controllers\Admin\NilaiController::class, 'index'])->name('nilai.index');
+        Route::get('nilai/export', [App\Http\Controllers\Admin\NilaiController::class, 'export'])->name('nilai.export');
 
         // Soal (standalone store/destroy for BankSoal Show page)
         Route::post('soal', [App\Http\Controllers\Admin\SoalController::class, 'store'])->name('soal.store');
+        Route::put('soal/{soal}/bobot', [App\Http\Controllers\Admin\SoalController::class, 'updateBobot'])->name('soal.update-bobot');
         Route::delete('soal/{soal}', [App\Http\Controllers\Admin\SoalController::class, 'destroy'])->name('soal.destroy');
     });
 
 // ─── UJIAN ONLINE (CBT) - SISWA ────────────────────────────────────────────
 Route::prefix('ujian')
     ->name('ujian.')
-    ->middleware(['exam.auth', 'verified'])
+    ->middleware(['exam.auth'])
     ->group(function () {
         Route::get('/', [App\Http\Controllers\Ujian\RuangUjianController::class, 'index'])->name('index');
+        Route::post('/logout', function (\Illuminate\Http\Request $request) {
+            auth()->guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect('/login?context=ujian');
+        })->name('logout');
         Route::get('/{sesi}/masuk', [App\Http\Controllers\Ujian\RuangUjianController::class, 'masuk'])->name('masuk');
         Route::post('/{sesi}/mulai', [App\Http\Controllers\Ujian\RuangUjianController::class, 'mulai'])->name('mulai');
         Route::get('/{sesi}/ruang', [App\Http\Controllers\Ujian\RuangUjianController::class, 'ruang'])->name('ruang');

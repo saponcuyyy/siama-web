@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { 
-    FileSpreadsheet, Search, Eye, Users
+    FileSpreadsheet, Search, Eye, Users, X
 } from 'lucide-vue-next';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
@@ -12,7 +12,27 @@ dayjs.locale('id');
 const props = defineProps({
     sesiList: Object,
     filters: Object,
+    rombelList: Array,
+    semesterList: Array,
 });
+
+const showModal = ref(false);
+const downloadForm = ref({
+    rombel_id: '',
+    semester_id: ''
+});
+
+const handleDownloadRekap = () => {
+    if (!downloadForm.value.rombel_id || !downloadForm.value.semester_id) return;
+    
+    // Buka di tab baru untuk download file Excel
+    const url = route('admin.ujian.laporan.rekap-rombel', {
+        rombel_id: downloadForm.value.rombel_id,
+        semester_id: downloadForm.value.semester_id
+    });
+    window.open(url, '_blank');
+    showModal.value = false;
+};
 
 const search = ref(props.filters.search || '');
 
@@ -36,6 +56,11 @@ const formatDate = (date) => dayjs(date).format('DD MMM YYYY');
                         Laporan Hasil Ujian
                     </h1>
                     <p class="text-slate-500 font-medium mt-1">Rekapitulasi dan riwayat nilai dari sesi ujian yang telah berjalan.</p>
+                </div>
+                <div class="flex items-center gap-3 mt-4 sm:mt-0">
+                    <button @click="showModal = true" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-emerald-200">
+                        <FileSpreadsheet class="w-5 h-5" /> Download Rekap Rombel
+                    </button>
                 </div>
             </div>
 
@@ -82,7 +107,7 @@ const formatDate = (date) => dayjs(date).format('DD MMM YYYY');
                                 <td class="p-4 text-center">
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-700 font-bold rounded-lg text-xs">
                                         <Users class="w-3.5 h-3.5 text-slate-400" />
-                                        {{ sesi.peserta_count }} Peserta
+                                        {{ sesi.peserta_ujian_count }} Peserta
                                     </span>
                                 </td>
                                 <td class="p-4 pr-6 text-right">
@@ -101,6 +126,49 @@ const formatDate = (date) => dayjs(date).format('DD MMM YYYY');
                 </div>
                 
                 <!-- Pagination omitted for brevity, standard implementation -->
+            </div>
+        </div>
+
+        <!-- Modal Download Rekap Rombel -->
+        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+            <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                <div class="flex items-center justify-between p-6 border-b border-slate-100 shrink-0">
+                    <h2 class="text-xl font-black text-slate-900">Download Rekap Nilai</h2>
+                    <button @click="showModal = false" class="p-2 text-slate-400 hover:text-slate-600 bg-slate-50 rounded-xl transition-colors">
+                        <X class="w-5 h-5" />
+                    </button>
+                </div>
+                
+                <form @submit.prevent="handleDownloadRekap" class="p-6 space-y-5">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Pilih Semester / Periode</label>
+                        <select v-model="downloadForm.semester_id" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-indigo-600 focus:border-indigo-600 font-medium">
+                            <option value="">-- Pilih Semester --</option>
+                            <option v-for="sem in semesterList" :key="sem.id" :value="sem.id">
+                                {{ sem.nama }} {{ sem.is_active ? '(Aktif)' : '' }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Pilih Kelas / Rombel</label>
+                        <select v-model="downloadForm.rombel_id" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-indigo-600 focus:border-indigo-600 font-medium">
+                            <option value="">-- Pilih Rombel --</option>
+                            <option v-for="rombel in rombelList" :key="rombel.id" :value="rombel.id">
+                                {{ rombel.tingkat }} - {{ rombel.nama }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+                        <button type="button" @click="showModal = false" class="px-5 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
+                            Batal
+                        </button>
+                        <button type="submit" :disabled="!downloadForm.rombel_id || !downloadForm.semester_id" class="px-5 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors flex items-center gap-2">
+                            <FileSpreadsheet class="w-4 h-4" /> Download Excel
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </AuthenticatedLayout>

@@ -222,7 +222,7 @@ function updateMatch(kiri, val) {
                 </span>
                 <span class="text-slate-400 text-xs font-bold shrink-0">/ {{ total }}</span>
                 <span class="hidden sm:inline text-xs font-bold text-slate-500 truncate ml-1">
-                    {{ sesi.paket_ujian.mata_pelajaran?.nama }}
+                    {{ sesi.paket_ujian.mata_pelajaran?.nama || 'Mata Pelajaran' }}
                 </span>
             </div>
 

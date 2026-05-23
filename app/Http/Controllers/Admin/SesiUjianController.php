@@ -12,6 +12,9 @@ class SesiUjianController extends Controller
 {
     public function index(Request $request)
     {
+        \Illuminate\Support\Facades\Artisan::call('sesi:start-active');
+        \Illuminate\Support\Facades\Artisan::call('sesi:close-expired');
+
         $query = SesiUjian::with(['paketUjian.mataPelajaran', 'rombel', 'rombels', 'dibuatOleh'])
             ->latest();
 
@@ -123,7 +126,7 @@ class SesiUjianController extends Controller
     {
         $sesi->load(['paketUjian.mataPelajaran', 'rombel', 'rombels']);
 
-        $perPage = $request->input('per_page', 50);
+        $perPage = (int) $request->input('per_page', 10);
 
         $peserta = PesertaUjian::with('siswa')
             ->where('sesi_ujian_id', $sesi->id)

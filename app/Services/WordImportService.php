@@ -165,9 +165,9 @@ class WordImportService
             } elseif ($currentBuffer === 'kunci') {
                 $currentQuestion['kunci_jawaban'] .= trim(strip_tags($pText));
             } elseif ($currentBuffer === 'tipe') {
-                $currentQuestion['tipe'] .= trim(strip_tags($pText));
+                $currentQuestion['tipe'] = trim(strip_tags($pText));
             } elseif ($currentBuffer === 'bobot') {
-                $currentQuestion['bobot'] .= trim(strip_tags($pText));
+                $currentQuestion['bobot'] = trim(strip_tags($pText));
             } elseif ($currentBuffer === 'pasangan') {
                 $line = trim(strip_tags($pText));
                 if ($line && str_contains($line, '=')) {

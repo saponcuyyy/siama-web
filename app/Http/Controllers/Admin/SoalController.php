@@ -128,6 +128,7 @@ class SoalController extends Controller
         $section->addText('- Gunakan penanda [SOAL] untuk memulai teks pertanyaan.');
         $section->addText('- Gunakan penanda [A], [B], [C], [D], [E] untuk opsi pilihan ganda.');
         $section->addText('- Gunakan penanda [KUNCI] untuk menentukan kunci jawaban yang benar.');
+        $section->addText('- Gunakan penanda [BOBOT] untuk menentukan bobot nilai per soal (opsional, default 1).');
         $section->addTextBreak(2);
         
         $section->addText('=== CONTOH SOAL PILIHAN GANDA ===', ['bold' => true]);
@@ -139,6 +140,7 @@ class SoalController extends Controller
         $section->addText('[D] Megawati');
         $section->addText('[E] Joko Widodo');
         $section->addText('[KUNCI] C');
+        $section->addText('[BOBOT] 2');
         
         $section->addTextBreak(2);
         
@@ -235,6 +237,17 @@ class SoalController extends Controller
             return back()->with('error', 'Terjadi kesalahan saat memproses file: ' . $e->getMessage());
         }
     }
+
+    public function updateBobot(Request $request, Soal $soal)
+    {
+        $request->validate([
+            'bobot' => 'required|numeric|min:0.1'
+        ]);
+
+        $soal->update(['bobot' => $request->bobot]);
+        return back()->with('success', 'Bobot soal berhasil diperbarui.');
+    }
+
 
     public function destroy(Soal $soal)
     {

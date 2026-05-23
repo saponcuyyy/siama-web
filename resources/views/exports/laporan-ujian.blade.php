@@ -43,7 +43,44 @@
         </tr>
     </table>
 
+    @if(count($perRombel) > 1)
+    <table class="data-table" style="margin-bottom:20px;">
+        <caption style="caption-side:top;text-align:left;font-weight:bold;font-size:14px;margin-bottom:6px;">
+            Rekap per Rombel
+        </caption>
+        <thead>
+            <tr>
+                <th class="text-center">No</th>
+                <th>Rombel</th>
+                <th class="text-center">Jml</th>
+                <th class="text-right">Rata-rata</th>
+                <th class="text-right">Tertinggi</th>
+                <th class="text-right">Terendah</th>
+                <th class="text-center">Lulus</th>
+                <th class="text-center">Tdk Lulus</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($perRombel as $idx => $r)
+            <tr>
+                <td class="text-center">{{ $idx + 1 }}</td>
+                <td><strong>{{ $r['rombel'] }}</strong></td>
+                <td class="text-center">{{ $r['jumlah'] }}</td>
+                <td class="text-right">{{ number_format($r['rata_rata'], 2) }}</td>
+                <td class="text-right">{{ $r['tertinggi'] }}</td>
+                <td class="text-right">{{ $r['terendah'] }}</td>
+                <td class="text-center">{{ $r['lulus'] }}</td>
+                <td class="text-center">{{ $r['tidak_lulus'] }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+    @endif
+
     <table class="data-table">
+        <caption style="caption-side:top;text-align:left;font-weight:bold;font-size:14px;margin-bottom:6px;">
+            Detail Nilai Siswa
+        </caption>
         <thead>
             <tr>
                 <th width="5%" class="text-center">No</th>

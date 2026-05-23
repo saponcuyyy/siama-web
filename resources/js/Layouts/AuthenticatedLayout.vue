@@ -26,6 +26,7 @@ import {
     Video,
     MonitorPlay,
     BookOpen,
+    BarChart3,
 } from 'lucide-vue-next';
 
 const page = usePage();
@@ -90,12 +91,12 @@ const navigation = [
         icon: Calendar, 
         permission: 'jadwal.view' 
     },
-    { 
-        name: 'Nilai', 
-        href: '#', 
-        icon: FileSpreadsheet, 
-        permission: 'nilai.view' 
-    },
+            { 
+                name: 'Nilai', 
+                href: route('admin.ujian.nilai.index'), 
+                icon: FileSpreadsheet, 
+                permission: 'nilai.view' 
+            },
     { 
         name: 'Perpustakaan', 
         href: '#', 
@@ -142,6 +143,12 @@ const navigation = [
                 name: 'Sesi Ujian', 
                 href: route('admin.ujian.sesi.index'), 
                 icon: MonitorPlay, 
+                permission: 'ujian.sesi.manage' 
+            },
+            { 
+                name: 'Laporan Nilai', 
+                href: route('admin.ujian.laporan.index'), 
+                icon: BarChart3, 
                 permission: 'ujian.sesi.manage' 
             },
         ]

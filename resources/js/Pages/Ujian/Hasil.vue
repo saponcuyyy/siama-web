@@ -63,7 +63,7 @@ const nilaiBreakdown = [
                 <div class="p-5 md:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
                     <div>
                         <h3 class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Mata Pelajaran</h3>
-                        <p class="text-base md:text-xl font-black text-slate-900">{{ sesi.paket_ujian.mata_pelajaran?.nama }}</p>
+                        <p class="text-base md:text-xl font-black text-slate-900">{{ sesi.paket_ujian.mata_pelajaran?.nama || 'Mata Pelajaran' }}</p>
                     </div>
                     <div class="text-left sm:text-right">
                         <h3 class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Waktu Selesai</h3>

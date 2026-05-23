@@ -28,7 +28,8 @@ class DatabaseSeeder extends Seeder
         $tahun = \App\Models\TahunAjaran::create(['nama' => '2025/2026', 'is_active' => true]);
         $semester = \App\Models\Semester::create(['nama' => 'Ganjil', 'is_active' => true]);
         
-        $mapel = \App\Models\MataPelajaran::create(['nama' => 'Matematika', 'kode' => 'MTK']);
+        $this->call(MataPelajaranSeeder::class);
+        $mapel = \App\Models\MataPelajaran::where('kode', 'MTK')->where('tingkat', 'XII')->first();
         
         $userGuru = \App\Models\User::create([
             'name' => 'Budi Guru',

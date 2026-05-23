@@ -1,7 +1,8 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import SearchableSelect from '@/Components/SearchableSelect.vue';
 import { 
     Package, Plus, Search, Eye, FileText, Settings, X, Check, BookOpen
 } from 'lucide-vue-next';
@@ -11,6 +12,14 @@ const props = defineProps({
     filters: Object,
     mapelList: Array,
 });
+
+const mapelOptions = computed(() =>
+    props.mapelList.map(m => ({
+        value: m.id,
+        label: `${m.nama} (${m.kode}) — Kelas ${m.tingkat} ${m.jurusan || 'Umum'}`,
+        searchText: `${m.nama} ${m.kode} ${m.tingkat} ${m.jurusan || 'Umum'}`,
+    }))
+);
 
 const search = ref(props.filters.search || '');
 const showModal = ref(false);
@@ -165,10 +174,12 @@ const submitForm = () => {
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Mata Pelajaran</label>
-                            <select v-model="form.mata_pelajaran_id" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-indigo-600 focus:border-indigo-600">
-                                <option value="">-- Pilih Mata Pelajaran --</option>
-                                <option v-for="m in mapelList" :key="m.id" :value="m.id">{{ m.nama }} ({{ m.kode }})</option>
-                            </select>
+                            <SearchableSelect
+                                v-model="form.mata_pelajaran_id"
+                                :options="mapelOptions"
+                                placeholder="-- Cari & Pilih Mata Pelajaran --"
+                                search-keys="searchText"
+                            />
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">

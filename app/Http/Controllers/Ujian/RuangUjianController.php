@@ -24,6 +24,9 @@ class RuangUjianController extends Controller
             abort(403, 'Anda bukan siswa dan tidak memiliki akses ke halaman ujian ini.');
         }
         
+        \Illuminate\Support\Facades\Artisan::call('sesi:start-active');
+        \Illuminate\Support\Facades\Artisan::call('sesi:close-expired');
+        
         // Sesi aktif: siswa terdaftar peserta ATAU rombel siswa ditugaskan ke sesi ini
         $sesiAktif = SesiUjian::with('paketUjian.mataPelajaran')
             ->where(function ($q) use ($siswa) {

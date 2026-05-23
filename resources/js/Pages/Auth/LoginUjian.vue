@@ -11,504 +11,146 @@ const form = useForm({
 const showPassword = ref(false);
 
 const submit = () => {
-    form.post(route('login'), {
+    form.post(route('login', { context: 'ujian' }), {
         onFinish: () => form.reset('password'),
     });
 };
 </script>
 
 <template>
-    <Head title="Login - Portal Ujian CBT" />
+    <Head title="Login Ujian" />
 
-    <div class="exam-page">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
+    <div class="min-h-screen bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 flex items-center justify-center p-4 relative overflow-hidden">
+        <div class="absolute inset-0">
+            <div class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[128px]"></div>
+            <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[128px]"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-sky-500/5 rounded-full blur-[160px]"></div>
+        </div>
 
-        <div class="grid-pattern"></div>
-
-        <div class="exam-container">
-            <div class="exam-card">
-
-                <!-- Header -->
-                <div class="text-center mb-8 md:mb-10">
-                    <div class="badge-wrapper">
-                        <div class="badge-ring">
-                            <div class="badge-inner">
-                                <svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                                    <path d="m9 12 2 2 4-4" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <h1 class="text-2xl sm:text-3xl font-black text-white leading-tight mt-6 mb-1">
-                        Portal Ujian CBT
-                    </h1>
-                    <p class="text-sm font-medium text-slate-400">
-                        Masuk untuk mengakses ujian online
-                    </p>
+        <div class="w-full max-w-md relative">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full px-4 py-1.5 mb-6">
+                    <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                    <span class="text-xs font-medium text-emerald-300/80">Sistem Ujian Online</span>
                 </div>
 
-                <!-- Login Form -->
-                <form @submit.prevent="submit" class="space-y-5 md:space-y-6">
-                    <div class="space-y-2">
-                        <label class="input-label" for="email">Email / NISN</label>
+                <div class="w-16 h-16 mx-auto mb-5 relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-2xl rotate-6 opacity-60"></div>
+                    <div class="relative w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/25">
+                        <svg class="w-8 h-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+                        </svg>
+                    </div>
+                </div>
+
+                <h1 class="text-2xl font-bold text-white tracking-tight">CBT<span class="text-indigo-400">Online</span></h1>
+                <p class="text-slate-400 text-sm mt-1">Computer Based Test — Masuk ke ruang ujian</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-2xl shadow-black/30 p-8 relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500"></div>
+
+                <form @submit.prevent="submit" class="space-y-5 mt-1">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-[0.08em] mb-1.5" for="nisn">NISN</label>
                         <div class="relative group">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <svg class="w-4 h-4 md:w-5 md:h-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors"
-                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M22 12.75V12a10 10 0 1 0-4.5 8.43" />
-                                    <circle cx="12" cy="12" r="4" />
-                                    <path d="M22 13a2 2 0 0 0-4 0v4.25" />
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <svg class="w-4 h-4 text-slate-300 group-focus-within:text-indigo-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                                 </svg>
                             </div>
                             <input
-                                id="email"
+                                id="nisn"
                                 type="text"
                                 v-model="form.email"
-                                class="form-input"
+                                class="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 placeholder-slate-400 bg-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all"
                                 required
                                 autofocus
                                 autocomplete="username"
-                                placeholder="Masukkan Email atau NISN"
+                                placeholder="Masukkan NISN"
                             />
                         </div>
-                        <p v-if="form.errors.email" class="error-text">{{ form.errors.email }}</p>
+                        <p v-if="form.errors.email" class="text-red-500 text-xs mt-1.5">{{ form.errors.email }}</p>
                     </div>
 
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-center">
-                            <label class="input-label" for="password">Kata Sandi</label>
-                            <Link href="#" class="link-forgot">
-                                Lupa sandi?
-                            </Link>
-                        </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-[0.08em] mb-1.5" for="password">Tanggal Lahir</label>
                         <div class="relative group">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <svg class="w-4 h-4 md:w-5 md:h-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors"
-                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <svg class="w-4 h-4 text-slate-300 group-focus-within:text-indigo-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                                 </svg>
                             </div>
                             <input
                                 id="password"
                                 :type="showPassword ? 'text' : 'password'"
                                 v-model="form.password"
-                                class="form-input"
+                                class="w-full border border-slate-200 rounded-xl pl-10 pr-11 py-3 text-sm text-slate-900 placeholder-slate-400 bg-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all"
                                 required
                                 autocomplete="current-password"
-                                placeholder="••••••••"
+                                placeholder="DDMMYYYY*"
                             />
-                            <button
-                                type="button"
-                                @click="showPassword = !showPassword"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-cyan-400 transition-colors p-1"
-                            >
-                                <svg v-if="!showPassword" class="w-4 h-4 md:w-5 md:h-5"
-                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                                    <circle cx="12" cy="12" r="3" />
+                            <button type="button" @click="showPassword = !showPassword"
+                                class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors p-1">
+                                <svg v-if="!showPassword" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                 </svg>
-                                <svg v-else class="w-4 h-4 md:w-5 md:h-5"
-                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M9.88 9.88 2 2m7.88 7.88L2 2m7.88 7.88c.45.45.62.91.62 1.62 0 1.38-1.12 2.5-2.5 2.5-.71 0-1.17-.17-1.62-.62m-1.38-1.38L2 2m1.12 1.12C4.12 4.12 6.12 5 10 5c6.12 0 10 7 10 7a18.25 18.25 0 0 1-2.12 3.12m-3.88 3.88C12.12 19.88 11.12 20 10 20c-6.12 0-10-7-10-7a18.25 18.25 0 0 1 2.12-3.12M22 22 2 2" />
+                                <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
                                 </svg>
                             </button>
                         </div>
-                        <p v-if="form.errors.password" class="error-text">{{ form.errors.password }}</p>
+                        <p v-if="form.errors.password" class="text-red-500 text-xs mt-1.5">{{ form.errors.password }}</p>
                     </div>
 
-                    <!-- Remember -->
-                    <div class="flex items-center">
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <div class="relative flex items-center justify-center w-5 h-5">
+                    <div class="flex items-center justify-between pt-1">
+                        <label class="relative flex items-start cursor-pointer group">
+                            <div class="flex items-center h-5">
                                 <input type="checkbox" v-model="form.remember"
-                                    class="peer absolute inset-0 opacity-0 cursor-pointer" />
-                                <div
-                                    class="w-5 h-5 border-2 border-slate-600/60 rounded-lg bg-white/[0.04] peer-checked:bg-cyan-500 peer-checked:border-cyan-500 transition-all group-hover:border-cyan-500/40">
-                                </div>
-                                <svg class="absolute w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform pointer-events-none"
-                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="4" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <polyline points="20 6 9 17 4 12" />
-                                </svg>
+                                    class="w-4 h-4 text-indigo-600 border-slate-300 rounded-md focus:ring-indigo-500 focus:ring-offset-0 cursor-pointer transition-colors" />
                             </div>
-                            <span class="text-xs font-bold text-slate-400 group-hover:text-slate-300 transition-colors uppercase tracking-widest">
-                                Ingat Saya
-                            </span>
+                            <span class="ml-2 text-xs font-medium text-slate-500 group-hover:text-slate-700 transition-colors">Ingat Saya</span>
                         </label>
                     </div>
 
-                    <button type="submit" :disabled="form.processing" class="btn-submit">
-                        <span class="btn-submit-bg" />
-                        <span class="btn-submit-content">
-                            <template v-if="form.processing">
-                                <span class="spinner" />
-                                <span>Memproses...</span>
-                            </template>
-                            <template v-else>
-                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                                    <polyline points="10 17 15 12 10 7" />
-                                    <line x1="15" y1="12" x2="3" y2="12" />
-                                </svg>
-                                <span>Masuk ke Ujian</span>
-                            </template>
-                        </span>
+                    <button type="submit" :disabled="form.processing"
+                        class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl py-3 text-sm font-semibold shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 hover:from-indigo-500 hover:to-purple-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                        <svg v-if="!form.processing" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                        </svg>
+                        <span v-if="form.processing" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                        {{ form.processing ? 'Memproses...' : 'Masuk ke Ruang Ujian' }}
                     </button>
                 </form>
 
-                <!-- Help -->
-                <div class="help-box">
-                    <p class="help-title">Akses Ujian CBT</p>
-                    <p class="help-text">
-                        Gunakan akun SIAMA (Email/NISN dan Password) yang telah terdaftar. Jika mengalami kendala, hubungi pengawas atau Tim IT sekolah.
-                    </p>
+                <div class="mt-7 pt-5 border-t border-slate-100">
+                    <div class="flex items-center justify-center gap-5 text-xs text-slate-400">
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                            Terjadwal
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                            Real-time
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                            </svg>
+                            Aman
+                        </span>
+                    </div>
                 </div>
 
-                <!-- Back -->
-                <div class="text-center mt-6">
-                    <Link href="/" class="text-xs font-bold text-slate-500 hover:text-cyan-400 transition-colors">
-                        &larr; Kembali ke Beranda
-                    </Link>
-                </div>
+                <p class="text-center text-xs text-slate-300 mt-5">
+                    &copy; {{ new Date().getFullYear() }} SMA Negeri 2 Perbaungan
+                </p>
             </div>
-
-            <p class="footer-text">
-                &copy; {{ new Date().getFullYear() }} SMA Negeri 2 Perbaungan
-            </p>
         </div>
     </div>
 </template>
-
-<style scoped>
-/* ===== BASE ===== */
-.exam-page {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #050a18 0%, #0a1628 30%, #0f1f3d 60%, #0a1628 100%);
-    position: relative;
-    overflow: hidden;
-    font-family: 'Inter', 'Segoe UI', sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem;
-}
-
-/* ===== GRID ===== */
-.grid-pattern {
-    position: fixed;
-    inset: 0;
-    background-image:
-        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-    background-size: 48px 48px;
-    pointer-events: none;
-    z-index: 0;
-    mask-image: radial-gradient(ellipse 60% 50% at center, black 30%, transparent 70%);
-    -webkit-mask-image: radial-gradient(ellipse 60% 50% at center, black 30%, transparent 70%);
-}
-
-/* ===== ORBS ===== */
-.orb {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(100px);
-    pointer-events: none;
-    z-index: 0;
-}
-.orb-1 {
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(6, 182, 212, 0.15), transparent);
-    top: -200px; right: -100px;
-    animation: float1 12s ease-in-out infinite;
-}
-.orb-2 {
-    width: 500px; height: 500px;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.12), transparent);
-    bottom: -150px; left: -150px;
-    animation: float2 10s ease-in-out infinite;
-}
-.orb-3 {
-    width: 400px; height: 400px;
-    background: radial-gradient(circle, rgba(245, 158, 11, 0.06), transparent);
-    top: 40%; left: 60%;
-    animation: float3 15s ease-in-out infinite;
-}
-
-@keyframes float1 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(-40px, 30px) scale(1.05); }
-    66% { transform: translate(20px, -20px) scale(0.95); }
-}
-@keyframes float2 {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(30px, -40px); }
-}
-@keyframes float3 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(-20px, 20px) scale(1.1); }
-}
-
-/* ===== CONTAINER & CARD ===== */
-.exam-container {
-    position: relative;
-    z-index: 10;
-    width: 100%;
-    max-width: 440px;
-    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.exam-card {
-    background: rgba(15, 23, 42, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 28px;
-    padding: 2.25rem 1.75rem;
-    box-shadow:
-        0 25px 60px -12px rgba(0, 0, 0, 0.6),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-}
-
-/* ===== BADGE ===== */
-.badge-wrapper {
-    display: flex;
-    justify-content: center;
-}
-.badge-ring {
-    width: 80px; height: 80px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.5), rgba(6, 182, 212, 0.1), rgba(6, 182, 212, 0.4));
-    padding: 2px;
-    animation: badgePulse 3s ease-in-out infinite;
-    box-shadow: 0 0 30px rgba(6, 182, 212, 0.15);
-}
-.badge-inner {
-    width: 100%; height: 100%;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #0f172a, #1e293b);
-    display: flex; align-items: center; justify-content: center;
-}
-.badge-icon {
-    width: 36px; height: 36px;
-    color: #22d3ee;
-}
-
-@keyframes badgePulse {
-    0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.1), 0 0 40px rgba(6, 182, 212, 0.05); }
-    50% { box-shadow: 0 0 30px rgba(6, 182, 212, 0.25), 0 0 60px rgba(6, 182, 212, 0.1); }
-}
-
-/* ===== FORM ===== */
-.input-label {
-    font-size: 0.6875rem;
-    font-weight: 700;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-}
-
-.form-input {
-    display: block;
-    width: 100%;
-    padding: 0.875rem 1rem 0.875rem 2.75rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #f1f5f9;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1.5px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    outline: none;
-    transition: all 0.2s ease;
-    caret-color: #22d3ee;
-}
-.form-input::placeholder {
-    color: #475569;
-}
-.form-input:focus {
-    border-color: rgba(6, 182, 212, 0.5);
-    background: rgba(6, 182, 212, 0.06);
-    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
-}
-
-.error-text {
-    margin-top: 0.375rem;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    color: #fb7185;
-}
-
-.link-forgot {
-    font-size: 0.625rem;
-    font-weight: 800;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    transition: color 0.2s;
-}
-.link-forgot:hover {
-    color: #22d3ee;
-}
-
-/* ===== SUBMIT BUTTON ===== */
-.btn-submit {
-    position: relative;
-    width: 100%;
-    border: none;
-    border-radius: 14px;
-    padding: 0;
-    cursor: pointer;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    background: linear-gradient(135deg, #0891b2, #06b6d4);
-    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.25);
-}
-.btn-submit:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(6, 182, 212, 0.35);
-}
-.btn-submit:active:not(:disabled) {
-    transform: translateY(0);
-}
-.btn-submit:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background: #334155;
-    box-shadow: none;
-}
-.btn-submit:focus-visible {
-    outline: 2px solid #22d3ee;
-    outline-offset: 2px;
-}
-
-.btn-submit-bg {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0), rgba(255,255,255,0.08));
-    transition: opacity 0.3s;
-}
-.btn-submit:hover:not(:disabled) .btn-submit-bg {
-    opacity: 0;
-}
-
-.btn-submit-content {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.625rem;
-    padding: 0.9rem 1.5rem;
-    font-size: 0.9375rem;
-    font-weight: 800;
-    color: white;
-    letter-spacing: 0.02em;
-}
-
-.spinner {
-    width: 1.125rem;
-    height: 1.125rem;
-    border: 2.5px solid rgba(255, 255, 255, 0.25);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* ===== HELP ===== */
-.help-box {
-    margin-top: 1.5rem;
-    text-align: center;
-    padding: 1rem 1.25rem;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.04);
-    border-radius: 14px;
-}
-
-.help-title {
-    font-size: 0.5625rem;
-    font-weight: 800;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    margin-bottom: 0.375rem;
-}
-
-.help-text {
-    font-size: 0.6875rem;
-    color: #64748b;
-    font-weight: 500;
-    line-height: 1.6;
-}
-
-/* ===== FOOTER ===== */
-.footer-text {
-    text-align: center;
-    margin-top: 1.75rem;
-    font-size: 0.5625rem;
-    font-weight: 700;
-    color: #334155;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (min-width: 640px) {
-    .exam-card {
-        padding: 2.5rem 2.25rem;
-        border-radius: 32px;
-    }
-    .badge-ring {
-        width: 88px; height: 88px;
-    }
-    .badge-icon {
-        width: 40px; height: 40px;
-    }
-}
-
-@media (min-width: 768px) {
-    .exam-container {
-        max-width: 480px;
-    }
-    .exam-card {
-        padding: 2.75rem 2.5rem;
-    }
-    .form-input {
-        padding: 1rem 1rem 1rem 3rem;
-    }
-}
-
-@media (max-width: 380px) {
-    .exam-card {
-        padding: 1.5rem 1.25rem;
-        border-radius: 20px;
-    }
-    .badge-ring {
-        width: 68px; height: 68px;
-    }
-    .badge-icon {
-        width: 30px; height: 30px;
-    }
-}
-</style>

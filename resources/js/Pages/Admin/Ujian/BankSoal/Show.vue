@@ -133,6 +133,32 @@ const tambahPasangan = () => {
 const hapusPasangan = (index) => {
     form.pasangan.splice(index, 1);
 };
+
+// ─── Edit Bobot Inline ───────────────────────────
+const editingBobotId = ref(null);
+const editBobotValue = ref(1);
+
+const startEditBobot = (soal) => {
+    editingBobotId.value = soal.id;
+    editBobotValue.value = soal.bobot;
+};
+
+const cancelEditBobot = () => {
+    editingBobotId.value = null;
+};
+
+const saveBobot = (soal) => {
+    if (editBobotValue.value <= 0) return;
+    
+    router.put(route('admin.ujian.soal.update-bobot', soal.hashid), {
+        bobot: editBobotValue.value
+    }, {
+        preserveScroll: true,
+        onSuccess: () => {
+            editingBobotId.value = null;
+        }
+    });
+};
 </script>
 
 <template>
@@ -201,7 +227,17 @@ const hapusPasangan = (index) => {
                                 <span class="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider rounded-md border border-slate-200">
                                     {{ soal.tipe.replace('_', ' ') }}
                                 </span>
-                                <span class="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider rounded-md border border-slate-200">
+                                
+                                <div v-if="editingBobotId === soal.id" class="flex items-center gap-1">
+                                    <input type="number" v-model="editBobotValue" min="0.1" step="0.1" class="w-16 px-2 py-0.5 text-xs font-bold border border-indigo-300 rounded focus:ring-indigo-500 focus:border-indigo-500">
+                                    <button @click="saveBobot(soal)" class="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
+                                        <Check class="w-3.5 h-3.5" />
+                                    </button>
+                                    <button @click="cancelEditBobot" class="p-1 text-rose-500 hover:bg-rose-50 rounded">
+                                        <X class="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                                <span v-else @click="startEditBobot(soal)" class="cursor-pointer px-2.5 py-1 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-bold uppercase tracking-wider rounded-md border border-indigo-200 transition-colors" title="Klik untuk mengubah bobot">
                                     Bobot: {{ soal.bobot }}
                                 </span>
                             </div>
@@ -431,6 +467,7 @@ const hapusPasangan = (index) => {
                             <li>Gunakan penanda <strong>[A], [B], [C], [D], [E]</strong> untuk pilihan ganda.</li>
                             <li>Gunakan penanda <strong>[KUNCI]</strong> untuk kunci jawaban.</li>
                             <li>Gunakan penanda <strong>[TIPE]</strong> untuk jenis soal (pg, benar_salah, essay, menjodohkan).</li>
+                            <li>Gunakan penanda <strong>[BOBOT]</strong> untuk menentukan nilai/bobot masing-masing soal.</li>
                         </ul>
                         <a :href="route('admin.ujian.soal.template.word')" target="_blank" class="text-indigo-600 hover:underline font-bold inline-flex items-center mt-2">
                             <FileText class="w-4 h-4 mr-1" /> Download Template Word

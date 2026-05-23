@@ -26,7 +26,7 @@ class BankSoalController extends Controller
         return Inertia::render('Admin/Ujian/BankSoal/Index', [
             'bankSoalList' => $query->paginate(15)->withQueryString(),
             'filters'      => $request->only('search'),
-            'mapelList'    => MataPelajaran::select('id', 'nama', 'kode')->get(),
+            'mapelList'    => MataPelajaran::select('id', 'nama', 'kode', 'tingkat', 'jurusan')->get(),
         ]);
     }
 

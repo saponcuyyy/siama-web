@@ -52,8 +52,18 @@ const formatTime = (date) => {
     return new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(date);
 };
 
+const perPage = ref(props.peserta?.per_page || 10);
+
 const goToPage = (page) => {
-    router.get(route('admin.ujian.sesi.monitor', props.sesi.hashid), { page }, {
+    router.get(route('admin.ujian.sesi.monitor', props.sesi.hashid), { page, per_page: perPage.value }, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
+
+const changePerPage = (val) => {
+    perPage.value = val;
+    router.get(route('admin.ujian.sesi.monitor', props.sesi.hashid), { per_page: val }, {
         preserveState: true,
         preserveScroll: true,
     });
@@ -281,17 +291,29 @@ const confirmDiskualifikasi = () => {
                 </div>
 
                 <!-- Pagination -->
-                <div v-if="peserta.meta?.last_page > 1" class="p-4 border-t border-slate-100 flex items-center justify-between gap-4">
-                    <div class="text-xs font-medium text-slate-500">
-                        Menampilkan {{ peserta.meta.from }} &ndash; {{ peserta.meta.to }} dari {{ peserta.meta.total }} peserta
+                <div class="p-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="text-xs font-medium text-slate-500">
+                            Menampilkan {{ peserta.from }} &ndash; {{ peserta.to }} dari {{ peserta.total }} peserta
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <label class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider" for="perPage">Tampil</label>
+                            <select id="perPage" :value="perPage" @change="changePerPage(Number($event.target.value))"
+                                class="text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer">
+                                <option :value="10">10</option>
+                                <option :value="25">25</option>
+                                <option :value="50">50</option>
+                                <option :value="100">100</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                        <button @click="goToPage(peserta.meta.current_page - 1)" :disabled="!peserta.meta.prev_page_url"
+                    <div v-if="peserta?.last_page > 1" class="flex items-center gap-1.5">
+                        <button @click="goToPage(peserta.current_page - 1)" :disabled="!peserta.prev_page_url"
                             class="p-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                            :class="peserta.meta.prev_page_url ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-300'">
+                            :class="peserta.prev_page_url ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-300'">
                             <ChevronLeft class="w-4 h-4" />
                         </button>
-                        <template v-for="link in peserta.meta.links" :key="link.label">
+                        <template v-for="link in peserta.links" :key="link.label">
                             <button v-if="link.url && !isNaN(link.label)"
                                 @click="goToPage(link.label)"
                                 class="min-w-[32px] h-8 px-2 rounded-lg text-xs font-bold transition-colors"
@@ -299,9 +321,9 @@ const confirmDiskualifikasi = () => {
                                 v-html="link.label"
                             />
                         </template>
-                        <button @click="goToPage(peserta.meta.current_page + 1)" :disabled="!peserta.meta.next_page_url"
+                        <button @click="goToPage(peserta.current_page + 1)" :disabled="!peserta.next_page_url"
                             class="p-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                            :class="peserta.meta.next_page_url ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-300'">
+                            :class="peserta.next_page_url ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-300'">
                             <ChevronRight class="w-4 h-4" />
                         </button>
                     </div>

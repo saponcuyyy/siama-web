@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { BookOpen, Plus, Search, Pencil, Trash2, X, Check, AlertTriangle, BookMarked } from 'lucide-vue-next';
+import { BookOpen, Plus, Search, Pencil, Trash2, X, Check, AlertTriangle, BookMarked, Filter } from 'lucide-vue-next';
 
 const props = defineProps({
     mapelList: Object,
@@ -10,16 +10,23 @@ const props = defineProps({
 });
 
 const search = ref(props.filters.search || '');
+const filterTingkat = ref(props.filters.tingkat || '');
+const filterJurusan = ref(props.filters.jurusan || '');
+
+const tingkatList = ['X', 'XI', 'XII'];
+const jurusanList = ['IPA', 'IPS'];
 
 // ─── Create Modal ──────────────────────────────
 const showCreateModal = ref(false);
-const createForm = useForm({ nama: '', kode: '' });
+const createForm = useForm({ nama: '', kode: '', tingkat: 'X', jurusan: '' });
 
 const submitCreate = () => {
     createForm.post(route('admin.ujian.mata-pelajaran.store'), {
         onSuccess: () => {
             showCreateModal.value = false;
             createForm.reset();
+            createForm.tingkat = 'X';
+            createForm.jurusan = '';
         },
     });
 };
@@ -27,12 +34,14 @@ const submitCreate = () => {
 // ─── Edit Modal ────────────────────────────────
 const showEditModal = ref(false);
 const editTarget = ref(null);
-const editForm = useForm({ nama: '', kode: '' });
+const editForm = useForm({ nama: '', kode: '', tingkat: '', jurusan: '' });
 
 const openEdit = (mapel) => {
     editTarget.value = mapel;
     editForm.nama = mapel.nama;
     editForm.kode = mapel.kode;
+    editForm.tingkat = mapel.tingkat;
+    editForm.jurusan = mapel.jurusan || '';
     showEditModal.value = true;
 };
 
@@ -66,20 +75,33 @@ const confirmDelete = () => {
     });
 };
 
-// ─── Search ────────────────────────────────────
+// ─── Search & Filter ───────────────────────────
 const handleSearch = () => {
-    router.get(route('admin.ujian.mata-pelajaran.index'), { search: search.value }, {
+    router.get(route('admin.ujian.mata-pelajaran.index'), {
+        search: search.value,
+        tingkat: filterTingkat.value,
+        jurusan: filterJurusan.value,
+    }, {
         preserveState: true,
         replace: true,
     });
 };
+
+const clearFilters = () => {
+    search.value = '';
+    filterTingkat.value = '';
+    filterJurusan.value = '';
+    handleSearch();
+};
+
+const hasActiveFilters = computed(() => search.value || filterTingkat.value || filterJurusan.value);
 </script>
 
 <template>
     <Head title="Mata Pelajaran" />
 
     <AuthenticatedLayout>
-        <div class="max-w-5xl mx-auto space-y-6">
+        <div class="max-w-6xl mx-auto space-y-6">
 
             <!-- Header -->
             <div class="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
@@ -88,7 +110,7 @@ const handleSearch = () => {
                         <BookOpen class="w-7 h-7 text-indigo-600" />
                         Mata Pelajaran
                     </h1>
-                    <p class="text-slate-500 font-medium mt-1">Kelola daftar mata pelajaran yang tersedia di sistem.</p>
+                    <p class="text-slate-500 font-medium mt-1">Kelola daftar mata pelajaran per kelas dan per jurusan.</p>
                 </div>
                 <button
                     @click="showCreateModal = true"
@@ -98,9 +120,9 @@ const handleSearch = () => {
                 </button>
             </div>
 
-            <!-- Search -->
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex gap-3 items-center">
-                <div class="relative flex-1 max-w-sm">
+            <!-- Search & Filter -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap gap-3 items-center">
+                <div class="relative flex-1 min-w-[200px] max-w-sm">
                     <input
                         type="text"
                         v-model="search"
@@ -110,8 +132,31 @@ const handleSearch = () => {
                     >
                     <Search class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                 </div>
+                <select
+                    v-model="filterTingkat"
+                    @change="handleSearch"
+                    class="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:ring-indigo-600 focus:border-indigo-600"
+                >
+                    <option value="">Semua Kelas</option>
+                    <option v-for="t in tingkatList" :key="t" :value="t">Kelas {{ t }}</option>
+                </select>
+                <select
+                    v-model="filterJurusan"
+                    @change="handleSearch"
+                    class="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:ring-indigo-600 focus:border-indigo-600"
+                >
+                    <option value="">Semua Jurusan</option>
+                    <option v-for="j in jurusanList" :key="j" :value="j">{{ j }}</option>
+                </select>
                 <button @click="handleSearch" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-700 text-white text-sm font-bold rounded-xl transition-colors">
-                    Cari
+                    <Search class="w-4 h-4" />
+                </button>
+                <button
+                    v-if="hasActiveFilters"
+                    @click="clearFilters"
+                    class="px-3 py-2.5 text-sm font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+                >
+                    <X class="w-4 h-4" />
                 </button>
             </div>
 
@@ -124,6 +169,8 @@ const handleSearch = () => {
                                 <th class="p-4 pl-6 w-8">#</th>
                                 <th class="p-4">Kode</th>
                                 <th class="p-4">Nama Mata Pelajaran</th>
+                                <th class="p-4 text-center">Kelas</th>
+                                <th class="p-4 text-center">Jurusan</th>
                                 <th class="p-4 text-center">Bank Soal</th>
                                 <th class="p-4 text-center">Paket Ujian</th>
                                 <th class="p-4 pr-6 text-right">Aksi</th>
@@ -150,6 +197,26 @@ const handleSearch = () => {
                                         </div>
                                         <span class="font-bold text-slate-900">{{ mapel.nama }}</span>
                                     </div>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <span v-if="mapel.tingkat" class="px-2.5 py-1 text-xs font-black rounded-lg border"
+                                        :class="{
+                                            'bg-purple-50 text-purple-700 border-purple-100': mapel.tingkat === 'X',
+                                            'bg-sky-50 text-sky-700 border-sky-100': mapel.tingkat === 'XI',
+                                            'bg-emerald-50 text-emerald-700 border-emerald-100': mapel.tingkat === 'XII',
+                                        }"
+                                    >
+                                        {{ mapel.tingkat }}
+                                    </span>
+                                    <span v-else class="text-slate-400 text-xs">-</span>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <span v-if="mapel.jurusan" class="px-2.5 py-1 bg-amber-50 text-amber-700 font-black text-xs rounded-lg border border-amber-100">
+                                        {{ mapel.jurusan }}
+                                    </span>
+                                    <span v-else class="px-2.5 py-1 bg-slate-100 text-slate-500 font-bold text-xs rounded-lg">
+                                        Umum
+                                    </span>
                                 </td>
                                 <td class="p-4 text-center">
                                     <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-black text-xs rounded-lg border border-emerald-100">
@@ -181,10 +248,10 @@ const handleSearch = () => {
                                 </td>
                             </tr>
                             <tr v-if="mapelList.data.length === 0">
-                                <td colspan="6" class="p-12 text-center">
+                                <td colspan="8" class="p-12 text-center">
                                     <BookOpen class="w-12 h-12 text-slate-300 mx-auto mb-3" />
                                     <p class="text-slate-500 font-bold">Tidak ada mata pelajaran ditemukan.</p>
-                                    <p class="text-slate-400 text-sm mt-1">Mulai dengan menambahkan mata pelajaran baru.</p>
+                                    <p class="text-slate-400 text-sm mt-1">Sesuaikan filter atau tambahkan mata pelajaran baru.</p>
                                 </td>
                             </tr>
                         </tbody>
@@ -253,7 +320,40 @@ const handleSearch = () => {
                             :class="createForm.errors.kode ? 'border-rose-400 bg-rose-50' : 'border-slate-200'"
                         >
                         <p v-if="createForm.errors.kode" class="text-rose-600 text-xs font-bold mt-1.5">{{ createForm.errors.kode }}</p>
-                        <p class="text-slate-400 text-xs mt-1.5">Kode harus unik dan tidak boleh sama dengan mata pelajaran lain.</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">
+                                Kelas <span class="text-rose-500">*</span>
+                            </label>
+                            <select
+                                v-model="createForm.tingkat"
+                                required
+                                class="w-full px-4 py-2.5 bg-slate-50 border rounded-xl focus:ring-indigo-600 focus:border-indigo-600 font-medium transition-colors"
+                                :class="createForm.errors.tingkat ? 'border-rose-400 bg-rose-50' : 'border-slate-200'"
+                            >
+                                <option value="X">X</option>
+                                <option value="XI">XI</option>
+                                <option value="XII">XII</option>
+                            </select>
+                            <p v-if="createForm.errors.tingkat" class="text-rose-600 text-xs font-bold mt-1.5">{{ createForm.errors.tingkat }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">
+                                Jurusan
+                            </label>
+                            <select
+                                v-model="createForm.jurusan"
+                                class="w-full px-4 py-2.5 bg-slate-50 border rounded-xl focus:ring-indigo-600 focus:border-indigo-600 font-medium transition-colors"
+                                :class="createForm.errors.jurusan ? 'border-rose-400 bg-rose-50' : 'border-slate-200'"
+                            >
+                                <option value="">Umum</option>
+                                <option value="IPA">IPA</option>
+                                <option value="IPS">IPS</option>
+                            </select>
+                            <p v-if="createForm.errors.jurusan" class="text-rose-600 text-xs font-bold mt-1.5">{{ createForm.errors.jurusan }}</p>
+                        </div>
                     </div>
 
                     <div class="flex gap-3 pt-2">
@@ -325,6 +425,40 @@ const handleSearch = () => {
                             :class="editForm.errors.kode ? 'border-rose-400 bg-rose-50' : 'border-slate-200'"
                         >
                         <p v-if="editForm.errors.kode" class="text-rose-600 text-xs font-bold mt-1.5">{{ editForm.errors.kode }}</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">
+                                Kelas <span class="text-rose-500">*</span>
+                            </label>
+                            <select
+                                v-model="editForm.tingkat"
+                                required
+                                class="w-full px-4 py-2.5 bg-slate-50 border rounded-xl focus:ring-indigo-600 focus:border-indigo-600 font-medium transition-colors"
+                                :class="editForm.errors.tingkat ? 'border-rose-400 bg-rose-50' : 'border-slate-200'"
+                            >
+                                <option value="X">X</option>
+                                <option value="XI">XI</option>
+                                <option value="XII">XII</option>
+                            </select>
+                            <p v-if="editForm.errors.tingkat" class="text-rose-600 text-xs font-bold mt-1.5">{{ editForm.errors.tingkat }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">
+                                Jurusan
+                            </label>
+                            <select
+                                v-model="editForm.jurusan"
+                                class="w-full px-4 py-2.5 bg-slate-50 border rounded-xl focus:ring-indigo-600 focus:border-indigo-600 font-medium transition-colors"
+                                :class="editForm.errors.jurusan ? 'border-rose-400 bg-rose-50' : 'border-slate-200'"
+                            >
+                                <option value="">Umum</option>
+                                <option value="IPA">IPA</option>
+                                <option value="IPS">IPS</option>
+                            </select>
+                            <p v-if="editForm.errors.jurusan" class="text-rose-600 text-xs font-bold mt-1.5">{{ editForm.errors.jurusan }}</p>
+                        </div>
                     </div>
 
                     <div class="flex gap-3 pt-2">

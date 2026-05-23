@@ -25,7 +25,7 @@ class PaketUjianController extends Controller
         return Inertia::render('Admin/Ujian/Paket/Index', [
             'paketList' => $query->paginate(15)->withQueryString(),
             'filters'  => $request->only('search'),
-            'mapelList' => MataPelajaran::select('id', 'nama', 'kode')->get(),
+            'mapelList' => MataPelajaran::select('id', 'nama', 'kode', 'tingkat', 'jurusan')->get(),
         ]);
     }
 
