@@ -20,168 +20,121 @@ const submit = () => {
 <template>
     <Head title="Login Ujian" />
 
-    <div class="h-screen w-screen bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 flex items-center justify-center p-2 sm:p-3 relative overflow-hidden select-none">
-        <div class="absolute inset-0 overflow-hidden pointer-events-none">
-            <div class="absolute -top-24 -left-24 w-64 h-64 md:w-96 md:h-96 bg-indigo-500/10 rounded-full blur-[128px]"></div>
-            <div class="absolute -bottom-24 -right-24 w-64 h-64 md:w-96 md:h-96 bg-purple-500/10 rounded-full blur-[128px]"></div>
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] md:w-[500px] md:h-[500px] bg-sky-500/5 rounded-full blur-[160px]"></div>
-            <div class="absolute top-10 left-10 w-20 h-20 border border-indigo-400/10 rounded-full"></div>
-            <div class="absolute bottom-10 right-10 w-32 h-32 border border-purple-400/10 rounded-full"></div>
+    <div class="h-[100dvh] w-screen flex flex-col items-center justify-center bg-slate-950 relative overflow-hidden select-none px-4 sm:px-6">
+        <!-- Abstract Background Effects -->
+        <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-[-10%] left-[20%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] bg-indigo-600/20 blur-[100px] rounded-full"></div>
+            <div class="absolute bottom-[-10%] right-[10%] w-[60vw] h-[60vw] max-w-[700px] max-h-[700px] bg-purple-800/20 blur-[120px] rounded-full"></div>
+            <!-- Subtle Grid -->
+            <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0wIDAuNWg0ME0wIDQwLjVoNDBWMHptMzkuNSAwaDFWMHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAyKSIvPjwvc3ZnPg==')]"></div>
         </div>
 
-        <div class="w-full max-w-sm relative z-10">
-            <div class="text-center mb-2 sm:mb-3">
-                <div class="inline-flex items-center gap-1.5 bg-white/5 backdrop-blur-sm border border-white/[0.08] rounded-full px-3 py-1 mb-2 sm:mb-3">
-                    <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.717 50.717 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
-                    </svg>
-                    <span class="text-[10px] sm:text-[11px] font-semibold text-emerald-300/80 tracking-wide">Sistem Ujian Online</span>
+        <!-- Main Container -->
+        <div class="w-full max-w-[340px] relative z-10 flex flex-col">
+            
+            <!-- Branding Header -->
+            <div class="flex flex-col items-center mb-6">
+                <div class="w-16 h-16 bg-white/5 rounded-2xl p-3 backdrop-blur-md border border-white/10 shadow-2xl mb-4">
+                    <img src="/images/logo.png" alt="Logo SMAN 2 Perbaungan" class="w-full h-full object-contain drop-shadow-lg" />
                 </div>
-
-                <div class="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-1.5 sm:mb-2 relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-xl rotate-6 opacity-60"></div>
-                    <div class="relative w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/25">
-                        <svg class="w-7 h-7 sm:w-8 sm:h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.717 50.717 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
-                        </svg>
-                    </div>
+                <h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                    CBT <span class="text-indigo-400">Siama</span>
+                </h1>
+                <div class="inline-flex items-center gap-1.5 mt-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-2.5 py-0.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+                    <span class="text-[10px] font-bold text-indigo-300 uppercase tracking-widest">Ruang Ujian</span>
                 </div>
-
-                <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight">CBT<span class="text-indigo-400">Online</span></h1>
-                <p class="text-slate-400 text-[11px] sm:text-xs mt-0.5 font-medium">Computer Based Test — Masuk ke ruang ujian</p>
             </div>
 
-            <div class="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl shadow-black/30 p-4 sm:p-5 relative">
-                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 rounded-t-xl"></div>
-
-                <form @submit.prevent="submit" class="space-y-3 sm:space-y-3.5 mt-1">
+            <!-- Form Card -->
+            <form @submit.prevent="submit" class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-5 sm:p-6 shadow-2xl shadow-black/50">
+                <div class="space-y-4">
+                    <!-- NISN Input -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1" for="nisn">
-                            NISN
-                            <span class="text-red-400 ml-0.5">*</span>
-                        </label>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1" for="email">NISN</label>
                         <div class="relative group">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                                 </svg>
                             </div>
                             <input
-                                id="nisn"
+                                id="email"
                                 type="text"
                                 v-model="form.email"
-                                class="w-full border border-slate-200 rounded-lg pl-9 pr-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 bg-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                                class="w-full bg-black/20 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
                                 required
                                 autofocus
                                 autocomplete="username"
-                                placeholder="Masukkan NISN"
+                                placeholder="Nomor Induk Siswa"
                             />
-                            <div v-if="form.email" class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                </svg>
-                            </div>
                         </div>
-                        <p v-if="form.errors.email" class="text-red-500 text-[11px] font-medium mt-1 flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-                            </svg>
-                            {{ form.errors.email }}
-                        </p>
+                        <p v-if="form.errors.email" class="text-rose-400 text-[10px] font-bold mt-1.5 ml-1">{{ form.errors.email }}</p>
                     </div>
 
+                    <!-- Password/DOB Input -->
                     <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <label class="text-xs font-bold text-slate-700" for="password">
-                                Tanggal Lahir
-                                <span class="text-red-400 ml-0.5">*</span>
-                            </label>
-                            <span class="text-[10px] text-slate-400 font-medium italic">(DDMMYYYY)</span>
+                        <div class="flex justify-between items-center mb-1.5 ml-1 mr-1">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest" for="password">Tanggal Lahir</label>
+                            <span class="text-[9px] text-slate-500 font-bold tracking-widest">DDMMYYYY</span>
                         </div>
                         <div class="relative group">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                                 </svg>
                             </div>
                             <input
                                 id="password"
                                 :type="showPassword ? 'text' : 'password'"
                                 v-model="form.password"
-                                class="w-full border border-slate-200 rounded-lg pl-9 pr-10 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 bg-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                                class="w-full bg-black/20 border border-white/10 rounded-xl pl-10 pr-10 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all tracking-widest font-medium"
                                 required
                                 autocomplete="current-password"
                                 placeholder="12012010"
                                 maxlength="8"
                             />
-                            <button type="button" @click="showPassword = !showPassword"
-                                class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-md hover:bg-slate-100">
-                                <svg v-if="!showPassword" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-white transition-colors">
+                                <svg v-if="!showPassword" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                 </svg>
-                                <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
                                 </svg>
                             </button>
                         </div>
-                        <p v-if="form.errors.password" class="text-red-500 text-[11px] font-medium mt-1 flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-                            </svg>
-                            {{ form.errors.password }}
-                        </p>
+                        <p v-if="form.errors.password" class="text-rose-400 text-[10px] font-bold mt-1.5 ml-1">{{ form.errors.password }}</p>
                     </div>
 
-                    <div class="flex items-center justify-between pt-1">
-                        <label class="relative flex items-center cursor-pointer select-none">
-                            <input type="checkbox" v-model="form.remember"
-                                class="sr-only peer" />
-                            <div class="w-4 h-4 border-2 border-slate-300 rounded-md peer-checked:bg-indigo-600 peer-checked:border-indigo-600 transition-all peer-focus:ring-2 peer-focus:ring-indigo-500/30 peer-focus:ring-offset-0"></div>
-                            <svg class="absolute w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform pointer-events-none left-0.5 top-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span class="ml-2 text-xs font-medium text-slate-500 peer-checked:text-slate-700 transition-colors">Ingat Saya</span>
+                    <!-- Remember Me -->
+                    <div class="flex items-center pt-1.5 pb-1">
+                        <label class="flex items-center gap-2 cursor-pointer group w-fit">
+                            <div class="relative flex items-center justify-center w-4 h-4">
+                                <input type="checkbox" v-model="form.remember" class="peer absolute inset-0 opacity-0 cursor-pointer" />
+                                <div class="w-4 h-4 border border-slate-600 rounded bg-black/20 peer-checked:bg-indigo-500 peer-checked:border-indigo-500 transition-colors group-hover:border-indigo-400"></div>
+                                <svg class="absolute w-2.5 h-2.5 text-white scale-0 peer-checked:scale-100 transition-transform pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                            <span class="text-[11px] font-bold text-slate-400 group-hover:text-slate-200 transition-colors uppercase tracking-widest">Ingat Saya</span>
                         </label>
                     </div>
 
+                    <!-- Action Button -->
                     <button type="submit" :disabled="form.processing"
-                        class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg py-2.5 text-sm font-bold shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:from-indigo-500 hover:to-purple-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                        <svg v-if="!form.processing" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-xl py-3.5 text-xs font-black uppercase tracking-[0.15em] shadow-lg shadow-indigo-600/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2 border border-indigo-500/50">
+                        <svg v-if="!form.processing" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
                         </svg>
                         <span v-if="form.processing" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                        {{ form.processing ? 'Memproses...' : 'Masuk ke Ruang Ujian' }}
+                        {{ form.processing ? 'Memproses...' : 'Masuk Ujian' }}
                     </button>
-                </form>
-
-                <div class="mt-3 pt-3 border-t border-slate-100">
-                    <div class="grid grid-cols-3 gap-2 text-[10px] text-slate-400">
-                        <div class="flex items-center justify-center gap-1.5 py-1 px-2 rounded-md bg-slate-50/50">
-                            <svg class="w-3 h-3 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                            </svg>
-                            <span class="font-medium">Terjadwal</span>
-                        </div>
-                        <div class="flex items-center justify-center gap-1.5 py-1 px-2 rounded-md bg-slate-50/50">
-                            <svg class="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                            </svg>
-                            <span class="font-medium">Real-time</span>
-                        </div>
-                        <div class="flex items-center justify-center gap-1.5 py-1 px-2 rounded-md bg-slate-50/50">
-                            <svg class="w-3 h-3 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-                            </svg>
-                            <span class="font-medium">Aman</span>
-                        </div>
-                    </div>
                 </div>
+            </form>
 
-                <p class="text-center text-[10px] text-slate-400 mt-2">
-                    &copy; {{ new Date().getFullYear() }} SMA Negeri 2 Perbaungan
-                </p>
-            </div>
+            <p class="text-center text-[10px] text-slate-500 mt-6 font-bold uppercase tracking-widest">
+                &copy; {{ new Date().getFullYear() }} SMAN 2 Perbaungan
+            </p>
         </div>
     </div>
 </template>
