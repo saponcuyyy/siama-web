@@ -90,15 +90,17 @@ async function requestFS() {
 
 async function report(tipe) {
     if (isSubmittingOrConfirming.value) return;
+    isSubmittingOrConfirming.value = true;
     try {
         const r = await axios.post(route('ujian.pelanggaran', props.sesi.hashid), { tipe });
-        isSubmittingOrConfirming.value = true;
         if (r.data.status === 'didiskualifikasi') { showDQ.value = true; }
         else {
             violation.value = { tipe, count: r.data.jumlah_pelanggaran };
             showViolation.value = true;
         }
-    } catch {}
+    } catch {
+        isSubmittingOrConfirming.value = false;
+    }
 }
 
 function closeViolation() {
