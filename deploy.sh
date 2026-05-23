@@ -36,6 +36,10 @@ echo "Mengunggah aset publik ke public_html..."
 rsync -avz -e "ssh -p $PORT" \
   ./public/build/ $USER@$HOST:/home/$USER/public_html/build/
 
+echo "Menyinkronkan manifest.json ke direktori aplikasi..."
+rsync -avz -e "ssh -p $PORT" \
+  ./public/build/manifest.json $USER@$HOST:$REMOTE_DIR/public/build/manifest.json
+
 echo "Menjalankan perintah Artisan di server Hostinger..."
 ssh -p $PORT $USER@$HOST "cd $REMOTE_DIR && \
     composer install --no-dev --optimize-autoloader && \
