@@ -2,18 +2,16 @@
 import ExamLayout from '@/Layouts/ExamLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 
-const { sesi_aktif, riwayat } = defineProps({
+const { sesi_aktif, riwayat, peserta_saya } = defineProps({
     sesi_aktif: Array,
     riwayat: Array,
+    peserta_saya: Object,
 });
 
 const formatDate = (date) => {
     const d = new Date(date);
     return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
-
-const riwayatSesiIds = new Set(riwayat.map(r => r.sesi_ujian_id));
-const isDone = (sesiId) => riwayatSesiIds.has(sesiId);
 </script>
 
 <template>
@@ -74,13 +72,35 @@ const isDone = (sesiId) => riwayatSesiIds.has(sesiId);
                                 </div>
                             </div>
 
-                            <Link v-if="!isDone(sesi.id)" :href="route('ujian.masuk', sesi.hashid)" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-xl md:rounded-2xl transition-colors">
+                            <!-- Belum mulai → Masuk Ruang Ujian -->
+                            <Link
+                                v-if="!peserta_saya[sesi.id] || peserta_saya[sesi.id].status === 'belum_mulai'"
+                                :href="route('ujian.masuk', sesi.hashid)"
+                                class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-xl md:rounded-2xl transition-colors"
+                            >
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
                                 Masuk Ruang Ujian
                             </Link>
-                            <Link v-else :href="route('ujian.hasil', sesi.hashid)" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-sm font-bold rounded-xl md:rounded-2xl transition-colors border-2 border-emerald-200">
-                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                                Sudah Dikerjakan
+
+                            <!-- Sedang mengerjakan → Lanjutkan -->
+                            <Link
+                                v-else-if="peserta_saya[sesi.id].status === 'mengerjakan'"
+                                :href="route('ujian.ruang', sesi.hashid)"
+                                class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-amber-500 hover:bg-amber-400 text-white text-sm font-bold rounded-xl md:rounded-2xl transition-colors"
+                            >
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Lanjutkan
                             </Link>
+
+                            <!-- Selesai / Didiskualifikasi → disabled -->
+                            <button
+                                v-else
+                                disabled
+                                class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-100 text-slate-400 text-sm font-bold rounded-xl md:rounded-2xl cursor-not-allowed border border-slate-200"
+                            >
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                                Selesai
+                            </button>
                         </div>
                     </div>
                 </div>

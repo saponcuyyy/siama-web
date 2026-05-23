@@ -15,7 +15,7 @@ class NilaiController extends Controller
 {
     protected function getData($rombelId)
     {
-        $mapels = MataPelajaran::whereHas('paketUjian.sesiUjian', function ($q) {
+        $mapels = MataPelajaran::whereHas('paketUjian.sesiUjian.pesertaUjian', function ($q) {
                 $q->where('status', 'selesai');
             })
             ->orderBy('nama')
@@ -29,7 +29,7 @@ class NilaiController extends Controller
                     'sesiUjian.paketUjian.mataPelajaran:id,nama',
                 ])
                 ->whereHas('siswa', fn($q) => $q->where('rombel_id', $rombelId))
-                ->whereHas('sesiUjian', fn($q) => $q->where('status', 'selesai'))
+                ->where('status', 'selesai')
                 ->select('id', 'siswa_id', 'sesi_ujian_id', 'nilai_pg', 'nilai_bs', 'nilai_menjodohkan', 'nilai_essay', 'nilai_akhir')
                 ->get()
                 ->groupBy('siswa_id');

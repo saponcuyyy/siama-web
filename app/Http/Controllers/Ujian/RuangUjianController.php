@@ -21,7 +21,7 @@ class RuangUjianController extends Controller
         $siswa = $request->user()->siswa;
         
         if (!$siswa) {
-            abort(403, 'Anda bukan siswa dan tidak memiliki akses ke halaman ujian ini.');
+            return redirect()->route('dashboard');
         }
         
         \Illuminate\Support\Facades\Artisan::call('sesi:start-active');
@@ -43,9 +43,17 @@ class RuangUjianController extends Controller
             ->latest()
             ->get();
 
+        // Map status peserta siswa untuk setiap sesi aktif
+        $sesiIds = $sesiAktif->pluck('id');
+        $pesertaSaya = PesertaUjian::where('siswa_id', $siswa->id)
+            ->whereIn('sesi_ujian_id', $sesiIds)
+            ->get()
+            ->keyBy('sesi_ujian_id');
+
         return Inertia::render('Ujian/Index', [
-            'sesi_aktif' => $sesiAktif,
-            'riwayat'    => $riwayat
+            'sesi_aktif'   => $sesiAktif,
+            'riwayat'      => $riwayat,
+            'peserta_saya' => $pesertaSaya,
         ]);
     }
 

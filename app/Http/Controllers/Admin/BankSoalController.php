@@ -47,6 +47,10 @@ class BankSoalController extends Controller
             return back()->with('error', 'Tidak ada tahun ajaran aktif. Harap hubungi administrator.');
         }
 
+        if (!$validated['guru_id']) {
+            return back()->with('error', 'Data Guru tidak ditemukan. Silakan tambahkan data guru di menu Master Data terlebih dahulu.');
+        }
+
         BankSoal::create($validated);
 
         return back()->with('success', 'Bank soal berhasil ditambahkan.');
