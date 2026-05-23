@@ -34,8 +34,11 @@ const submit = () => {
             
             <!-- Branding Header -->
             <div class="flex flex-col items-center mb-6">
-                <div class="w-16 h-16 bg-white/5 rounded-2xl p-3 backdrop-blur-md border border-white/10 shadow-2xl mb-4">
-                    <img src="/images/logo.png" alt="Logo SMAN 2 Perbaungan" class="w-full h-full object-contain drop-shadow-lg" />
+                <div class="w-16 h-16 bg-indigo-500/20 rounded-2xl p-3 backdrop-blur-md border border-indigo-500/30 shadow-2xl shadow-indigo-500/20 mb-4 flex items-center justify-center">
+                    <svg class="w-10 h-10 text-indigo-400 drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    </svg>
                 </div>
                 <h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
                     CBT <span class="text-indigo-400">Siama</span>
@@ -66,17 +69,16 @@ const submit = () => {
                                 required
                                 autofocus
                                 autocomplete="username"
-                                placeholder="Nomor Induk Siswa"
+                                placeholder="Masukkan NISN"
                             />
                         </div>
                         <p v-if="form.errors.email" class="text-rose-400 text-[10px] font-bold mt-1.5 ml-1">{{ form.errors.email }}</p>
                     </div>
 
-                    <!-- Password/DOB Input -->
+                    <!-- Password Input -->
                     <div>
                         <div class="flex justify-between items-center mb-1.5 ml-1 mr-1">
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest" for="password">Tanggal Lahir</label>
-                            <span class="text-[9px] text-slate-500 font-bold tracking-widest">DDMMYYYY</span>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest" for="password">Kata Sandi</label>
                         </div>
                         <div class="relative group">
                             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
@@ -92,8 +94,7 @@ const submit = () => {
                                 class="w-full bg-black/20 border border-white/10 rounded-xl pl-10 pr-10 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all tracking-widest font-medium"
                                 required
                                 autocomplete="current-password"
-                                placeholder="12012010"
-                                maxlength="8"
+                                placeholder="••••••••"
                             />
                             <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-white transition-colors">
                                 <svg v-if="!showPassword" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
