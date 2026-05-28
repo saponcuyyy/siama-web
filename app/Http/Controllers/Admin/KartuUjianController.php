@@ -14,7 +14,7 @@ class KartuUjianController extends Controller
     public function index(Request $request)
     {
         $rombels = Rombel::with('tahunAjaran')
-            ->withCount(['siswa' => fn($q) => $q->whereIn('status_lulus', [null, 'ditunda'])])
+            ->withCount('siswa')
             ->orderBy('tingkat')
             ->orderBy('nama')
             ->paginate(12);
@@ -29,7 +29,6 @@ class KartuUjianController extends Controller
         $rombel->load('tahunAjaran');
 
         $siswa = $rombel->siswa()
-            ->whereIn('status_lulus', [null, 'ditunda'])
             ->orderBy('nama')
             ->get();
 
