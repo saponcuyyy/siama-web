@@ -17,10 +17,13 @@ const formatDate = (date) => {
     });
 };
 
+const jawabanSiswa = peserta.jawaban_siswa || [];
+const jawabanBenar = jawabanSiswa.filter(j => j.is_benar === 1 || j.is_benar === true).length;
+const jawabanSalah = jawabanSiswa.filter(j => j.is_benar === 0 || j.is_benar === false).length;
+
 const nilaiBreakdown = [
-    { label: 'Pilihan Ganda', nilai: peserta.nilai_pg },
-    { label: 'Benar / Salah', nilai: peserta.nilai_bs },
-    { label: 'Menjodohkan', nilai: peserta.nilai_menjodohkan },
+    { label: 'Jawaban Benar', nilai: jawabanBenar },
+    { label: 'Jawaban Salah', nilai: jawabanSalah },
 ];
 </script>
 
