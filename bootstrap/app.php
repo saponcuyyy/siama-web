@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
+            \App\Http\Middleware\SyncUjianSessions::class,
         ]);
         $middleware->alias([
             'exam.auth' => \App\Http\Middleware\ExamAuth::class,
