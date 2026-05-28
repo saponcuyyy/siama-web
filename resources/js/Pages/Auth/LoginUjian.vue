@@ -40,8 +40,8 @@ const submit = () => {
                         <path d="M6 12v5c3 3 9 3 12 0v-5"/>
                     </svg>
                 </div>
-                <h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-                    CBT <span class="text-indigo-400">Siama</span>
+                <h1 class="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2 text-center">
+                    CBT <span class="text-indigo-400">SMAN 2 PERBAUNGAN</span>
                 </h1>
                 <div class="inline-flex items-center gap-1.5 mt-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-2.5 py-0.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
