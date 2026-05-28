@@ -1,6 +1,7 @@
 <script setup>
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
+import { sanitize } from '@/sanitize';
 
 defineProps({
     berita: Object,
@@ -35,7 +36,7 @@ defineProps({
 
             <!-- Content -->
             <div class="max-w-4xl mx-auto px-6 py-12">
-                <div class="prose prose-lg prose-slate max-w-none" v-html="berita.konten"></div>
+                <div class="prose prose-lg prose-slate max-w-none" v-html="sanitize(berita.konten)"></div>
 
                 <!-- Related -->
                 <div v-if="related.length" class="mt-16 pt-12 border-t border-slate-100">

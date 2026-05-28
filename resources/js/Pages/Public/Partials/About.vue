@@ -1,4 +1,6 @@
 <script setup>
+import { sanitize } from '@/sanitize';
+
 defineProps({
     about: Object,
     visiMisi: Object
@@ -37,7 +39,7 @@ defineProps({
                             Membangun Masa Depan Gemilang Sejak Tahun 2004
                         </h2>
                     </div>
-                    <div class="prose prose-slate prose-lg max-w-none text-slate-600 font-medium leading-relaxed" v-html="about?.content || 'SMA Negeri 2 Perbaungan berkomitmen memberikan pendidikan terbaik.'"></div>
+                    <div class="prose prose-slate prose-lg max-w-none text-slate-600 font-medium leading-relaxed" v-html="sanitize(about?.content || 'SMA Negeri 2 Perbaungan berkomitmen memberikan pendidikan terbaik.')"></div>
                     
                     <!-- Stats Grid -->
                     <div class="grid grid-cols-3 gap-8 pt-6 border-t border-slate-100">
@@ -79,7 +81,7 @@ defineProps({
                             Visi Kami Adalah Menjadi Pusat Pendidikan yang Mandiri.
                         </h2>
                     </div>
-                    <div class="prose prose-invert prose-lg max-w-none text-slate-300 font-medium" v-html="visiMisi?.content || 'Mewujudkan lulusan yang cerdas dan kompetitif.'"></div>
+                    <div class="prose prose-invert prose-lg max-w-none text-slate-300 font-medium" v-html="sanitize(visiMisi?.content || 'Mewujudkan lulusan yang cerdas dan kompetitif.')"></div>
                 </div>
             </div>
         </div>

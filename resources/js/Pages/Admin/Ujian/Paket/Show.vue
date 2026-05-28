@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { sanitize } from '@/sanitize';
 import { 
     Package, ArrowLeft, Plus, Search, Trash2, ListChecks, Check, X, AlertTriangle, Database
 } from 'lucide-vue-next';
@@ -151,7 +152,7 @@ const confirmHapusSoal = () => {
                                     </span>
                                     <span class="text-xs text-slate-400 font-medium">Dari: {{ soal.bank_soal?.nama }}</span>
                                 </div>
-                                <div class="prose prose-sm prose-slate max-w-none text-slate-800 font-medium line-clamp-2" v-html="soal.pertanyaan"></div>
+                                <div class="prose prose-sm prose-slate max-w-none text-slate-800 font-medium line-clamp-2" v-html="sanitize(soal.pertanyaan)"></div>
                             </div>
                             <button @click="hapusSoal(soal)" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors opacity-0 group-hover:opacity-100">
                                 <Trash2 class="w-5 h-5" />
@@ -221,7 +222,7 @@ const confirmHapusSoal = () => {
                                 <span class="text-xs font-bold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded">{{ soal.tipe.replace('_', ' ') }}</span>
                                 <span class="text-xs text-slate-500 font-medium">Bank: {{ soal.bank_soal?.nama }}</span>
                             </div>
-                            <div class="prose prose-sm prose-slate max-w-none text-slate-800 line-clamp-3" v-html="soal.pertanyaan"></div>
+                            <div class="prose prose-sm prose-slate max-w-none text-slate-800 line-clamp-3" v-html="sanitize(soal.pertanyaan)"></div>
                         </div>
                     </label>
                 </div>

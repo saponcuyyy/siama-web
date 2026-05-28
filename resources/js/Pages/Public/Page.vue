@@ -1,6 +1,7 @@
 <script setup>
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { Head } from '@inertiajs/vue3';
+import { sanitize } from '@/sanitize';
 
 defineProps({
     page: Object,
@@ -26,7 +27,7 @@ defineProps({
                 </div>
 
                 <!-- Content -->
-                <div class="prose prose-lg prose-slate max-w-none" v-html="page.content"></div>
+                <div class="prose prose-lg prose-slate max-w-none" v-html="sanitize(page.content)"></div>
             </div>
         </section>
     </GuestLayout>

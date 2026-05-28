@@ -4,17 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\{SesiUjian, PaketUjian, Rombel, PesertaUjian};
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class SesiUjianController extends Controller
 {
     public function index(Request $request)
     {
-        \Illuminate\Support\Facades\Artisan::call('sesi:start-active');
-        \Illuminate\Support\Facades\Artisan::call('sesi:close-expired');
-
         $query = SesiUjian::with(['paketUjian.mataPelajaran', 'rombel', 'rombels', 'dibuatOleh'])
             ->latest();
 
@@ -95,31 +94,35 @@ class SesiUjianController extends Controller
         $rombelIds = $this->getRombelIds($sesi);
         if (empty($rombelIds)) return 0;
 
-        $siswaList = \App\Models\Siswa::whereIn('rombel_id', $rombelIds)->get();
         $count = 0;
 
-        foreach ($siswaList as $siswa) {
-            $created = PesertaUjian::firstOrCreate(
-                ['sesi_ujian_id' => $sesi->id, 'siswa_id' => $siswa->id],
-                ['status' => 'belum_mulai']
-            );
-            if ($created->wasRecentlyCreated) $count++;
-        }
+        \App\Models\Siswa::whereIn('rombel_id', $rombelIds)->chunk(100, function ($siswaList) use ($sesi, &$count) {
+            foreach ($siswaList as $siswa) {
+                $created = PesertaUjian::firstOrCreate(
+                    ['sesi_ujian_id' => $sesi->id, 'siswa_id' => $siswa->id],
+                    ['status' => 'belum_mulai']
+                );
+                if ($created->wasRecentlyCreated) $count++;
+            }
+        });
 
         return $count;
     }
 
     private function getRombelIds(SesiUjian $sesi): array
     {
-        if ($sesi->rombels()->count() > 0) {
-            return $sesi->rombels()->pluck('rombel.id')->toArray();
+        $rombelIds = [];
+
+        $sesi->loadMissing('rombels');
+        $rombels = $sesi->rombels;
+
+        if ($rombels->isNotEmpty()) {
+            $rombelIds = $rombels->pluck('id')->toArray();
+        } elseif ($sesi->rombel_id) {
+            $rombelIds = [$sesi->rombel_id];
         }
 
-        if ($sesi->rombel_id) {
-            return [$sesi->rombel_id];
-        }
-
-        return [];
+        return $rombelIds;
     }
 
     public function monitor(Request $request, SesiUjian $sesi)
@@ -129,33 +132,30 @@ class SesiUjianController extends Controller
         $perPage = (int) $request->input('per_page', 10);
 
         $peserta = PesertaUjian::with('siswa')
+            ->withCount(['jawabanSiswa as jawaban_terisi' => function($q) {
+                $q->whereNotNull('jawaban')->orWhereNotNull('jawaban_menjodohkan');
+            }])
             ->where('sesi_ujian_id', $sesi->id)
             ->paginate($perPage)
             ->through(function ($p) {
                 $total = count($p->urutan_soal ?? []);
-                $jawabanTersimpan = \App\Models\JawabanSiswa::where('peserta_ujian_id', $p->id)
-                    ->where(function($q) {
-                        $q->whereNotNull('jawaban')->orWhereNotNull('jawaban_menjodohkan');
-                    })->count();
-
-                $p->progress = $total > 0 ? round(($jawabanTersimpan / $total) * 100) : 0;
-                $p->jawaban_tersimpan = $jawabanTersimpan;
+                $p->progress = $total > 0 ? round(($p->jawaban_terisi / $total) * 100) : 0;
+                $p->jawaban_tersimpan = $p->jawaban_terisi;
                 $p->total_soal = $total;
                 return $p;
             });
 
-        $maxScore = $sesi->paketUjian->soal()->sum('bobot') ?: 100;
+        $maxScore = Cache::remember('max_score_paket_' . $sesi->paket_ujian_id, 60, function () use ($sesi) {
+            return $sesi->paketUjian->soal()->sum('bobot') ?: 100;
+        });
 
-        $stats = [
-            'total'           => PesertaUjian::where('sesi_ujian_id', $sesi->id)->count(),
-            'mengerjakan'     => PesertaUjian::where('sesi_ujian_id', $sesi->id)->where('status', 'mengerjakan')->count(),
-            'selesai'         => PesertaUjian::where('sesi_ujian_id', $sesi->id)->where('status', 'selesai')->count(),
-            'didiskualifikasi'=> PesertaUjian::where('sesi_ujian_id', $sesi->id)->where('status', 'didiskualifikasi')->count(),
-            'rata_nilai'      => round(PesertaUjian::where('sesi_ujian_id', $sesi->id)
-                ->where('status', 'selesai')
-                ->whereNotNull('nilai_akhir')
-                ->avg('nilai_akhir') ?? 0, 2),
-        ];
+        $stats = PesertaUjian::where('sesi_ujian_id', $sesi->id)
+            ->selectRaw("COUNT(*) as total")
+            ->selectRaw("SUM(CAST(status = 'mengerjakan' AS UNSIGNED)) as mengerjakan")
+            ->selectRaw("SUM(CAST(status = 'selesai' AS UNSIGNED)) as selesai")
+            ->selectRaw("SUM(CAST(status = 'didiskualifikasi' AS UNSIGNED)) as didiskualifikasi")
+            ->selectRaw("ROUND(AVG(CASE WHEN status = 'selesai' AND nilai_akhir IS NOT NULL THEN nilai_akhir END), 2) as rata_nilai")
+            ->first();
 
         return Inertia::render('Admin/Ujian/Sesi/Monitor', [
             'sesi'      => $sesi,
@@ -163,5 +163,28 @@ class SesiUjianController extends Controller
             'stats'     => $stats,
             'maxScore'  => $maxScore,
         ]);
+    }
+
+    public function kartuUjian(SesiUjian $sesi)
+    {
+        $sesi->load(['paketUjian.mataPelajaran', 'rombel', 'rombels']);
+
+        $rombelIds = $this->getRombelIds($sesi);
+
+        $peserta = PesertaUjian::with('siswa.rombel')
+            ->where('sesi_ujian_id', $sesi->id)
+            ->whereHas('siswa', fn($q) => $q->whereIn('rombel_id', $rombelIds))
+            ->orderBy(
+                PesertaUjian::select('nama')
+                    ->from('siswa')
+                    ->whereColumn('siswa.id', 'peserta_ujian.siswa_id')
+                    ->limit(1)
+            )
+            ->get();
+
+        $pdf = Pdf::loadView('exports.kartu-ujian', compact('sesi', 'peserta'));
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->stream('kartu-ujian-' . $sesi->token . '.pdf');
     }
 }

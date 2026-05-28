@@ -43,21 +43,12 @@ class PenilaianEssayController extends Controller
         DB::transaction(function () use ($jawaban, $request) {
             $jawaban->update(['skor' => $request->skor]);
 
-            // Coba update nilai akhir peserta jika semua essay sudah dinilai
             $peserta = $jawaban->pesertaUjian;
-            
-            $belumDinilai = JawabanSiswa::where('peserta_ujian_id', $peserta->id)
-                ->whereHas('soal', function($q) {
-                    $q->where('tipe', 'essay');
-                })
-                ->whereNull('skor')
-                ->exists();
 
-            if (!$belumDinilai) {
-                // Hitung total skor baru
-                $totalSkor = JawabanSiswa::where('peserta_ujian_id', $peserta->id)->sum('skor');
-                $peserta->update(['nilai_akhir' => $totalSkor]);
-            }
+            $totalSkor = JawabanSiswa::where('peserta_ujian_id', $peserta->id)
+                ->whereNotNull('skor')
+                ->sum('skor');
+            $peserta->update(['nilai_akhir' => $totalSkor]);
         });
 
         return back()->with('success', 'Nilai essay berhasil disimpan.');

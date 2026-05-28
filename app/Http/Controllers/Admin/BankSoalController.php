@@ -65,6 +65,21 @@ class BankSoalController extends Controller
         ]);
     }
 
+    public function update(Request $request, BankSoal $bankSoal)
+    {
+        $validated = $request->validate([
+            'judul'             => 'required|string|max:255',
+            'mata_pelajaran_id' => 'required|exists:mata_pelajaran,id',
+            'tingkat'           => 'required|in:X,XI,XII',
+            'deskripsi'         => 'nullable|string',
+            'is_active'         => 'boolean',
+        ]);
+
+        $bankSoal->update($validated);
+
+        return back()->with('success', 'Bank soal berhasil diperbarui.');
+    }
+
     public function destroy(BankSoal $bankSoal)
     {
         $bankSoal->delete();

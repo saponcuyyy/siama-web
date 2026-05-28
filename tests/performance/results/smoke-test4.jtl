@@ -1,0 +1,717 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1779601315484,790,1. Login,200,OK,600 Siswa 1-1,text,true,,48058,1043,11,11,http://localhost:8080,132,0,37
+1779601315484,134,1. Login-0,302,Found,600 Siswa 1-1,text,true,,2292,225,11,11,http://localhost:8080/login,132,0,37
+1779601315624,650,1. Login-1,200,OK,600 Siswa 1-1,text,true,,45766,818,11,11,http://localhost:8080,649,0,1
+1779601315616,4446,1. Login,200,OK,600 Siswa 1-2,text,true,,48790,1893,23,23,http://localhost:8080/ujian,605,0,2
+1779601315616,606,1. Login-0,302,Found,600 Siswa 1-2,text,true,,2342,243,23,23,http://localhost:8080/login,605,0,2
+1779601316224,1290,1. Login-1,302,Found,600 Siswa 1-2,text,true,,2274,827,23,23,http://localhost:8080/dashboard,1289,0,1
+1779601317515,2547,1. Login-2,200,OK,600 Siswa 1-2,text,true,,44174,823,23,23,http://localhost:8080/ujian,2545,0,1
+1779601315913,6842,1. Login,200,OK,600 Siswa 1-3,text,true,,48790,1893,32,32,http://localhost:8080/ujian,957,0,1
+1779601315913,958,1. Login-0,302,Found,600 Siswa 1-3,text,true,,2342,243,32,32,http://localhost:8080/login,957,0,1
+1779601316873,1875,1. Login-1,302,Found,600 Siswa 1-3,text,true,,2274,827,32,32,http://localhost:8080/dashboard,1874,0,3
+1779601318749,4006,1. Login-2,200,OK,600 Siswa 1-3,text,true,,44174,823,32,32,http://localhost:8080/ujian,4004,0,1
+1779601316198,9114,1. Login,200,OK,600 Siswa 1-4,text,true,,48790,1893,41,41,http://localhost:8080/ujian,1276,0,1
+1779601316198,1277,1. Login-0,302,Found,600 Siswa 1-4,text,true,,2342,243,41,41,http://localhost:8080/login,1276,0,1
+1779601317476,2516,1. Login-1,302,Found,600 Siswa 1-4,text,true,,2274,827,41,41,http://localhost:8080/dashboard,2516,0,1
+1779601319994,5318,1. Login-2,200,OK,600 Siswa 1-4,text,true,,44174,823,41,41,http://localhost:8080/ujian,5316,0,0
+1779601316488,11942,1. Login,200,OK,600 Siswa 1-5,text,true,,48790,1893,51,51,http://localhost:8080/ujian,1626,0,1
+1779601316488,1626,1. Login-0,302,Found,600 Siswa 1-5,text,true,,2342,243,51,51,http://localhost:8080/login,1626,0,1
+1779601318115,3204,1. Login-1,302,Found,600 Siswa 1-5,text,true,,2274,827,51,51,http://localhost:8080/dashboard,3201,0,1
+1779601321320,7110,1. Login-2,200,OK,600 Siswa 1-5,text,true,,44174,823,51,51,http://localhost:8080/ujian,7109,0,1
+1779601318280,11404,2. Dashboard,200,OK,600 Siswa 1-1,text,true,,46327,1650,56,56,http://localhost:8080/login,3775,0,1
+1779601318280,3775,2. Dashboard-0,302,Found,600 Siswa 1-1,text,true,,2257,827,56,56,http://localhost:8080/dashboard,3775,0,1
+1779601322058,7626,2. Dashboard-1,200,OK,600 Siswa 1-1,text,true,,44070,823,56,56,http://localhost:8080/login,7625,0,1
+1779601316787,14234,1. Login,200,OK,600 Siswa 1-6,text,true,,48790,1893,60,60,http://localhost:8080/ujian,1924,0,1
+1779601316787,1925,1. Login-0,302,Found,600 Siswa 1-6,text,true,,2342,243,60,60,http://localhost:8080/login,1924,0,1
+1779601318713,3972,1. Login-1,302,Found,600 Siswa 1-6,text,true,,2274,827,60,60,http://localhost:8080/dashboard,3971,0,1
+1779601322686,8335,1. Login-2,200,OK,600 Siswa 1-6,text,true,,44174,823,60,60,http://localhost:8080/ujian,8333,0,1
+1779601317093,17039,1. Login,200,OK,600 Siswa 1-7,text,true,,48790,1893,70,70,http://localhost:8080/ujian,2252,0,1
+1779601317093,2252,1. Login-0,302,Found,600 Siswa 1-7,text,true,,2342,243,70,70,http://localhost:8080/login,2252,0,1
+1779601319346,4646,1. Login-1,302,Found,600 Siswa 1-7,text,true,,2274,827,70,70,http://localhost:8080/dashboard,4646,0,1
+1779601323994,10138,1. Login-2,200,OK,600 Siswa 1-7,text,true,,44174,823,70,70,http://localhost:8080/ujian,10137,0,1
+1779601317403,19272,1. Login,200,OK,600 Siswa 1-8,text,true,,48790,1893,79,79,http://localhost:8080/ujian,2551,0,1
+1779601317403,2552,1. Login-0,302,Found,600 Siswa 1-8,text,true,,2342,243,79,79,http://localhost:8080/login,2551,0,1
+1779601319956,5281,1. Login-1,302,Found,600 Siswa 1-8,text,true,,2274,827,79,79,http://localhost:8080/dashboard,5280,0,1
+1779601325238,11437,1. Login-2,200,OK,600 Siswa 1-8,text,true,,44174,823,79,79,http://localhost:8080/ujian,11435,0,0
+1779601317684,22728,1. Login,200,OK,600 Siswa 1-9,text,true,,48790,1893,91,91,http://localhost:8080/ujian,2974,0,1
+1779601317684,2975,1. Login-0,302,Found,600 Siswa 1-9,text,true,,2342,243,91,91,http://localhost:8080/login,2974,0,1
+1779601320660,6474,1. Login-1,302,Found,600 Siswa 1-9,text,true,,2274,827,91,91,http://localhost:8080/dashboard,6473,0,3
+1779601327135,13277,1. Login-2,200,OK,600 Siswa 1-9,text,true,,44174,823,91,91,http://localhost:8080/ujian,13276,0,1
+1779601318007,25011,1. Login,200,OK,600 Siswa 1-10,text,true,,48790,1893,100,100,http://localhost:8080/ujian,3256,0,0
+1779601318007,3257,1. Login-0,302,Found,600 Siswa 1-10,text,true,,2342,243,100,100,http://localhost:8080/login,3256,0,0
+1779601321265,7097,1. Login-1,302,Found,600 Siswa 1-10,text,true,,2274,827,100,100,http://localhost:8080/dashboard,7096,0,1
+1779601328363,14655,1. Login-2,200,OK,600 Siswa 1-10,text,true,,44174,823,100,100,http://localhost:8080/ujian,14654,0,0
+1779601318271,27854,1. Login,200,OK,600 Siswa 1-11,text,true,,48792,1894,110,110,http://localhost:8080/ujian,3755,0,3
+1779601318271,3756,1. Login-0,302,Found,600 Siswa 1-11,text,true,,2342,244,110,110,http://localhost:8080/login,3755,0,3
+1779601322028,7621,1. Login-1,302,Found,600 Siswa 1-11,text,true,,2274,827,110,110,http://localhost:8080/dashboard,7620,0,1
+1779601329650,16475,1. Login-2,200,OK,600 Siswa 1-11,text,true,,44176,823,110,110,http://localhost:8080/ujian,16474,0,1
+1779601322067,24121,2. Dashboard,200,OK,600 Siswa 1-2,text,true,,46448,1650,111,111,http://localhost:8080/ujian,7652,0,1
+1779601322067,7653,2. Dashboard-0,302,Found,600 Siswa 1-2,text,true,,2274,827,111,111,http://localhost:8080/dashboard,7652,0,1
+1779601329722,16466,2. Dashboard-1,200,OK,600 Siswa 1-2,text,true,,44174,823,111,111,http://localhost:8080/ujian,16464,0,1
+1779601318601,30168,1. Login,200,OK,600 Siswa 1-12,text,true,,48792,1894,119,119,http://localhost:8080/ujian,4049,0,1
+1779601318601,4049,1. Login-0,302,Found,600 Siswa 1-12,text,true,,2342,244,119,119,http://localhost:8080/login,4049,0,1
+1779601322651,8297,1. Login-1,302,Found,600 Siswa 1-12,text,true,,2274,827,119,119,http://localhost:8080/dashboard,8296,0,1
+1779601330949,17820,1. Login-2,200,OK,600 Siswa 1-12,text,true,,44176,823,119,119,http://localhost:8080/ujian,17787,0,1
+1779601318869,33638,1. Login,200,OK,600 Siswa 1-13,text,true,,48792,1894,132,132,http://localhost:8080/ujian,4478,0,2
+1779601318869,4479,1. Login-0,302,Found,600 Siswa 1-13,text,true,,2342,244,132,132,http://localhost:8080/login,4478,0,2
+1779601323349,9483,1. Login-1,302,Found,600 Siswa 1-13,text,true,,2274,827,132,132,http://localhost:8080/dashboard,9482,0,1
+1779601332833,19674,1. Login-2,200,OK,600 Siswa 1-13,text,true,,44176,823,132,132,http://localhost:8080/ujian,19673,0,1
+1779601319168,35884,1. Login,200,OK,600 Siswa 1-14,text,true,,48792,1894,140,140,http://localhost:8080/ujian,4782,0,1
+1779601319168,4783,1. Login-0,302,Found,600 Siswa 1-14,text,true,,2342,244,140,140,http://localhost:8080/login,4782,0,1
+1779601323952,10113,1. Login-1,302,Found,600 Siswa 1-14,text,true,,2274,827,140,140,http://localhost:8080/dashboard,10112,0,1
+1779601334066,20986,1. Login-2,200,OK,600 Siswa 1-14,text,true,,44176,823,140,140,http://localhost:8080/ujian,20985,0,1
+1779601319475,38693,1. Login,200,OK,600 Siswa 1-15,text,true,,48792,1894,150,150,http://localhost:8080/ujian,5124,0,2
+1779601319475,5125,1. Login-0,302,Found,600 Siswa 1-15,text,true,,2342,244,150,150,http://localhost:8080/login,5124,0,2
+1779601324601,10750,1. Login-1,302,Found,600 Siswa 1-15,text,true,,2274,827,150,150,http://localhost:8080/dashboard,10749,0,1
+1779601335352,22816,1. Login-2,200,OK,600 Siswa 1-15,text,true,,44176,823,150,150,http://localhost:8080/ujian,22815,0,1
+1779601324757,33481,2. Dashboard,200,OK,600 Siswa 1-3,text,true,,46448,1650,151,151,http://localhost:8080/ujian,10628,0,1
+1779601324757,10629,2. Dashboard-0,302,Found,600 Siswa 1-3,text,true,,2274,827,151,151,http://localhost:8080/dashboard,10628,0,1
+1779601335386,22852,2. Dashboard-1,200,OK,600 Siswa 1-3,text,true,,44174,823,151,151,http://localhost:8080/ujian,22851,0,1
+1779601319766,41021,1. Login,200,OK,600 Siswa 1-16,text,true,,48792,1894,159,159,http://localhost:8080/ujian,5431,0,2
+1779601319766,5432,1. Login-0,302,Found,600 Siswa 1-16,text,true,,2342,244,159,159,http://localhost:8080/login,5431,0,2
+1779601325200,11416,1. Login-1,302,Found,600 Siswa 1-16,text,true,,2274,827,159,159,http://localhost:8080/dashboard,11415,0,0
+1779601336616,24171,1. Login-2,200,OK,600 Siswa 1-16,text,true,,44176,823,159,159,http://localhost:8080/ujian,24170,0,1
+1779601320056,43262,1. Login,200,OK,600 Siswa 1-17,text,true,,48792,1894,168,168,http://localhost:8080/ujian,5850,0,2
+1779601320056,5851,1. Login-0,302,Found,600 Siswa 1-17,text,true,,2342,244,168,168,http://localhost:8080/login,5850,0,2
+1779601325908,11988,1. Login-1,302,Found,600 Siswa 1-17,text,true,,2274,827,168,168,http://localhost:8080/dashboard,11987,0,1
+1779601337897,25421,1. Login-2,200,OK,600 Siswa 1-17,text,true,,44176,823,168,168,http://localhost:8080/ujian,25421,0,1
+1779601320350,45518,1. Login,200,OK,600 Siswa 1-18,text,true,,48792,1894,176,176,http://localhost:8080/ujian,6152,0,1
+1779601320350,6152,1. Login-0,302,Found,600 Siswa 1-18,text,true,,2342,244,176,176,http://localhost:8080/login,6152,0,1
+1779601326503,12620,1. Login-1,302,Found,600 Siswa 1-18,text,true,,2274,827,176,176,http://localhost:8080/dashboard,12619,0,1
+1779601339124,26744,1. Login-2,200,OK,600 Siswa 1-18,text,true,,44176,823,176,176,http://localhost:8080/ujian,26743,0,1
+1779601320660,47731,1. Login,200,OK,600 Siswa 1-19,text,true,,48792,1894,185,185,http://localhost:8080/ujian,6433,0,1
+1779601320660,6434,1. Login-0,302,Found,600 Siswa 1-19,text,true,,2342,244,185,185,http://localhost:8080/login,6433,0,1
+1779601327095,13247,1. Login-1,302,Found,600 Siswa 1-19,text,true,,2274,827,185,185,http://localhost:8080/dashboard,13246,0,0
+1779601340343,28048,1. Login-2,200,OK,600 Siswa 1-19,text,true,,44176,823,185,185,http://localhost:8080/ujian,28046,0,0
+1779601327315,42956,2. Dashboard,200,OK,600 Siswa 1-4,text,true,,46448,1650,191,191,http://localhost:8080/ujian,13722,0,0
+1779601327315,13723,2. Dashboard-0,302,Found,600 Siswa 1-4,text,true,,2274,827,191,191,http://localhost:8080/dashboard,13722,0,0
+1779601341039,29232,2. Dashboard-1,200,OK,600 Siswa 1-4,text,true,,44174,823,191,191,http://localhost:8080/ujian,29231,0,1
+1779601320950,50603,1. Login,200,OK,600 Siswa 1-20,text,true,,48792,1894,195,195,http://localhost:8080/ujian,6777,0,2
+1779601320950,6778,1. Login-0,302,Found,600 Siswa 1-20,text,true,,2342,244,195,195,http://localhost:8080/login,6777,0,2
+1779601327729,13939,1. Login-1,302,Found,600 Siswa 1-20,text,true,,2274,827,195,195,http://localhost:8080/dashboard,13938,0,1
+1779601341669,29884,1. Login-2,200,OK,600 Siswa 1-20,text,true,,44176,823,195,195,http://localhost:8080/ujian,29883,0,0
+1779601341889,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-90,text,false,,2677,0,196,196,http://localhost:8080/login,0,0,1
+1779601342186,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-91,text,false,,2677,0,197,197,http://localhost:8080/login,0,0,1
+1779601327785,44549,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-43,text,false,,5510,244,198,198,http://localhost:8080/dashboard,14516,0,1
+1779601327785,14517,1. Login-0,302,Found,600 Siswa 1-43,text,true,,2342,244,198,198,http://localhost:8080/login,14516,0,1
+1779601342302,30032,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-43,text,false,,3168,0,198,198,http://localhost:8080/dashboard,0,0,1
+1779601342414,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-9,text,false,,2677,0,198,198,http://localhost:8080/dashboard,0,0,0
+1779601342485,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-92,text,false,,2677,0,198,198,http://localhost:8080/login,0,0,0
+1779601342785,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-93,text,false,,2677,0,199,199,http://localhost:8080/login,0,0,1
+1779601328083,44846,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-44,text,false,,5510,244,200,200,http://localhost:8080/dashboard,14813,0,1
+1779601328083,14814,1. Login-0,302,Found,600 Siswa 1-44,text,true,,2342,244,200,200,http://localhost:8080/login,14813,0,1
+1779601342898,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-44,text,false,,3168,0,200,200,http://localhost:8080/dashboard,0,0,1
+1779601321233,51741,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-21,text,false,,7784,1071,200,200,http://localhost:8080/ujian,7090,0,1
+1779601321233,7091,1. Login-0,302,Found,600 Siswa 1-21,text,true,,2342,244,200,200,http://localhost:8080/login,7090,0,1
+1779601328325,14617,1. Login-1,302,Found,600 Siswa 1-21,text,true,,2274,827,200,200,http://localhost:8080/dashboard,14617,0,0
+1779601342942,30032,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-21,text,false,,3168,0,200,200,http://localhost:8080/ujian,0,0,1
+1779601343087,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-94,text,false,,2677,0,200,200,http://localhost:8080/login,0,0,1
+1779601343386,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-95,text,false,,2677,0,201,201,http://localhost:8080/login,0,0,1
+1779601328384,45256,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-45,text,false,,5510,244,202,202,http://localhost:8080/dashboard,15224,0,1
+1779601328384,15225,1. Login-0,302,Found,600 Siswa 1-45,text,true,,2342,244,202,202,http://localhost:8080/login,15224,0,1
+1779601343609,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-45,text,false,,3168,0,202,202,http://localhost:8080/dashboard,0,0,1
+1779601343686,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-96,text,false,,2677,0,202,202,http://localhost:8080/login,0,0,1
+1779601343988,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-97,text,false,,2677,0,203,203,http://localhost:8080/login,0,0,1
+1779601328684,45554,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-46,text,false,,5510,244,204,204,http://localhost:8080/dashboard,15521,0,1
+1779601328684,15522,1. Login-0,302,Found,600 Siswa 1-46,text,true,,2342,244,204,204,http://localhost:8080/login,15521,0,1
+1779601344207,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-46,text,false,,3168,0,204,204,http://localhost:8080/dashboard,0,0,1
+1779601344288,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-98,text,false,,2677,0,204,204,http://localhost:8080/login,0,0,1
+1779601344587,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-99,text,false,,2677,0,205,205,http://localhost:8080/login,0,0,0
+1779601328985,45847,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-47,text,false,,5510,244,206,206,http://localhost:8080/dashboard,15815,0,1
+1779601328985,15816,1. Login-0,302,Found,600 Siswa 1-47,text,true,,2342,244,206,206,http://localhost:8080/login,15815,0,1
+1779601344801,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-47,text,false,,3168,0,206,206,http://localhost:8080/dashboard,0,0,1
+1779601321532,53337,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-22,text,false,,7784,1071,206,206,http://localhost:8080/ujian,7489,0,4
+1779601321532,7490,1. Login-0,302,Found,600 Siswa 1-22,text,true,,2342,244,206,206,http://localhost:8080/login,7489,0,4
+1779601329023,15815,1. Login-1,302,Found,600 Siswa 1-22,text,true,,2274,827,206,206,http://localhost:8080/dashboard,15814,0,0
+1779601344838,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-22,text,false,,3168,0,206,206,http://localhost:8080/ujian,0,0,1
+1779601344884,30033,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-100,text,false,,2677,0,206,206,http://localhost:8080/login,0,0,1
+1779601345019,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-10,text,false,,2677,0,207,207,http://localhost:8080/dashboard,0,0,1
+1779601345184,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-101,text,false,,2677,0,207,207,http://localhost:8080/login,0,0,1
+1779601329290,46173,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-48,text,false,,5510,244,208,208,http://localhost:8080/dashboard,16140,0,1
+1779601329290,16141,1. Login-0,302,Found,600 Siswa 1-48,text,true,,2342,244,208,208,http://localhost:8080/login,16140,0,1
+1779601345432,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-48,text,false,,3168,0,208,208,http://localhost:8080/dashboard,0,0,0
+1779601345486,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-102,text,false,,2677,0,208,208,http://localhost:8080/login,0,0,1
+1779601345783,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-103,text,false,,2677,0,209,209,http://localhost:8080/login,0,0,1
+1779601329585,46474,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-49,text,false,,5510,244,210,210,http://localhost:8080/dashboard,16442,0,1
+1779601329585,16442,1. Login-0,302,Found,600 Siswa 1-49,text,true,,2342,244,210,210,http://localhost:8080/login,16442,0,1
+1779601346028,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-49,text,false,,3168,0,210,210,http://localhost:8080/dashboard,0,0,1
+1779601321821,54270,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-23,text,false,,7784,1071,210,210,http://localhost:8080/ujian,7790,0,2
+1779601321821,7791,1. Login-0,302,Found,600 Siswa 1-23,text,true,,2342,244,210,210,http://localhost:8080/login,7790,0,2
+1779601329613,16446,1. Login-1,302,Found,600 Siswa 1-23,text,true,,2274,827,210,210,http://localhost:8080/dashboard,16445,0,1
+1779601346060,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-23,text,false,,3168,0,210,210,http://localhost:8080/ujian,0,0,1
+1779601346089,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-104,text,false,,2677,0,210,210,http://localhost:8080/login,0,0,1
+1779601346383,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-105,text,false,,2677,0,211,211,http://localhost:8080/login,0,0,1
+1779601346683,30033,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-106,text,false,,2677,0,212,212,http://localhost:8080/login,0,0,1
+1779601329888,46920,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-50,text,false,,5510,244,213,213,http://localhost:8080/dashboard,16887,0,1
+1779601329888,16888,1. Login-0,302,Found,600 Siswa 1-50,text,true,,2342,244,213,213,http://localhost:8080/login,16887,0,1
+1779601346777,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-50,text,false,,3168,0,213,213,http://localhost:8080/dashboard,0,0,0
+1779601346985,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-107,text,false,,2677,0,213,213,http://localhost:8080/login,0,0,1
+1779601347285,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-108,text,false,,2677,0,214,214,http://localhost:8080/login,0,0,1
+1779601330183,47217,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-51,text,false,,5510,244,215,215,http://localhost:8080/dashboard,17184,0,1
+1779601330183,17185,1. Login-0,302,Found,600 Siswa 1-51,text,true,,2342,244,215,215,http://localhost:8080/login,17184,0,1
+1779601347369,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-51,text,false,,3168,0,215,215,http://localhost:8080/dashboard,0,0,1
+1779601322122,55318,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-24,text,false,,7784,1071,215,215,http://localhost:8080/ujian,8190,0,1
+1779601322122,8191,1. Login-0,302,Found,600 Siswa 1-24,text,true,,2342,244,215,215,http://localhost:8080/login,8190,0,1
+1779601330314,17095,1. Login-1,302,Found,600 Siswa 1-24,text,true,,2274,827,215,215,http://localhost:8080/dashboard,17095,0,0
+1779601347409,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-24,text,false,,3168,0,215,215,http://localhost:8080/ujian,0,0,1
+1779601330432,47042,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-5,text,false,,5442,827,215,215,http://localhost:8080/ujian,17009,0,0
+1779601330432,17010,2. Dashboard-0,302,Found,600 Siswa 1-5,text,true,,2274,827,215,215,http://localhost:8080/dashboard,17009,0,0
+1779601347443,30031,2. Dashboard-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-5,text,false,,3168,0,215,215,http://localhost:8080/ujian,0,0,1
+1779601347587,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-109,text,false,,2677,0,215,215,http://localhost:8080/login,0,0,1
+1779601347885,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-110,text,false,,2677,0,216,216,http://localhost:8080/login,0,0,1
+1779601330489,47581,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-52,text,false,,5510,244,217,217,http://localhost:8080/dashboard,17549,0,1
+1779601330489,17549,1. Login-0,302,Found,600 Siswa 1-52,text,true,,2342,244,217,217,http://localhost:8080/login,17549,0,1
+1779601348039,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-52,text,false,,3168,0,217,217,http://localhost:8080/dashboard,0,0,1
+1779601348127,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-11,text,false,,2677,0,217,217,http://localhost:8080/dashboard,0,0,1
+1779601348183,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-111,text,false,,2677,0,217,217,http://localhost:8080/login,0,0,1
+1779601348189,30031,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-2,text,false,,2677,0,217,217,http://localhost:8080/ujian,0,0,1
+1779601348483,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-112,text,false,,2677,0,218,218,http://localhost:8080/login,0,0,1
+1779601330786,47882,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-53,text,false,,5510,244,219,219,http://localhost:8080/dashboard,17849,0,0
+1779601330786,17850,1. Login-0,302,Found,600 Siswa 1-53,text,true,,2342,244,219,219,http://localhost:8080/login,17849,0,0
+1779601348637,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-53,text,false,,3168,0,219,219,http://localhost:8080/dashboard,0,0,0
+1779601322439,56265,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-25,text,false,,7784,1071,219,219,http://localhost:8080/ujian,8473,0,3
+1779601322439,8474,1. Login-0,302,Found,600 Siswa 1-25,text,true,,2342,244,219,219,http://localhost:8080/login,8473,0,3
+1779601330914,17759,1. Login-1,302,Found,600 Siswa 1-25,text,true,,2274,827,219,219,http://localhost:8080/dashboard,17758,0,1
+1779601348673,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-25,text,false,,3168,0,219,219,http://localhost:8080/ujian,0,0,1
+1779601348787,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-113,text,false,,2677,0,219,219,http://localhost:8080/login,0,0,1
+1779601349086,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-114,text,false,,2677,0,220,220,http://localhost:8080/login,0,0,1
+1779601331084,48281,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-54,text,false,,5510,244,221,221,http://localhost:8080/dashboard,18257,0,1
+1779601331084,18258,1. Login-0,302,Found,600 Siswa 1-54,text,true,,2342,244,221,221,http://localhost:8080/login,18257,0,1
+1779601349343,30022,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-54,text,false,,3168,0,221,221,http://localhost:8080/dashboard,0,0,0
+1779601349384,30029,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-115,text,false,,2677,0,221,221,http://localhost:8080/login,0,0,1
+1779601349683,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-116,text,false,,2677,0,222,222,http://localhost:8080/login,0,0,1
+1779601331384,48580,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-55,text,false,,5510,244,223,223,http://localhost:8080/dashboard,18546,0,1
+1779601331384,18547,1. Login-0,302,Found,600 Siswa 1-55,text,true,,2342,244,223,223,http://localhost:8080/login,18546,0,1
+1779601349933,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-55,text,false,,3168,0,223,223,http://localhost:8080/dashboard,0,0,1
+1779601322734,57264,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-26,text,false,,7784,1071,223,223,http://localhost:8080/ujian,8877,0,1
+1779601322734,8879,1. Login-0,302,Found,600 Siswa 1-26,text,true,,2342,244,223,223,http://localhost:8080/login,8877,0,1
+1779601331614,18352,1. Login-1,302,Found,600 Siswa 1-26,text,true,,2274,827,223,223,http://localhost:8080/dashboard,18352,0,0
+1779601349967,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-26,text,false,,3168,0,223,223,http://localhost:8080/ujian,0,0,0
+1779601349983,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-117,text,false,,2677,0,223,223,http://localhost:8080/login,0,0,1
+1779601350281,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-118,text,false,,2677,0,224,224,http://localhost:8080/login,0,0,1
+1779601331685,48907,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-56,text,false,,5510,244,225,225,http://localhost:8080/dashboard,18873,0,0
+1779601331685,18874,1. Login-0,302,Found,600 Siswa 1-56,text,true,,2342,244,225,225,http://localhost:8080/login,18873,0,0
+1779601350561,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-56,text,false,,3168,0,225,225,http://localhost:8080/dashboard,0,0,0
+1779601350583,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-119,text,false,,2677,0,225,225,http://localhost:8080/login,0,0,1
+1779601331686,48931,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-1,text,false,,5512,823,225,225,http://localhost:8080/login?context=ujian,18899,0,0
+1779601331686,18899,3. Daftar Ujian-0,302,Found,600 Siswa 1-1,text,true,,2344,823,225,225,http://localhost:8080/ujian,18899,0,0
+1779601350586,30031,3. Daftar Ujian-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-1,text,false,,3168,0,225,225,http://localhost:8080/login?context=ujian,0,0,1
+1779601350771,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-12,text,false,,2677,0,226,226,http://localhost:8080/dashboard,0,0,0
+1779601350882,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-120,text,false,,2677,0,226,226,http://localhost:8080/login,0,0,0
+1779601331983,49224,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-57,text,false,,5510,244,227,227,http://localhost:8080/dashboard,19191,0,1
+1779601331983,19192,1. Login-0,302,Found,600 Siswa 1-57,text,true,,2342,244,227,227,http://localhost:8080/login,19191,0,1
+1779601351176,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-57,text,false,,3168,0,227,227,http://localhost:8080/dashboard,0,0,1
+1779601351182,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-121,text,false,,2677,0,227,227,http://localhost:8080/login,0,0,1
+1779601323003,58245,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-27,text,false,,7784,1071,227,227,http://localhost:8080/ujian,9206,0,1
+1779601323003,9206,1. Login-0,302,Found,600 Siswa 1-27,text,true,,2342,244,227,227,http://localhost:8080/login,9206,0,1
+1779601332210,19006,1. Login-1,302,Found,600 Siswa 1-27,text,true,,2274,827,227,227,http://localhost:8080/dashboard,19005,0,1
+1779601351217,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-27,text,false,,3168,0,227,227,http://localhost:8080/ujian,0,0,1
+1779601351499,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-122,text,false,,2677,0,228,228,http://localhost:8080/login,0,0,1
+1779601351795,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-123,text,false,,2677,0,229,229,http://localhost:8080/login,0,0,1
+1779601332283,49558,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-58,text,false,,5510,244,229,229,http://localhost:8080/dashboard,19525,0,1
+1779601332283,19526,1. Login-0,302,Found,600 Siswa 1-58,text,true,,2342,244,229,229,http://localhost:8080/login,19525,0,1
+1779601351810,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-58,text,false,,3168,0,229,229,http://localhost:8080/dashboard,0,0,0
+1779601352085,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-124,text,false,,2677,0,230,230,http://localhost:8080/login,0,0,1
+1779601352383,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-125,text,false,,2677,0,231,231,http://localhost:8080/login,0,0,1
+1779601332586,49842,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-59,text,false,,5510,244,231,231,http://localhost:8080/dashboard,19810,0,2
+1779601332586,19810,1. Login-0,302,Found,600 Siswa 1-59,text,true,,2342,244,231,231,http://localhost:8080/login,19810,0,2
+1779601352397,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-59,text,false,,3168,0,231,231,http://localhost:8080/dashboard,0,0,1
+1779601323334,59136,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-28,text,false,,7784,1071,231,231,http://localhost:8080/ujian,9463,0,1
+1779601323334,9464,1. Login-0,302,Found,600 Siswa 1-28,text,true,,2342,244,231,231,http://localhost:8080/login,9463,0,1
+1779601332799,19639,1. Login-1,302,Found,600 Siswa 1-28,text,true,,2274,827,231,231,http://localhost:8080/dashboard,19639,0,1
+1779601352439,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-28,text,false,,3168,0,231,231,http://localhost:8080/ujian,0,0,1
+1779601352684,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-126,text,false,,2677,0,232,232,http://localhost:8080/login,0,0,0
+1779601352984,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-127,text,false,,2677,0,233,233,http://localhost:8080/login,0,0,0
+1779601332882,50248,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-60,text,false,,5510,244,234,234,http://localhost:8080/dashboard,20216,0,1
+1779601332882,20216,1. Login-0,302,Found,600 Siswa 1-60,text,true,,2342,244,234,234,http://localhost:8080/login,20216,0,1
+1779601353099,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-60,text,false,,3168,0,234,234,http://localhost:8080/dashboard,0,0,1
+1779601333025,50142,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-6,text,false,,5442,827,234,234,http://localhost:8080/ujian,20109,0,1
+1779601333025,20110,2. Dashboard-0,302,Found,600 Siswa 1-6,text,true,,2274,827,234,234,http://localhost:8080/dashboard,20109,0,1
+1779601353136,30031,2. Dashboard-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-6,text,false,,3168,0,234,234,http://localhost:8080/ujian,0,0,0
+1779601353284,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-128,text,false,,2677,0,234,234,http://localhost:8080/login,0,0,1
+1779601353583,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-129,text,false,,2677,0,235,235,http://localhost:8080/login,0,0,1
+1779601333184,50569,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-61,text,false,,5510,244,236,236,http://localhost:8080/dashboard,20537,0,1
+1779601333184,20538,1. Login-0,302,Found,600 Siswa 1-61,text,true,,2342,244,236,236,http://localhost:8080/login,20537,0,1
+1779601353722,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-61,text,false,,3168,0,236,236,http://localhost:8080/dashboard,0,0,1
+1779601323617,60171,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-29,text,false,,7784,1071,236,236,http://localhost:8080/ujian,9810,0,1
+1779601323617,9810,1. Login-0,302,Found,600 Siswa 1-29,text,true,,2342,244,236,236,http://localhost:8080/login,9810,0,1
+1779601333428,20328,1. Login-1,302,Found,600 Siswa 1-29,text,true,,2274,827,236,236,http://localhost:8080/dashboard,20327,0,1
+1779601353757,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-29,text,false,,3168,0,236,236,http://localhost:8080/ujian,0,0,1
+1779601353886,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-130,text,false,,2677,0,236,236,http://localhost:8080/login,0,0,1
+1779601354183,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-131,text,false,,2677,0,237,237,http://localhost:8080/login,0,0,1
+1779601333485,50900,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-62,text,false,,5510,244,238,238,http://localhost:8080/dashboard,20867,0,1
+1779601333485,20868,1. Login-0,302,Found,600 Siswa 1-62,text,true,,2342,244,238,238,http://localhost:8080/login,20867,0,1
+1779601354354,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-62,text,false,,3168,0,238,238,http://localhost:8080/dashboard,0,0,1
+1779601354483,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-132,text,false,,2677,0,238,238,http://localhost:8080/login,0,0,1
+1779601354510,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-13,text,false,,2677,0,238,238,http://localhost:8080/dashboard,0,0,0
+1779601354786,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-133,text,false,,2677,0,239,239,http://localhost:8080/login,0,0,1
+1779601333784,51197,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-63,text,false,,5510,244,240,240,http://localhost:8080/dashboard,21164,0,1
+1779601333784,21164,1. Login-0,302,Found,600 Siswa 1-63,text,true,,2342,244,240,240,http://localhost:8080/login,21164,0,1
+1779601354950,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-63,text,false,,3168,0,240,240,http://localhost:8080/dashboard,0,0,1
+1779601323915,61102,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-30,text,false,,7784,1071,240,240,http://localhost:8080/ujian,10118,0,1
+1779601323915,10119,1. Login-0,302,Found,600 Siswa 1-30,text,true,,2342,244,240,240,http://localhost:8080/login,10118,0,1
+1779601334035,20951,1. Login-1,302,Found,600 Siswa 1-30,text,true,,2274,827,240,240,http://localhost:8080/dashboard,20950,0,0
+1779601354986,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-30,text,false,,3168,0,240,240,http://localhost:8080/ujian,0,0,1
+1779601355082,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-134,text,false,,2677,0,240,240,http://localhost:8080/login,0,0,1
+1779601355383,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-135,text,false,,2677,0,241,241,http://localhost:8080/login,0,0,1
+1779601334084,51588,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-64,text,false,,5510,244,242,242,http://localhost:8080/dashboard,21555,0,1
+1779601334084,21556,1. Login-0,302,Found,600 Siswa 1-64,text,true,,2342,244,242,242,http://localhost:8080/login,21555,0,1
+1779601355641,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-64,text,false,,3168,0,242,242,http://localhost:8080/dashboard,0,0,1
+1779601355684,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-136,text,false,,2677,0,242,242,http://localhost:8080/login,0,0,1
+1779601355982,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-137,text,false,,2677,0,243,243,http://localhost:8080/login,0,0,1
+1779601334383,51889,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-65,text,false,,5510,244,244,244,http://localhost:8080/dashboard,21856,0,1
+1779601334383,21857,1. Login-0,302,Found,600 Siswa 1-65,text,true,,2342,244,244,244,http://localhost:8080/login,21856,0,1
+1779601356241,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-65,text,false,,3168,0,244,244,http://localhost:8080/dashboard,0,0,1
+1779601356282,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-138,text,false,,2677,0,244,244,http://localhost:8080/login,0,0,2
+1779601356583,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-139,text,false,,2677,0,245,245,http://localhost:8080/login,0,0,1
+1779601334689,52176,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-66,text,false,,5510,244,246,246,http://localhost:8080/dashboard,22142,0,0
+1779601334689,22143,1. Login-0,302,Found,600 Siswa 1-66,text,true,,2342,244,246,246,http://localhost:8080/login,22142,0,0
+1779601356833,30032,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-66,text,false,,3168,0,246,246,http://localhost:8080/dashboard,0,0,1
+1779601324205,62698,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-31,text,false,,7784,1071,246,246,http://localhost:8080/ujian,10513,0,1
+1779601324205,10514,1. Login-0,302,Found,600 Siswa 1-31,text,true,,2342,244,246,246,http://localhost:8080/login,10513,0,1
+1779601334719,22151,1. Login-1,302,Found,600 Siswa 1-31,text,true,,2274,827,246,246,http://localhost:8080/dashboard,22150,0,1
+1779601356872,30032,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-31,text,false,,3168,0,246,246,http://localhost:8080/ujian,0,0,1
+1779601356883,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-140,text,false,,2677,0,246,246,http://localhost:8080/login,0,0,1
+1779601357054,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-14,text,false,,2677,0,247,247,http://localhost:8080/dashboard,0,0,1
+1779601357183,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-141,text,false,,2677,0,247,247,http://localhost:8080/login,0,0,1
+1779601334983,52511,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-67,text,false,,5510,244,248,248,http://localhost:8080/dashboard,22478,0,1
+1779601334983,22479,1. Login-0,302,Found,600 Siswa 1-67,text,true,,2342,244,248,248,http://localhost:8080/login,22478,0,1
+1779601357463,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-67,text,false,,3168,0,248,248,http://localhost:8080/dashboard,0,0,1
+1779601357484,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-142,text,false,,2677,0,248,248,http://localhost:8080/login,0,0,1
+1779601357782,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-143,text,false,,2677,0,249,249,http://localhost:8080/login,0,0,1
+1779601335284,52814,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-68,text,false,,5510,244,250,250,http://localhost:8080/dashboard,22780,0,1
+1779601335284,22781,1. Login-0,302,Found,600 Siswa 1-68,text,true,,2342,244,250,250,http://localhost:8080/login,22780,0,1
+1779601358067,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-68,text,false,,3168,0,250,250,http://localhost:8080/dashboard,0,0,1
+1779601358083,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-144,text,false,,2677,0,250,250,http://localhost:8080/login,0,0,1
+1779601324495,63637,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-32,text,false,,7784,1071,250,250,http://localhost:8080/ujian,10817,0,1
+1779601324495,10818,1. Login-0,302,Found,600 Siswa 1-32,text,true,,2342,244,250,250,http://localhost:8080/login,10817,0,1
+1779601335314,22786,1. Login-1,302,Found,600 Siswa 1-32,text,true,,2274,827,250,250,http://localhost:8080/dashboard,22786,0,1
+1779601358102,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-32,text,false,,3168,0,250,250,http://localhost:8080/ujian,0,0,1
+1779601358383,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-145,text,false,,2677,0,251,251,http://localhost:8080/login,0,0,0
+1779601358682,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-146,text,false,,2677,0,252,252,http://localhost:8080/login,0,0,0
+1779601335583,53275,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-69,text,false,,5510,244,253,253,http://localhost:8080/dashboard,23242,0,1
+1779601335583,23243,1. Login-0,302,Found,600 Siswa 1-69,text,true,,2342,244,253,253,http://localhost:8080/login,23242,0,1
+1779601358827,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-69,text,false,,3168,0,253,253,http://localhost:8080/dashboard,0,0,1
+1779601358983,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-147,text,false,,2677,0,253,253,http://localhost:8080/login,0,0,1
+1779601359283,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-148,text,false,,2677,0,254,254,http://localhost:8080/login,0,0,1
+1779601335884,53566,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-70,text,false,,5510,244,255,255,http://localhost:8080/dashboard,23532,0,1
+1779601335884,23533,1. Login-0,302,Found,600 Siswa 1-70,text,true,,2342,244,255,255,http://localhost:8080/login,23532,0,1
+1779601359419,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-70,text,false,,3168,0,255,255,http://localhost:8080/dashboard,0,0,0
+1779601324807,64678,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-33,text,false,,7784,1071,255,255,http://localhost:8080/ujian,11176,0,1
+1779601324807,11177,1. Login-0,302,Found,600 Siswa 1-33,text,true,,2342,244,255,255,http://localhost:8080/login,11176,0,1
+1779601335984,23469,1. Login-1,302,Found,600 Siswa 1-33,text,true,,2274,827,255,255,http://localhost:8080/dashboard,23468,0,2
+1779601359455,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-33,text,false,,3168,0,255,255,http://localhost:8080/ujian,0,0,0
+1779601336134,53396,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-7,text,false,,5442,827,255,255,http://localhost:8080/ujian,23360,0,1
+1779601336134,23361,2. Dashboard-0,302,Found,600 Siswa 1-7,text,true,,2274,827,255,255,http://localhost:8080/dashboard,23360,0,1
+1779601359497,30033,2. Dashboard-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-7,text,false,,3168,0,255,255,http://localhost:8080/ujian,0,0,0
+1779601359584,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-149,text,false,,2677,0,255,255,http://localhost:8080/login,0,0,0
+1779601359883,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-150,text,false,,2677,0,256,256,http://localhost:8080/login,0,0,1
+1779601336183,53941,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-71,text,false,,5510,244,257,257,http://localhost:8080/dashboard,23908,0,1
+1779601336183,23909,1. Login-0,302,Found,600 Siswa 1-71,text,true,,2342,244,257,257,http://localhost:8080/login,23908,0,1
+1779601360093,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-71,text,false,,3168,0,257,257,http://localhost:8080/dashboard,0,0,1
+1779601360171,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-15,text,false,,2677,0,257,257,http://localhost:8080/dashboard,0,0,1
+1779601360184,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-151,text,false,,2677,0,257,257,http://localhost:8080/login,0,0,1
+1779601360241,30031,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-3,text,false,,2677,0,257,257,http://localhost:8080/ujian,0,0,0
+1779601360484,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-152,text,false,,2677,0,258,258,http://localhost:8080/login,0,0,1
+1779601336483,54239,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-72,text,false,,5510,244,259,259,http://localhost:8080/dashboard,24206,0,1
+1779601336483,24207,1. Login-0,302,Found,600 Siswa 1-72,text,true,,2342,244,259,259,http://localhost:8080/login,24206,0,1
+1779601360691,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-72,text,false,,3168,0,259,259,http://localhost:8080/dashboard,0,0,1
+1779601325105,65652,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-34,text,false,,7784,1071,259,259,http://localhost:8080/ujian,11471,0,1
+1779601325105,11471,1. Login-0,302,Found,600 Siswa 1-34,text,true,,2342,244,259,259,http://localhost:8080/login,11471,0,1
+1779601336577,24148,1. Login-1,302,Found,600 Siswa 1-34,text,true,,2274,827,259,259,http://localhost:8080/dashboard,24146,0,1
+1779601360727,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-34,text,false,,3168,0,259,259,http://localhost:8080/ujian,0,0,1
+1779601360785,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-153,text,false,,2677,0,259,259,http://localhost:8080/login,0,0,1
+1779601361083,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-154,text,false,,2677,0,260,260,http://localhost:8080/login,0,0,1
+1779601336783,54625,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-73,text,false,,5510,244,261,261,http://localhost:8080/dashboard,24592,0,0
+1779601336783,24593,1. Login-0,302,Found,600 Siswa 1-73,text,true,,2342,244,261,261,http://localhost:8080/login,24592,0,0
+1779601361377,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-73,text,false,,3168,0,261,261,http://localhost:8080/dashboard,0,0,1
+1779601361383,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-155,text,false,,2677,0,261,261,http://localhost:8080/login,0,0,1
+1779601361682,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-156,text,false,,2677,0,262,262,http://localhost:8080/login,0,0,1
+1779601337083,54918,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-74,text,false,,5510,244,263,263,http://localhost:8080/dashboard,24885,0,0
+1779601337083,24885,1. Login-0,302,Found,600 Siswa 1-74,text,true,,2342,244,263,263,http://localhost:8080/login,24885,0,0
+1779601361970,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-74,text,false,,3168,0,263,263,http://localhost:8080/dashboard,0,0,1
+1779601361983,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-157,text,false,,2677,0,263,263,http://localhost:8080/login,0,0,1
+1779601325387,66652,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-35,text,false,,7784,1071,263,263,http://localhost:8080/ujian,11879,0,2
+1779601325387,11880,1. Login-0,302,Found,600 Siswa 1-35,text,true,,2342,244,263,263,http://localhost:8080/login,11879,0,2
+1779601337267,24740,1. Login-1,302,Found,600 Siswa 1-35,text,true,,2274,827,263,263,http://localhost:8080/dashboard,24739,0,1
+1779601362009,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-35,text,false,,3168,0,263,263,http://localhost:8080/ujian,0,0,1
+1779601362283,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-158,text,false,,2677,0,264,264,http://localhost:8080/login,0,0,1
+1779601362583,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-159,text,false,,2677,0,265,265,http://localhost:8080/login,0,0,1
+1779601337383,55245,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-75,text,false,,5510,244,265,265,http://localhost:8080/dashboard,25211,0,0
+1779601337383,25213,1. Login-0,302,Found,600 Siswa 1-75,text,true,,2342,244,265,265,http://localhost:8080/login,25211,0,0
+1779601362597,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-75,text,false,,3168,0,265,265,http://localhost:8080/dashboard,0,0,1
+1779601362789,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-16,text,false,,2677,0,266,266,http://localhost:8080/dashboard,0,0,1
+1779601362883,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-160,text,false,,2677,0,266,266,http://localhost:8080/login,0,0,1
+1779601363183,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-161,text,false,,2677,0,267,267,http://localhost:8080/login,0,0,2
+1779601337684,55537,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-76,text,false,,5510,244,267,267,http://localhost:8080/dashboard,25504,0,1
+1779601337684,25505,1. Login-0,302,Found,600 Siswa 1-76,text,true,,2342,244,267,267,http://localhost:8080/login,25504,0,1
+1779601363191,30030,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-76,text,false,,3168,0,267,267,http://localhost:8080/dashboard,0,0,0
+1779601325688,67574,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-36,text,false,,7784,1071,267,267,http://localhost:8080/ujian,12170,0,1
+1779601325688,12170,1. Login-0,302,Found,600 Siswa 1-36,text,true,,2342,244,267,267,http://localhost:8080/login,12170,0,1
+1779601337859,25372,1. Login-1,302,Found,600 Siswa 1-36,text,true,,2274,827,267,267,http://localhost:8080/dashboard,25371,0,1
+1779601363233,30030,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-36,text,false,,3168,0,267,267,http://localhost:8080/ujian,0,0,0
+1779601363483,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-162,text,false,,2677,0,268,268,http://localhost:8080/login,0,0,1
+1779601363783,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-163,text,false,,2677,0,269,269,http://localhost:8080/login,0,0,1
+1779601337985,55958,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-77,text,false,,5510,244,270,270,http://localhost:8080/dashboard,25925,0,3
+1779601337985,25926,1. Login-0,302,Found,600 Siswa 1-77,text,true,,2342,244,270,270,http://localhost:8080/login,25925,0,3
+1779601363913,30030,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-77,text,false,,3168,0,270,270,http://localhost:8080/dashboard,0,0,0
+1779601364084,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-164,text,false,,2677,0,270,270,http://localhost:8080/login,0,0,0
+1779601364384,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-165,text,false,,2677,0,271,271,http://localhost:8080/login,0,0,1
+1779601338285,56250,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-78,text,false,,5510,244,272,272,http://localhost:8080/dashboard,26216,0,1
+1779601338285,26217,1. Login-0,302,Found,600 Siswa 1-78,text,true,,2342,244,272,272,http://localhost:8080/login,26216,0,1
+1779601364504,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-78,text,false,,3168,0,272,272,http://localhost:8080/dashboard,0,0,1
+1779601325998,68574,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-37,text,false,,7784,1071,272,272,http://localhost:8080/ujian,12488,0,1
+1779601325998,12489,1. Login-0,302,Found,600 Siswa 1-37,text,true,,2342,244,272,272,http://localhost:8080/login,12488,0,1
+1779601338489,26051,1. Login-1,302,Found,600 Siswa 1-37,text,true,,2274,827,272,272,http://localhost:8080/dashboard,26050,0,1
+1779601364542,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-37,text,false,,3168,0,272,272,http://localhost:8080/ujian,0,0,0
+1779601364684,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-166,text,false,,2677,0,272,272,http://localhost:8080/login,0,0,1
+1779601364984,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-167,text,false,,2677,0,273,273,http://localhost:8080/login,0,0,1
+1779601338583,56584,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-79,text,false,,5510,244,274,274,http://localhost:8080/dashboard,26550,0,1
+1779601338583,26551,1. Login-0,302,Found,600 Siswa 1-79,text,true,,2342,244,274,274,http://localhost:8080/login,26550,0,1
+1779601365136,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-79,text,false,,3168,0,274,274,http://localhost:8080/dashboard,0,0,0
+1779601338676,56526,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-8,text,false,,5442,827,274,274,http://localhost:8080/ujian,26493,0,1
+1779601338676,26494,2. Dashboard-0,302,Found,600 Siswa 1-8,text,true,,2274,827,274,274,http://localhost:8080/dashboard,26493,0,1
+1779601365171,30031,2. Dashboard-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-8,text,false,,3168,0,274,274,http://localhost:8080/ujian,0,0,1
+1779601365283,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-168,text,false,,2677,0,274,274,http://localhost:8080/login,0,0,1
+1779601365320,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-17,text,false,,2677,0,274,274,http://localhost:8080/dashboard,0,0,1
+1779601365582,30016,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-169,text,false,,2677,0,275,275,http://localhost:8080/login,0,0,1
+1779601338885,56910,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-80,text,false,,5510,244,276,276,http://localhost:8080/dashboard,26879,0,1
+1779601338885,26879,1. Login-0,302,Found,600 Siswa 1-80,text,true,,2342,244,276,276,http://localhost:8080/login,26879,0,1
+1779601365765,30030,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-80,text,false,,3168,0,276,276,http://localhost:8080/dashboard,0,0,0
+1779601326292,69551,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-38,text,false,,7784,1071,276,276,http://localhost:8080/ujian,12792,0,1
+1779601326292,12793,1. Login-0,302,Found,600 Siswa 1-38,text,true,,2342,244,276,276,http://localhost:8080/login,12792,0,1
+1779601339086,26718,1. Login-1,302,Found,600 Siswa 1-38,text,true,,2274,827,276,276,http://localhost:8080/dashboard,26717,0,0
+1779601365804,30039,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-38,text,false,,3168,0,276,276,http://localhost:8080/ujian,0,0,1
+1779601365881,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-170,text,false,,2677,0,276,276,http://localhost:8080/login,0,0,1
+1779601366182,30034,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-171,text,false,,2677,0,277,277,http://localhost:8080/login,0,0,3
+1779601339185,57305,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-81,text,false,,5510,244,278,278,http://localhost:8080/dashboard,27273,0,1
+1779601339185,27273,1. Login-0,302,Found,600 Siswa 1-81,text,true,,2342,244,278,278,http://localhost:8080/login,27273,0,1
+1779601366459,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-81,text,false,,3168,0,278,278,http://localhost:8080/dashboard,0,0,1
+1779601366483,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-172,text,false,,2677,0,278,278,http://localhost:8080/login,0,0,1
+1779601366783,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-173,text,false,,2677,0,279,279,http://localhost:8080/login,0,0,1
+1779601339485,57603,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-82,text,false,,5510,244,280,280,http://localhost:8080/dashboard,27569,0,0
+1779601339485,27570,1. Login-0,302,Found,600 Siswa 1-82,text,true,,2342,244,280,280,http://localhost:8080/login,27569,0,0
+1779601367057,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-82,text,false,,3168,0,280,280,http://localhost:8080/dashboard,0,0,1
+1779601367083,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-174,text,false,,2677,0,280,280,http://localhost:8080/login,0,0,1
+1779601326589,70534,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-39,text,false,,7784,1071,280,280,http://localhost:8080/ujian,13125,0,1
+1779601326589,13125,1. Login-0,302,Found,600 Siswa 1-39,text,true,,2342,244,280,280,http://localhost:8080/login,13125,0,1
+1779601339715,27376,1. Login-1,302,Found,600 Siswa 1-39,text,true,,2274,827,280,280,http://localhost:8080/dashboard,27376,0,1
+1779601367092,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-39,text,false,,3168,0,280,280,http://localhost:8080/ujian,0,0,1
+1779601367383,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-175,text,false,,2677,0,281,281,http://localhost:8080/login,0,0,0
+1779601367681,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-176,text,false,,2677,0,282,282,http://localhost:8080/login,0,0,2
+1779601339784,57934,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-83,text,false,,5510,244,282,282,http://localhost:8080/dashboard,27902,0,0
+1779601339784,27903,1. Login-0,302,Found,600 Siswa 1-83,text,true,,2342,244,282,282,http://localhost:8080/login,27902,0,0
+1779601367687,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-83,text,false,,3168,0,282,282,http://localhost:8080/dashboard,0,0,1
+1779601367869,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-18,text,false,,2677,0,283,283,http://localhost:8080/dashboard,0,0,0
+1779601367982,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-177,text,false,,2677,0,283,283,http://localhost:8080/login,0,0,1
+1779601368281,30030,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-178,text,false,,2677,0,284,284,http://localhost:8080/login,0,0,1
+1779601340084,58228,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-84,text,false,,5510,244,284,284,http://localhost:8080/dashboard,28196,0,1
+1779601340084,28196,1. Login-0,302,Found,600 Siswa 1-84,text,true,,2342,244,284,284,http://localhost:8080/login,28196,0,1
+1779601368281,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-84,text,false,,3168,0,284,284,http://localhost:8080/dashboard,0,0,1
+1779601326891,71460,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-40,text,false,,7784,1071,284,284,http://localhost:8080/ujian,13411,0,1
+1779601326891,13412,1. Login-0,302,Found,600 Siswa 1-40,text,true,,2342,244,284,284,http://localhost:8080/login,13411,0,1
+1779601340304,28016,1. Login-1,302,Found,600 Siswa 1-40,text,true,,2274,827,284,284,http://localhost:8080/dashboard,28015,0,1
+1779601368321,30030,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-40,text,false,,3168,0,284,284,http://localhost:8080/ujian,0,0,0
+1779601368585,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-179,text,false,,2677,0,285,285,http://localhost:8080/login,0,0,0
+1779601368884,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-180,text,false,,2677,0,286,286,http://localhost:8080/login,0,0,1
+1779601340386,58626,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-85,text,false,,5510,244,287,287,http://localhost:8080/dashboard,28594,0,1
+1779601340386,28595,1. Login-0,302,Found,600 Siswa 1-85,text,true,,2342,244,287,287,http://localhost:8080/login,28594,0,1
+1779601368981,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-85,text,false,,3168,0,287,287,http://localhost:8080/dashboard,0,0,1
+1779601369182,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-181,text,false,,2677,0,287,287,http://localhost:8080/login,0,0,1
+1779601369484,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-182,text,false,,2677,0,288,288,http://localhost:8080/login,0,0,1
+1779601340684,58916,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-86,text,false,,5510,244,289,289,http://localhost:8080/dashboard,28884,0,1
+1779601340684,28885,1. Login-0,302,Found,600 Siswa 1-86,text,true,,2342,244,289,289,http://localhost:8080/login,28884,0,1
+1779601369569,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-86,text,false,,3168,0,289,289,http://localhost:8080/dashboard,0,0,1
+1779601369783,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-183,text,false,,2677,0,289,289,http://localhost:8080/login,0,0,1
+1779601370082,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-184,text,false,,2677,0,290,290,http://localhost:8080/login,0,0,0
+1779601340984,59214,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-87,text,false,,5510,244,291,291,http://localhost:8080/dashboard,29182,0,1
+1779601340984,29182,1. Login-0,302,Found,600 Siswa 1-87,text,true,,2342,244,291,291,http://localhost:8080/login,29182,0,1
+1779601370167,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-87,text,false,,3168,0,291,291,http://localhost:8080/dashboard,0,0,1
+1779601327186,73051,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-41,text,false,,7784,1071,291,291,http://localhost:8080/ujian,13816,0,1
+1779601327186,13817,1. Login-0,302,Found,600 Siswa 1-41,text,true,,2342,244,291,291,http://localhost:8080/login,13816,0,1
+1779601341004,29202,1. Login-1,302,Found,600 Siswa 1-41,text,true,,2274,827,291,291,http://localhost:8080/dashboard,29201,0,1
+1779601370206,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-41,text,false,,3168,0,291,291,http://localhost:8080/ujian,0,0,1
+1779601370383,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-185,text,false,,2677,0,291,291,http://localhost:8080/login,0,0,1
+1779601370392,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-19,text,false,,2677,0,291,291,http://localhost:8080/dashboard,0,0,1
+1779601370683,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-186,text,false,,2677,0,292,292,http://localhost:8080/login,0,0,0
+1779601341283,59605,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-88,text,false,,5510,244,293,293,http://localhost:8080/dashboard,29572,0,1
+1779601341283,29573,1. Login-0,302,Found,600 Siswa 1-88,text,true,,2342,244,293,293,http://localhost:8080/login,29572,0,1
+1779601370857,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-88,text,false,,3168,0,293,293,http://localhost:8080/dashboard,0,0,0
+1779601370984,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-187,text,false,,2677,0,293,293,http://localhost:8080/login,0,0,1
+1779601371283,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-188,text,false,,2677,0,294,294,http://localhost:8080/login,0,0,1
+1779601341586,59891,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-89,text,false,,5510,244,295,295,http://localhost:8080/dashboard,29859,0,6
+1779601341586,29860,1. Login-0,302,Found,600 Siswa 1-89,text,true,,2342,244,295,295,http://localhost:8080/login,29859,0,6
+1779601371446,30031,1. Login-1,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-89,text,false,,3168,0,295,295,http://localhost:8080/dashboard,0,0,1
+1779601327484,74029,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-42,text,false,,7784,1071,295,295,http://localhost:8080/ujian,14146,0,1
+1779601327484,14146,1. Login-0,302,Found,600 Siswa 1-42,text,true,,2342,244,295,295,http://localhost:8080/login,14146,0,1
+1779601341631,29851,1. Login-1,302,Found,600 Siswa 1-42,text,true,,2274,827,295,295,http://localhost:8080/dashboard,29850,0,4
+1779601371482,30031,1. Login-2,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-42,text,false,,3168,0,295,295,http://localhost:8080/ujian,0,0,1
+1779601371586,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-189,text,false,,2677,0,295,295,http://localhost:8080/login,0,0,0
+1779601371884,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-190,text,false,,2677,0,296,296,http://localhost:8080/login,0,0,1
+1779601372183,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-191,text,false,,2677,0,297,297,http://localhost:8080/login,0,0,1
+1779601372272,30031,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-4,text,false,,2677,0,298,298,http://localhost:8080/ujian,0,0,0
+1779601372484,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-192,text,false,,2677,0,298,298,http://localhost:8080/login,0,0,1
+1779601372784,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-193,text,false,,2677,0,299,299,http://localhost:8080/login,0,0,1
+1779601373082,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-194,text,false,,2677,0,300,300,http://localhost:8080/login,0,0,1
+1779601373382,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-195,text,false,,2677,0,301,301,http://localhost:8080/login,0,0,1
+1779601373554,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-20,text,false,,2677,0,302,302,http://localhost:8080/dashboard,0,0,1
+1779601373683,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-196,text,false,,2677,0,302,302,http://localhost:8080/login,0,0,1
+1779601373922,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-90,text,false,,2677,0,303,303,http://localhost:8080/dashboard,0,0,1
+1779601373982,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-197,text,false,,2677,0,303,303,http://localhost:8080/login,0,0,1
+1779601374218,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-91,text,false,,2677,0,304,304,http://localhost:8080/dashboard,0,0,1
+1779601374284,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-198,text,false,,2677,0,304,304,http://localhost:8080/login,0,0,1
+1779601374335,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-43,text,false,,2677,0,304,304,http://localhost:8080/dashboard,0,0,1
+1779601374447,30031,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-9,text,false,,2677,0,305,305,http://localhost:8080/ujian,0,0,0
+1779601374517,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-92,text,false,,2677,0,305,305,http://localhost:8080/dashboard,0,0,1
+1779601374582,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-199,text,false,,2677,0,305,305,http://localhost:8080/login,0,0,0
+1779601374817,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-93,text,false,,2677,0,306,306,http://localhost:8080/dashboard,0,0,1
+1779601374884,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-200,text,false,,2677,0,306,306,http://localhost:8080/login,0,0,0
+1779601374930,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-44,text,false,,2677,0,306,306,http://localhost:8080/dashboard,0,0,1
+1779601374975,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-21,text,false,,2677,0,307,307,http://localhost:8080/dashboard,0,0,1
+1779601375119,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-94,text,false,,2677,0,307,307,http://localhost:8080/dashboard,0,0,1
+1779601375183,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-201,text,false,,2677,0,307,307,http://localhost:8080/login,0,0,1
+1779601375418,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-95,text,false,,2677,0,308,308,http://localhost:8080/dashboard,0,0,1
+1779601375482,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-202,text,false,,2677,0,308,308,http://localhost:8080/login,0,0,1
+1779601375642,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-45,text,false,,2677,0,309,309,http://localhost:8080/dashboard,0,0,0
+1779601375719,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-96,text,false,,2677,0,309,309,http://localhost:8080/dashboard,0,0,0
+1779601375781,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-203,text,false,,2677,0,309,309,http://localhost:8080/login,0,0,1
+1779601376020,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-97,text,false,,2677,0,310,310,http://localhost:8080/dashboard,0,0,1
+1779601376082,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-204,text,false,,2677,0,310,310,http://localhost:8080/login,0,0,1
+1779601376239,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-46,text,false,,2677,0,311,311,http://localhost:8080/dashboard,0,0,1
+1779601376320,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-98,text,false,,2677,0,311,311,http://localhost:8080/dashboard,0,0,0
+1779601376383,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-205,text,false,,2677,0,311,311,http://localhost:8080/login,0,0,1
+1779601376623,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-99,text,false,,2677,0,312,312,http://localhost:8080/dashboard,0,0,1
+1779601376684,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-206,text,false,,2677,0,312,312,http://localhost:8080/login,0,0,0
+1779601376834,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-47,text,false,,2677,0,313,313,http://localhost:8080/dashboard,0,0,0
+1779601376870,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-22,text,false,,2677,0,313,313,http://localhost:8080/dashboard,0,0,1
+1779601376917,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-100,text,false,,2677,0,313,313,http://localhost:8080/dashboard,0,0,1
+1779601376983,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-207,text,false,,2677,0,313,313,http://localhost:8080/login,0,0,1
+1779601377051,30030,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-10,text,false,,2677,0,313,313,http://localhost:8080/ujian,0,0,0
+1779601377216,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-101,text,false,,2677,0,314,314,http://localhost:8080/dashboard,0,0,0
+1779601377285,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-208,text,false,,2677,0,314,314,http://localhost:8080/login,0,0,1
+1779601377464,30028,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-48,text,false,,2677,0,315,315,http://localhost:8080/dashboard,0,0,1
+1779601377519,30033,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-102,text,false,,2677,0,315,315,http://localhost:8080/dashboard,0,0,0
+1779601377586,30019,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-209,text,false,,2677,0,315,315,http://localhost:8080/login,0,0,0
+1779601377816,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-103,text,false,,2677,0,316,316,http://localhost:8080/dashboard,0,0,0
+1779601377884,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-210,text,false,,2677,0,316,316,http://localhost:8080/login,0,0,1
+1779601378060,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-49,text,false,,2677,0,317,317,http://localhost:8080/dashboard,0,0,0
+1779601378092,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-23,text,false,,2677,0,317,317,http://localhost:8080/dashboard,0,0,0
+1779601378122,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-104,text,false,,2677,0,317,317,http://localhost:8080/dashboard,0,0,0
+1779601378182,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-211,text,false,,2677,0,317,317,http://localhost:8080/login,0,0,1
+1779601378415,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-105,text,false,,2677,0,318,318,http://localhost:8080/dashboard,0,0,0
+1779601378483,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-212,text,false,,2677,0,318,318,http://localhost:8080/login,0,0,0
+1779601378717,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-106,text,false,,2677,0,319,319,http://localhost:8080/dashboard,0,0,0
+1779601378783,30030,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-213,text,false,,2677,0,319,319,http://localhost:8080/login,0,0,0
+1779601378809,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-50,text,false,,2677,0,319,319,http://localhost:8080/dashboard,0,0,0
+1779601379017,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-107,text,false,,2677,0,320,320,http://localhost:8080/dashboard,0,0,0
+1779601379082,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-214,text,false,,2677,0,320,320,http://localhost:8080/login,0,0,1
+1779601379317,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-108,text,false,,2677,0,321,321,http://localhost:8080/dashboard,0,0,0
+1779601379382,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-215,text,false,,2677,0,321,321,http://localhost:8080/login,0,0,1
+1779601379401,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-51,text,false,,2677,0,321,321,http://localhost:8080/dashboard,0,0,1
+1779601379441,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-24,text,false,,2677,0,321,321,http://localhost:8080/dashboard,0,0,0
+1779601379477,30031,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-5,text,false,,2677,0,322,322,http://localhost:8080/ujian,0,0,1
+1779601379619,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-109,text,false,,2677,0,322,322,http://localhost:8080/dashboard,0,0,1
+1779601379682,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-216,text,false,,2677,0,322,322,http://localhost:8080/login,0,0,1
+1779601379917,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-110,text,false,,2677,0,323,323,http://localhost:8080/dashboard,0,0,0
+1779601379981,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-217,text,false,,2677,0,323,323,http://localhost:8080/login,0,0,1
+1779601380071,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-52,text,false,,2677,0,324,324,http://localhost:8080/dashboard,0,0,1
+1779601380159,30031,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-11,text,false,,2677,0,324,324,http://localhost:8080/ujian,0,0,1
+1779601380216,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-111,text,false,,2677,0,324,324,http://localhost:8080/dashboard,0,0,0
+1779601380223,30031,4. Masuk Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-2,text,false,,2677,0,324,324,http://localhost:8080/ujian/4/masuk,0,0,1
+1779601380281,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-218,text,false,,2677,0,324,324,http://localhost:8080/login,0,0,1
+1779601380516,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-112,text,false,,2677,0,325,325,http://localhost:8080/dashboard,0,0,0
+1779601380584,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-219,text,false,,2677,0,325,325,http://localhost:8080/login,0,0,1
+1779601380669,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-53,text,false,,2677,0,326,326,http://localhost:8080/dashboard,0,0,0
+1779601380705,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-25,text,false,,2677,0,326,326,http://localhost:8080/dashboard,0,0,1
+1779601380819,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-113,text,false,,2677,0,326,326,http://localhost:8080/dashboard,0,0,0
+1779601380883,30030,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-220,text,false,,2677,0,326,326,http://localhost:8080/login,0,0,0
+1779601381119,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-114,text,false,,2677,0,327,327,http://localhost:8080/dashboard,0,0,0
+1779601381183,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-221,text,false,,2677,0,327,327,http://localhost:8080/login,0,0,1
+1779601381366,30026,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-54,text,false,,2677,0,328,328,http://localhost:8080/dashboard,0,0,0
+1779601381414,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-115,text,false,,2677,0,328,328,http://localhost:8080/dashboard,0,0,1
+1779601381481,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-222,text,false,,2677,0,328,328,http://localhost:8080/login,0,0,1
+1779601381715,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-116,text,false,,2677,0,329,329,http://localhost:8080/dashboard,0,0,0
+1779601381781,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-223,text,false,,2677,0,329,329,http://localhost:8080/login,0,0,1
+1779601381965,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-55,text,false,,2677,0,330,330,http://localhost:8080/dashboard,0,0,0
+1779601381999,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-26,text,false,,2677,0,330,330,http://localhost:8080/dashboard,0,0,0
+1779601382016,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-117,text,false,,2677,0,330,330,http://localhost:8080/dashboard,0,0,1
+1779601382081,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-224,text,false,,2677,0,330,330,http://localhost:8080/login,0,0,1
+1779601382313,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-118,text,false,,2677,0,331,331,http://localhost:8080/dashboard,0,0,0
+1779601382381,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-225,text,false,,2677,0,331,331,http://localhost:8080/login,0,0,1
+1779601382593,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-56,text,false,,2677,0,332,332,http://localhost:8080/dashboard,0,0,0
+1779601382615,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-119,text,false,,2677,0,332,332,http://localhost:8080/dashboard,0,0,1
+1779601382617,30031,4. Masuk Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-1,text,false,,2677,0,332,332,http://localhost:8080/ujian/4/masuk,0,0,1
+1779601382682,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-226,text,false,,2677,0,332,332,http://localhost:8080/login,0,0,1
+1779601382804,30031,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-12,text,false,,2677,0,333,333,http://localhost:8080/ujian,0,0,0
+1779601382914,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-120,text,false,,2677,0,333,333,http://localhost:8080/dashboard,0,0,0
+1779601382981,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-227,text,false,,2677,0,333,333,http://localhost:8080/login,0,0,1
+1779601383208,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-57,text,false,,2677,0,334,334,http://localhost:8080/dashboard,0,0,0
+1779601383214,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-121,text,false,,2677,0,334,334,http://localhost:8080/dashboard,0,0,1
+1779601383249,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-27,text,false,,2677,0,334,334,http://localhost:8080/dashboard,0,0,1
+1779601383282,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-228,text,false,,2677,0,334,334,http://localhost:8080/login,0,0,1
+1779601383531,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-122,text,false,,2677,0,335,335,http://localhost:8080/dashboard,0,0,1
+1779601383582,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-229,text,false,,2677,0,335,335,http://localhost:8080/login,0,0,0
+1779601383827,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-123,text,false,,2677,0,336,336,http://localhost:8080/dashboard,0,0,0
+1779601383842,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-58,text,false,,2677,0,336,336,http://localhost:8080/dashboard,0,0,0
+1779601383884,30030,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-230,text,false,,2677,0,336,336,http://localhost:8080/login,0,0,0
+1779601384118,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-124,text,false,,2677,0,337,337,http://localhost:8080/dashboard,0,0,0
+1779601384183,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-231,text,false,,2677,0,337,337,http://localhost:8080/login,0,0,1
+1779601384416,30027,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-125,text,false,,2677,0,338,338,http://localhost:8080/dashboard,0,0,0
+1779601384429,30029,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-59,text,false,,2677,0,338,338,http://localhost:8080/dashboard,0,0,0
+1779601384471,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-28,text,false,,2677,0,338,338,http://localhost:8080/dashboard,0,0,0
+1779601384482,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-232,text,false,,2677,0,338,338,http://localhost:8080/login,0,0,1
+1779601384716,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-126,text,false,,2677,0,339,339,http://localhost:8080/dashboard,0,0,0
+1779601384782,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-233,text,false,,2677,0,339,339,http://localhost:8080/login,0,0,0
+1779601385016,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-127,text,false,,2677,0,340,340,http://localhost:8080/dashboard,0,0,0
+1779601385084,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-234,text,false,,2677,0,340,340,http://localhost:8080/login,0,0,1
+1779601385131,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-60,text,false,,2677,0,340,340,http://localhost:8080/dashboard,0,0,0
+1779601385168,30031,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-6,text,false,,2677,0,341,341,http://localhost:8080/ujian,0,0,0
+1779601385316,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-128,text,false,,2677,0,341,341,http://localhost:8080/dashboard,0,0,0
+1779601385383,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-235,text,false,,2677,0,341,341,http://localhost:8080/login,0,0,1
+1779601385615,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-129,text,false,,2677,0,342,342,http://localhost:8080/dashboard,0,0,0
+1779601385685,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-236,text,false,,2677,0,342,342,http://localhost:8080/login,0,0,1
+1779601385754,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-61,text,false,,2677,0,343,343,http://localhost:8080/dashboard,0,0,0
+1779601385789,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-29,text,false,,2677,0,343,343,http://localhost:8080/dashboard,0,0,0
+1779601385918,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-130,text,false,,2677,0,343,343,http://localhost:8080/dashboard,0,0,0
+1779601385982,30032,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-237,text,false,,2677,0,343,343,http://localhost:8080/login,0,0,1
+1779601386215,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-131,text,false,,2677,0,344,344,http://localhost:8080/dashboard,0,0,0
+1779601386281,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-238,text,false,,2677,0,344,344,http://localhost:8080/login,0,0,1
+1779601386386,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-62,text,false,,2677,0,345,345,http://localhost:8080/dashboard,0,0,0
+1779601386515,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-132,text,false,,2677,0,345,345,http://localhost:8080/dashboard,0,0,0
+1779601386542,30031,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-13,text,false,,2677,0,345,345,http://localhost:8080/ujian,0,0,0
+1779601386581,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-239,text,false,,2677,0,345,345,http://localhost:8080/login,0,0,1
+1779601386818,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-133,text,false,,2677,0,346,346,http://localhost:8080/dashboard,0,0,1
+1779601386882,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-240,text,false,,2677,0,346,346,http://localhost:8080/login,0,0,1
+1779601386982,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-63,text,false,,2677,0,347,347,http://localhost:8080/dashboard,0,0,0
+1779601387018,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-30,text,false,,2677,0,347,347,http://localhost:8080/dashboard,0,0,0
+1779601387114,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-134,text,false,,2677,0,347,347,http://localhost:8080/dashboard,0,0,1
+1779601387183,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-241,text,false,,2677,0,347,347,http://localhost:8080/login,0,0,1
+1779601387415,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-135,text,false,,2677,0,348,348,http://localhost:8080/dashboard,0,0,1
+1779601387481,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-242,text,false,,2677,0,348,348,http://localhost:8080/login,0,0,1
+1779601387672,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-64,text,false,,2677,0,349,349,http://localhost:8080/dashboard,0,0,0
+1779601387715,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-136,text,false,,2677,0,349,349,http://localhost:8080/dashboard,0,0,1
+1779601387783,30029,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-243,text,false,,2677,0,349,349,http://localhost:8080/login,0,0,0
+1779601388013,30024,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-137,text,false,,2677,0,350,350,http://localhost:8080/dashboard,0,0,1
+1779601388083,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-244,text,false,,2677,0,350,350,http://localhost:8080/login,0,0,1
+1779601388272,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-65,text,false,,2677,0,351,351,http://localhost:8080/dashboard,0,0,1
+1779601388314,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-138,text,false,,2677,0,351,351,http://localhost:8080/dashboard,0,0,0
+1779601388382,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-245,text,false,,2677,0,351,351,http://localhost:8080/login,0,0,1
+1779601388614,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-139,text,false,,2677,0,352,352,http://localhost:8080/dashboard,0,0,1
+1779601388682,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-246,text,false,,2677,0,352,352,http://localhost:8080/login,0,0,1
+1779601388865,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-66,text,false,,2677,0,353,353,http://localhost:8080/dashboard,0,0,0
+1779601388904,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-31,text,false,,2677,0,353,353,http://localhost:8080/dashboard,0,0,1
+1779601388914,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-140,text,false,,2677,0,353,353,http://localhost:8080/dashboard,0,0,0
+1779601388987,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-247,text,false,,2677,0,353,353,http://localhost:8080/login,0,0,0
+1779601389085,30030,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-14,text,false,,2677,0,354,354,http://localhost:8080/ujian,0,0,0
+1779601389213,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-141,text,false,,2677,0,354,354,http://localhost:8080/dashboard,0,0,1
+1779601389281,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-248,text,false,,2677,0,354,354,http://localhost:8080/login,0,0,1
+1779601389494,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-67,text,false,,2677,0,355,355,http://localhost:8080/dashboard,0,0,0
+1779601389515,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-142,text,false,,2677,0,355,355,http://localhost:8080/dashboard,0,0,0
+1779601389583,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-249,text,false,,2677,0,355,355,http://localhost:8080/login,0,0,1
+1779601389814,30033,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-143,text,false,,2677,0,356,356,http://localhost:8080/dashboard,0,0,2
+1779601389883,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-250,text,false,,2677,0,356,356,http://localhost:8080/login,0,0,1
+1779601390098,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-68,text,false,,2677,0,357,357,http://localhost:8080/dashboard,0,0,1
+1779601390114,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-144,text,false,,2677,0,357,357,http://localhost:8080/dashboard,0,0,1
+1779601390133,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-32,text,false,,2677,0,357,357,http://localhost:8080/dashboard,0,0,0
+1779601390182,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-251,text,false,,2677,0,357,357,http://localhost:8080/login,0,0,1
+1779601390414,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-145,text,false,,2677,0,358,358,http://localhost:8080/dashboard,0,0,0
+1779601390484,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-252,text,false,,2677,0,358,358,http://localhost:8080/login,0,0,1
+1779601390713,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-146,text,false,,2677,0,359,359,http://localhost:8080/dashboard,0,0,0
+1779601390782,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-253,text,false,,2677,0,359,359,http://localhost:8080/login,0,0,1
+1779601390859,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-69,text,false,,2677,0,360,360,http://localhost:8080/dashboard,0,0,0
+1779601391014,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-147,text,false,,2677,0,360,360,http://localhost:8080/dashboard,0,0,0
+1779601391084,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-254,text,false,,2677,0,360,360,http://localhost:8080/login,0,0,1
+1779601391314,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-148,text,false,,2677,0,361,361,http://localhost:8080/dashboard,0,0,1
+1779601391382,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-255,text,false,,2677,0,361,361,http://localhost:8080/login,0,0,1
+1779601391450,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-70,text,false,,2677,0,362,362,http://localhost:8080/dashboard,0,0,0
+1779601391486,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-33,text,false,,2677,0,362,362,http://localhost:8080/dashboard,0,0,0
+1779601391530,30030,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-7,text,false,,2677,0,362,362,http://localhost:8080/ujian,0,0,0
+1779601391615,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-149,text,false,,2677,0,362,362,http://localhost:8080/dashboard,0,0,0
+1779601391682,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-256,text,false,,2677,0,362,362,http://localhost:8080/login,0,0,1
+1779601391915,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-150,text,false,,2677,0,363,363,http://localhost:8080/dashboard,0,0,0
+1779601391982,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-257,text,false,,2677,0,363,363,http://localhost:8080/login,0,0,1
+1779601392124,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-71,text,false,,2677,0,364,364,http://localhost:8080/dashboard,0,0,0
+1779601392202,30030,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-15,text,false,,2677,0,364,364,http://localhost:8080/ujian,0,0,0
+1779601392215,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-151,text,false,,2677,0,364,364,http://localhost:8080/dashboard,0,0,1
+1779601392271,30016,4. Masuk Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-3,text,false,,2677,0,364,364,http://localhost:8080/ujian/4/masuk,0,0,1
+1779601392283,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-258,text,false,,2677,0,364,364,http://localhost:8080/login,0,0,1
+1779601392515,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-152,text,false,,2677,0,365,365,http://localhost:8080/dashboard,0,0,0
+1779601392582,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-259,text,false,,2677,0,365,365,http://localhost:8080/login,0,0,1
+1779601392722,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-72,text,false,,2677,0,366,366,http://localhost:8080/dashboard,0,0,0
+1779601392758,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-34,text,false,,2677,0,366,366,http://localhost:8080/dashboard,0,0,0
+1779601392816,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-153,text,false,,2677,0,366,366,http://localhost:8080/dashboard,0,0,0
+1779601392882,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-260,text,false,,2677,0,366,366,http://localhost:8080/login,0,0,1
+1779601393114,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-154,text,false,,2677,0,367,367,http://localhost:8080/dashboard,0,0,0
+1779601393183,30022,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-261,text,false,,2677,0,367,367,http://localhost:8080/login,0,0,0
+1779601393408,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-73,text,false,,2677,0,368,368,http://localhost:8080/dashboard,0,0,0
+1779601393414,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-155,text,false,,2677,0,368,368,http://localhost:8080/dashboard,0,0,0
+1779601393482,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-262,text,false,,2677,0,368,368,http://localhost:8080/login,0,0,1
+1779601393713,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-156,text,false,,2677,0,369,369,http://localhost:8080/dashboard,0,0,1
+1779601393783,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-263,text,false,,2677,0,369,369,http://localhost:8080/login,0,0,1
+1779601394001,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-74,text,false,,2677,0,370,370,http://localhost:8080/dashboard,0,0,0
+1779601394014,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-157,text,false,,2677,0,370,370,http://localhost:8080/dashboard,0,0,1
+1779601394040,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-35,text,false,,2677,0,370,370,http://localhost:8080/dashboard,0,0,1
+1779601394081,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-264,text,false,,2677,0,370,370,http://localhost:8080/login,0,0,0
+1779601394314,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-158,text,false,,2677,0,371,371,http://localhost:8080/dashboard,0,0,0
+1779601394381,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-265,text,false,,2677,0,371,371,http://localhost:8080/login,0,0,1
+1779601394614,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-159,text,false,,2677,0,372,372,http://localhost:8080/dashboard,0,0,0
+1779601394628,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-75,text,false,,2677,0,372,372,http://localhost:8080/dashboard,0,0,0
+1779601394682,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-266,text,false,,2677,0,372,372,http://localhost:8080/login,0,0,1
+1779601394820,30031,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-16,text,false,,2677,0,373,373,http://localhost:8080/ujian,0,0,1
+1779601394913,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-160,text,false,,2677,0,373,373,http://localhost:8080/dashboard,0,0,1
+1779601394982,30030,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-267,text,false,,2677,0,373,373,http://localhost:8080/login,0,0,0
+1779601395215,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-161,text,false,,2677,0,374,374,http://localhost:8080/dashboard,0,0,0
+1779601395220,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-76,text,false,,2677,0,374,374,http://localhost:8080/dashboard,0,0,1
+1779601395263,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-36,text,false,,2677,0,374,374,http://localhost:8080/dashboard,0,0,0
+1779601395285,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-268,text,false,,2677,0,374,374,http://localhost:8080/login,0,0,1
+1779601395514,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-162,text,false,,2677,0,375,375,http://localhost:8080/dashboard,0,0,0
+1779601395583,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-269,text,false,,2677,0,375,375,http://localhost:8080/login,0,0,1
+1779601395814,30060,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-163,text,false,,2677,0,376,376,http://localhost:8080/dashboard,0,0,30
+1779601395882,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-270,text,false,,2677,0,376,376,http://localhost:8080/login,0,0,0
+1779601395943,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-77,text,false,,2677,0,376,376,http://localhost:8080/dashboard,0,0,0
+1779601396114,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-164,text,false,,2677,0,377,377,http://localhost:8080/dashboard,0,0,1
+1779601396181,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-271,text,false,,2677,0,377,377,http://localhost:8080/login,0,0,1
+1779601396414,30015,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-165,text,false,,2677,0,378,378,http://localhost:8080/dashboard,0,0,1
+1779601396483,30029,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-272,text,false,,2677,0,378,378,http://localhost:8080/login,0,0,0
+1779601396534,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-78,text,false,,2677,0,378,378,http://localhost:8080/dashboard,0,0,1
+1779601396572,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-37,text,false,,2677,0,379,379,http://localhost:8080/dashboard,0,0,1
+1779601396715,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-166,text,false,,2677,0,379,379,http://localhost:8080/dashboard,0,0,0
+1779601396782,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-273,text,false,,2677,0,379,379,http://localhost:8080/login,0,0,1
+1779601397015,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-167,text,false,,2677,0,380,380,http://localhost:8080/dashboard,0,0,1
+1779601397083,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-274,text,false,,2677,0,380,380,http://localhost:8080/login,0,0,1
+1779601397167,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-79,text,false,,2677,0,381,381,http://localhost:8080/dashboard,0,0,0
+1779601397202,30031,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-8,text,false,,2677,0,381,381,http://localhost:8080/ujian,0,0,0
+1779601397313,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-168,text,false,,2677,0,381,381,http://localhost:8080/dashboard,0,0,1
+1779601397351,30030,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-17,text,false,,2677,0,381,381,http://localhost:8080/ujian,0,0,0
+1779601397382,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-275,text,false,,2677,0,381,381,http://localhost:8080/login,0,0,0
+1779601397599,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-169,text,false,,2677,0,382,382,http://localhost:8080/dashboard,0,0,1
+1779601397682,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-276,text,false,,2677,0,382,382,http://localhost:8080/login,0,0,0
+1779601397796,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-80,text,false,,2677,0,383,383,http://localhost:8080/dashboard,0,0,0
+1779601397844,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-38,text,false,,2677,0,383,383,http://localhost:8080/dashboard,0,0,0
+1779601397913,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-170,text,false,,2677,0,383,383,http://localhost:8080/dashboard,0,0,0
+1779601397984,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-277,text,false,,2677,0,383,383,http://localhost:8080/login,0,0,1
+1779601398217,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-171,text,false,,2677,0,384,384,http://localhost:8080/dashboard,0,0,0
+1779601398283,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-278,text,false,,2677,0,384,384,http://localhost:8080/login,0,0,0
+1779601398491,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-81,text,false,,2677,0,385,385,http://localhost:8080/dashboard,0,0,0
+1779601398515,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-172,text,false,,2677,0,385,385,http://localhost:8080/dashboard,0,0,0
+1779601398581,30028,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-279,text,false,,2677,0,385,385,http://localhost:8080/login,0,0,1
+1779601398815,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-173,text,false,,2677,0,386,386,http://localhost:8080/dashboard,0,0,1
+1779601398881,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-280,text,false,,2677,0,386,386,http://localhost:8080/login,0,0,1
+1779601399089,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-82,text,false,,2677,0,387,387,http://localhost:8080/dashboard,0,0,0
+1779601399115,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-174,text,false,,2677,0,387,387,http://localhost:8080/dashboard,0,0,1
+1779601399125,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-39,text,false,,2677,0,387,387,http://localhost:8080/dashboard,0,0,0
+1779601399181,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-281,text,false,,2677,0,387,387,http://localhost:8080/login,0,0,0
+1779601399415,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-175,text,false,,2677,0,388,388,http://localhost:8080/dashboard,0,0,1
+1779601399483,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-282,text,false,,2677,0,388,388,http://localhost:8080/login,0,0,1
+1779601399713,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-176,text,false,,2677,0,389,389,http://localhost:8080/dashboard,0,0,1
+1779601399719,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-83,text,false,,2677,0,389,389,http://localhost:8080/dashboard,0,0,0
+1779601399782,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-283,text,false,,2677,0,389,389,http://localhost:8080/login,0,0,1
+1779601399900,30031,3. Daftar Ujian,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-18,text,false,,2677,0,390,390,http://localhost:8080/ujian,0,0,0
+1779601400015,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-177,text,false,,2677,0,390,390,http://localhost:8080/dashboard,0,0,1
+1779601400082,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-284,text,false,,2677,0,390,390,http://localhost:8080/login,0,0,0
+1779601400313,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-84,text,false,,2677,0,391,391,http://localhost:8080/dashboard,0,0,0
+1779601400312,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-178,text,false,,2677,0,391,391,http://localhost:8080/dashboard,0,0,1
+1779601400352,30030,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-40,text,false,,2677,0,391,391,http://localhost:8080/dashboard,0,0,0
+1779601400382,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-285,text,false,,2677,0,391,391,http://localhost:8080/login,0,0,1
+1779601400616,30031,2. Dashboard,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-179,text,false,,2677,0,392,392,http://localhost:8080/dashboard,0,0,1
+1779601400681,30031,1. Login,Non HTTP response code: java.net.SocketTimeoutException,Non HTTP response message: Read timed out,600 Siswa 1-286,text,false,,2677,0,392,392,http://localhost:8080/login,0,0,0

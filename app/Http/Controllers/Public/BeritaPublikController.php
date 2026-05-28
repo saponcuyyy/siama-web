@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Berita;
 use App\Models\KategoriBerita;
 use App\Models\Setting;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class BeritaPublikController extends Controller
@@ -18,7 +19,7 @@ class BeritaPublikController extends Controller
                 ->latest('published_at')
                 ->paginate(9),
             'kategori' => KategoriBerita::withCount(['berita' => fn($q) => $q->where('status', 'published')])->get(),
-            'settings' => Setting::pluck('value', 'key'),
+            'settings' => Cache::remember('settings', 3600, fn () => Setting::pluck('value', 'key')),
         ]);
     }
 
@@ -40,7 +41,7 @@ class BeritaPublikController extends Controller
         return Inertia::render('Public/Berita/Show', [
             'berita'  => $berita,
             'related' => $related,
-            'settings' => Setting::pluck('value', 'key'),
+            'settings' => Cache::remember('settings', 3600, fn () => Setting::pluck('value', 'key')),
         ]);
     }
 }

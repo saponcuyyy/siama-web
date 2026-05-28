@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { sanitize } from '@/sanitize';
 import { 
     CheckSquare, Search, Check, AlertCircle 
 } from 'lucide-vue-next';
@@ -93,7 +94,7 @@ const submitNilai = (jawaban) => {
 
                         <div class="mb-4">
                             <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pertanyaan:</h4>
-                            <div class="prose prose-sm max-w-none text-slate-800 font-medium p-4 bg-slate-50 rounded-xl" v-html="jawaban.soal?.pertanyaan"></div>
+                            <div class="prose prose-sm max-w-none text-slate-800 font-medium p-4 bg-slate-50 rounded-xl" v-html="sanitize(jawaban.soal?.pertanyaan)"></div>
                         </div>
 
                         <div>

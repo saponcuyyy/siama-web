@@ -16,6 +16,9 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\SiswaKelulusanController;
 use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Admin\RombelController;
+use App\Http\Controllers\Admin\GuruController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\LaporanUjianController;
 
 // ─── PUBLIC ROUTES ───────────────────────────────────────────────────────────
@@ -35,7 +38,7 @@ Route::get('/galeri', [App\Http\Controllers\Public\GaleriPublikController::class
 Route::get('/galeri/{album}', [App\Http\Controllers\Public\GaleriPublikController::class, 'show'])->name('public.galeri.show');
 Route::get('/kontak', function() {
     return \Inertia\Inertia::render('Public/Kontak', [
-        'settings' => App\Models\Setting::pluck('value', 'key'),
+        'settings' => \Illuminate\Support\Facades\Cache::remember('settings', 3600, fn () => \App\Models\Setting::pluck('value', 'key')),
     ]);
 })->name('public.kontak');
 Route::post('/kontak', [App\Http\Controllers\Public\PesanController::class, 'store'])->name('public.pesan.store');
@@ -111,6 +114,16 @@ Route::prefix('admin/web')
         // ── Master Akademik ──────────────────────────────────────────────────
         // Rombel
         Route::resource('rombel', RombelController::class)->except(['create', 'edit', 'show']);
+        Route::get('rombel/{rombel}/kartu-ujian',
+                   [App\Http\Controllers\Admin\KartuUjianController::class, 'perRombel'])
+                   ->name('rombel.kartu-ujian');
+
+        // Kartu Ujian
+        Route::get('kartu-ujian', [App\Http\Controllers\Admin\KartuUjianController::class, 'index'])
+               ->name('kartu-ujian.index');
+
+        // Guru
+        Route::resource('guru', GuruController::class)->except(['create', 'edit', 'show']);
 
         // Siswa
         Route::resource('siswa', SiswaController::class)->except(['create', 'edit', 'show']);
@@ -129,6 +142,7 @@ Route::prefix('admin/ujian')
 
         // Bank Soal
         Route::resource('bank-soal', App\Http\Controllers\Admin\BankSoalController::class)
+             ->only(['index', 'store', 'show', 'update', 'destroy'])
              ->middleware('can:ujian.bank-soal.manage');
 
         // Soal dalam bank
@@ -172,6 +186,8 @@ Route::prefix('admin/ujian')
                     [App\Http\Controllers\Admin\SesiUjianController::class, 'generatePeserta'])->name('sesi.generate-peserta');
         Route::get('sesi/{sesi}/monitor',
                    [App\Http\Controllers\Admin\SesiUjianController::class, 'monitor'])->name('sesi.monitor');
+        Route::get('sesi/{sesi}/kartu-ujian',
+                   [App\Http\Controllers\Admin\SesiUjianController::class, 'kartuUjian'])->name('sesi.kartu-ujian');
 
         // Penilaian Essay
         Route::get('penilaian',
@@ -192,15 +208,24 @@ Route::prefix('admin/ujian')
         Route::get('nilai/export', [App\Http\Controllers\Admin\NilaiController::class, 'export'])->name('nilai.export');
 
         // Soal (standalone store/destroy for BankSoal Show page)
-        Route::post('soal', [App\Http\Controllers\Admin\SoalController::class, 'store'])->name('soal.store');
-        Route::put('soal/{soal}/bobot', [App\Http\Controllers\Admin\SoalController::class, 'updateBobot'])->name('soal.update-bobot');
-        Route::delete('soal/{soal}', [App\Http\Controllers\Admin\SoalController::class, 'destroy'])->name('soal.destroy');
+        Route::post('soal', [App\Http\Controllers\Admin\SoalController::class, 'store'])->name('soal.store')->middleware('can:ujian.soal.manage');
+        Route::put('soal/{soal}/bobot', [App\Http\Controllers\Admin\SoalController::class, 'updateBobot'])->name('soal.update-bobot')->middleware('can:ujian.soal.manage');
+        Route::delete('soal/{soal}', [App\Http\Controllers\Admin\SoalController::class, 'destroy'])->name('soal.destroy')->middleware('can:ujian.soal.manage');
+    });
+
+// ─── MANAJEMEN USER & RBAC ──────────────────────────────────────────────
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth', 'can:dashboard.view'])
+    ->group(function () {
+        Route::resource('users', UserController::class)->except(['create', 'edit', 'show']);
+        Route::resource('roles', RoleController::class)->except(['create', 'edit', 'show']);
     });
 
 // ─── UJIAN ONLINE (CBT) - SISWA ────────────────────────────────────────────
 Route::prefix('ujian')
     ->name('ujian.')
-    ->middleware(['exam.auth'])
+    ->middleware(['exam.auth', 'throttle:60,1'])
     ->group(function () {
         Route::get('/', [App\Http\Controllers\Ujian\RuangUjianController::class, 'index'])->name('index');
         Route::post('/logout', function (\Illuminate\Http\Request $request) {

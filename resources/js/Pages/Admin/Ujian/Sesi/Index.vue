@@ -4,7 +4,7 @@ import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { 
     CalendarClock, Plus, Search, MoreVertical, ShieldAlert, MonitorPlay, 
-    X, Check, AlertTriangle, Play, Pause, XCircle, RefreshCcw
+    X, Check, AlertTriangle, Play, Pause, XCircle, RefreshCcw, Printer
 } from 'lucide-vue-next';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
@@ -209,7 +209,7 @@ const getStatusColor = (status) => {
                                     <Link :href="route('admin.ujian.sesi.monitor', sesi.hashid)" class="inline-flex p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors" title="Monitor Proktoring">
                                         <MonitorPlay class="w-4 h-4" />
                                     </Link>
-                                    
+                                                                       
                                     <button v-if="sesi.status === 'menunggu'" @click="toggleStatus(sesi, 'dibatalkan')" class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors" title="Batalkan">
                                         <XCircle class="w-4 h-4" />
                                     </button>

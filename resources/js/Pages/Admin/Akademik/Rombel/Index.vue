@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Users, Plus, Search, Pencil, Trash2, X, Check, GraduationCap, ChevronRight } from 'lucide-vue-next';
+import { Users, Plus, Search, Pencil, Trash2, X, Check, GraduationCap, ChevronRight, Printer } from 'lucide-vue-next';
 
 const props = defineProps({
     rombelList: Object,
@@ -129,6 +129,11 @@ const tingkatOptions = ['X', 'XI', 'XII'];
                             {{ rombel.tingkat }}
                         </div>
                         <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a :href="route('admin.web.rombel.kartu-ujian', rombel.hashid)" target="_blank"
+                                class="p-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-xl transition-colors"
+                                title="Cetak Kartu Ujian">
+                                <Printer class="w-4 h-4" />
+                            </a>
                             <button @click="openEdit(rombel)" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors">
                                 <Pencil class="w-4 h-4" />
                             </button>

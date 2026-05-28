@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, nextTick, watch } from 'vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { sanitize } from '@/sanitize';
 import { 
     Database, ArrowLeft, Plus, Trash2, Check, X, FileQuestion, Hash, FileText, AlertTriangle
 } from 'lucide-vue-next';
@@ -162,7 +163,7 @@ const saveBobot = (soal) => {
 </script>
 
 <template>
-    <Head :title="`Bank Soal: ${bankSoal.nama}`" />
+    <Head :title="`Bank Soal: ${bankSoal.judul}`" />
     
     <AuthenticatedLayout>
         <div class="max-w-7xl mx-auto space-y-6">
@@ -242,7 +243,7 @@ const saveBobot = (soal) => {
                                 </span>
                             </div>
 
-                            <div class="prose prose-sm max-w-none text-slate-800 font-medium mb-4" v-html="soal.pertanyaan"></div>
+                            <div class="prose prose-sm max-w-none text-slate-800 font-medium mb-4" v-html="sanitize(soal.pertanyaan)"></div>
 
                             <!-- Opsi PG -->
                             <div v-if="soal.tipe === 'pg'" class="space-y-2 pl-10">
@@ -251,7 +252,7 @@ const saveBobot = (soal) => {
                                          :class="soal.kunci_jawaban === opsi.kode ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500'">
                                         {{ opsi.kode }}
                                     </div>
-                                    <div class="text-sm text-slate-700 pt-0.5" v-html="opsi.teks"></div>
+                                    <div class="text-sm text-slate-700 pt-0.5" v-html="sanitize(opsi.teks)"></div>
                                 </div>
                             </div>
 

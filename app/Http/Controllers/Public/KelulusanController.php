@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Siswa;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class KelulusanController extends Controller
@@ -13,7 +14,7 @@ class KelulusanController extends Controller
     public function index()
     {
         return Inertia::render('Public/Kelulusan/Index', [
-            'settings' => Setting::pluck('value', 'key'),
+            'settings' => Cache::remember('settings', 3600, fn () => Setting::pluck('value', 'key')),
         ]);
     }
 
@@ -35,24 +36,33 @@ class KelulusanController extends Controller
         }
 
         // Simpan data di session untuk mencegah akses langsung via URL ke halaman hasil
-        session(['siswa_lulus' => $siswa]);
+        session(['siswa_lulus_id' => $siswa->id]);
 
         return redirect()->route('public.kelulusan.hasil');
     }
 
     public function hasil()
     {
-        $siswa = session('siswa_lulus');
+        $siswaId = session('siswa_lulus_id');
 
-        if (!$siswa) {
+        if (!$siswaId) {
             return redirect()->route('public.kelulusan')->withErrors([
                 'nisn' => 'Sesi berakhir. Silakan login kembali.',
             ]);
         }
 
+        $siswa = Siswa::with('rombel')->find($siswaId);
+
+        if (!$siswa) {
+            session()->forget('siswa_lulus_id');
+            return redirect()->route('public.kelulusan')->withErrors([
+                'nisn' => 'Data siswa tidak ditemukan.',
+            ]);
+        }
+
         return Inertia::render('Public/Kelulusan/Hasil', [
             'siswa' => $siswa,
-            'settings' => Setting::pluck('value', 'key'),
+            'settings' => Cache::remember('settings', 3600, fn () => Setting::pluck('value', 'key')),
         ]);
     }
 }

@@ -13,7 +13,7 @@ class SiswaKelulusanController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Siswa::query();
+        $query = Siswa::with('rombel');
 
         if ($request->search) {
             $query->where('nama', 'like', '%' . $request->search . '%')
@@ -24,15 +24,16 @@ class SiswaKelulusanController extends Controller
             $query->where('status_lulus', $request->status);
         }
 
+        $stats = Siswa::selectRaw("COUNT(*) as total")
+            ->selectRaw("COALESCE(SUM(CAST(status_lulus = 'lulus' AS UNSIGNED)), 0) as lulus")
+            ->selectRaw("COALESCE(SUM(CAST(status_lulus = 'tidak_lulus' AS UNSIGNED)), 0) as tidak_lulus")
+            ->selectRaw("COALESCE(SUM(CAST(status_lulus = 'ditunda' AS UNSIGNED)), 0) as ditunda")
+            ->first();
+
         return Inertia::render('Admin/Kelulusan/Index', [
             'siswas'   => $query->latest()->paginate(20)->withQueryString(),
             'filters'  => $request->only(['search', 'status']),
-            'stats' => [
-                'total'        => Siswa::count(),
-                'lulus'        => Siswa::where('status_lulus', 'lulus')->count(),
-                'tidak_lulus'  => Siswa::where('status_lulus', 'tidak_lulus')->count(),
-                'ditunda'      => Siswa::where('status_lulus', 'ditunda')->count(),
-            ],
+            'stats'    => $stats,
         ]);
     }
 
@@ -45,7 +46,10 @@ class SiswaKelulusanController extends Controller
 
         // Jika mode "ganti", hapus semua data siswa dulu
         if ($request->mode === 'ganti') {
-            Siswa::truncate();
+            if (!auth()->user()->hasRole('super_admin')) {
+                return back()->with('error', 'Mode "ganti" hanya dapat dilakukan oleh Super Admin.');
+            }
+            Siswa::query()->forceDelete();
         }
 
         $import = new SiswaImport();
@@ -81,7 +85,10 @@ class SiswaKelulusanController extends Controller
 
     public function destroyAll()
     {
-        Siswa::truncate();
+        if (!auth()->user()->hasRole('super_admin')) {
+            return back()->with('error', 'Hanya Super Admin yang dapat menghapus seluruh data siswa.');
+        }
+        Siswa::query()->forceDelete();
         return back()->with('success', 'Seluruh data siswa berhasil dihapus.');
     }
 

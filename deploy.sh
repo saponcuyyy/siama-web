@@ -36,6 +36,10 @@ echo "Mengunggah aset publik ke public_html..."
 rsync -avz -e "ssh -p $PORT" \
   ./public/build/ $USER@$HOST:/home/$USER/public_html/build/
 
+echo "Mengunggah aset gambar ke public_html/images..."
+rsync -avz -e "ssh -p $PORT" \
+  ./public/images/ $USER@$HOST:/home/$USER/public_html/images/
+
 echo "Menyinkronkan manifest.json ke direktori aplikasi..."
 rsync -avz -e "ssh -p $PORT" \
   ./public/build/manifest.json $USER@$HOST:$REMOTE_DIR/public/build/manifest.json
@@ -47,6 +51,7 @@ ssh -p $PORT $USER@$HOST "cd $REMOTE_DIR && \
     php artisan optimize:clear && \
     php artisan config:cache && \
     php artisan route:cache && \
+    php artisan event:cache && \
     php artisan view:cache"
 
 echo "Deploy selesai!"

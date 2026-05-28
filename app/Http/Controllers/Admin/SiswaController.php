@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -49,14 +50,14 @@ class SiswaController extends Controller
             'rombel_id'     => 'required|exists:rombel,id',
         ]);
 
-        $formattedPassword = date('dmY', strtotime($validated['tanggal_lahir'])) . '*';
+        $randomPassword = Str::password(8);
 
-        DB::transaction(function () use ($validated, $formattedPassword) {
+        DB::transaction(function () use ($validated, $randomPassword) {
             // Buat akun user untuk login portal ujian
             $user = User::create([
                 'name'     => $validated['nama'],
                 'email'    => $validated['nisn'],
-                'password' => Hash::make($formattedPassword),
+                'password' => Hash::make($randomPassword),
             ]);
 
             // Assign role siswa
@@ -73,7 +74,7 @@ class SiswaController extends Controller
             ]);
         });
 
-        return back()->with('success', 'Data siswa berhasil ditambahkan. Akun login dibuat otomatis: Username = ' . $validated['nisn'] . ' & Password = ' . $formattedPassword);
+        return back()->with('success', 'Data siswa berhasil ditambahkan. Akun login telah dibuat.');
     }
 
     public function update(Request $request, Siswa $siswa)

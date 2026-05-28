@@ -1,0 +1,37 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1779725318597,366,GET login page,200,OK,Siswa Ujian 1-2,text,true,,44161,122,2,2,https://sman2perbaungan.sch.id/login?context=ujian,343,0,96
+1779725317630,1013,GET login page,200,OK,Siswa Ujian 1-1,text,true,,44161,122,2,2,https://sman2perbaungan.sch.id/login?context=ujian,998,0,692
+1779725322402,313,POST login,422,Unprocessable Entity,Siswa Ujian 1-1,text,false,,2237,1349,2,2,https://sman2perbaungan.sch.id/login,311,0,77
+1779725322403,902,POST login,302,Found,Siswa Ujian 1-2,text,true,,2593,1352,2,2,https://sman2perbaungan.sch.id/login,900,0,74
+1779725324721,587,GET dashboard (after login),200,OK,Siswa Ujian 1-1,text,true,,46845,1666,2,2,https://sman2perbaungan.sch.id/login,243,0,56
+1779725324721,244,GET dashboard (after login)-0,302,Found,Siswa Ujian 1-1,text,true,,2515,835,2,2,https://sman2perbaungan.sch.id/dashboard,243,0,56
+1779725324968,340,GET dashboard (after login)-1,200,OK,Siswa Ujian 1-1,text,true,,44330,831,2,2,https://sman2perbaungan.sch.id/login,318,0,88
+1779725325307,751,GET dashboard (after login),200,OK,Siswa Ujian 1-2,text,true,,53336,1666,2,2,https://sman2perbaungan.sch.id/ujian,332,0,81
+1779725325307,353,GET dashboard (after login)-0,302,Found,Siswa Ujian 1-2,text,true,,2525,835,2,2,https://sman2perbaungan.sch.id/dashboard,332,0,81
+1779725325663,395,GET dashboard (after login)-1,200,OK,Siswa Ujian 1-2,text,true,,50811,831,2,2,https://sman2perbaungan.sch.id/ujian,372,0,97
+1779725327351,567,Daftar Ujian,200,OK,Siswa Ujian 1-1,text,true,,46756,1676,2,2,https://sman2perbaungan.sch.id/login?context=ujian,240,0,54
+1779725327351,241,Daftar Ujian-0,302,Found,Siswa Ujian 1-1,text,true,,2595,831,2,2,https://sman2perbaungan.sch.id/ujian,240,0,54
+1779725327593,325,Daftar Ujian-1,200,OK,Siswa Ujian 1-1,text,true,,44161,845,2,2,https://sman2perbaungan.sch.id/login?context=ujian,302,0,65
+1779725328064,354,Daftar Ujian,200,OK,Siswa Ujian 1-2,text,true,,50811,831,2,2,https://sman2perbaungan.sch.id/ujian,331,0,52
+1779725329921,568,Masuk Ujian,200,OK,Siswa Ujian 1-1,text,true,,46756,1693,2,2,https://sman2perbaungan.sch.id/login?context=ujian,254,0,56
+1779725329921,255,Masuk Ujian-0,302,Found,Siswa Ujian 1-1,text,true,,2595,848,2,2,https://sman2perbaungan.sch.id/ujian/vAEr058B7o/masuk,254,0,56
+1779725330178,311,Masuk Ujian-1,200,OK,Siswa Ujian 1-1,text,true,,44161,845,2,2,https://sman2perbaungan.sch.id/login?context=ujian,289,0,54
+1779725330423,612,Masuk Ujian,200,OK,Siswa Ujian 1-2,text,true,,49064,1696,2,2,https://sman2perbaungan.sch.id/ujian/vAEr058B7o/hasil,268,0,58
+1779725330423,268,Masuk Ujian-0,302,Found,Siswa Ujian 1-2,text,true,,2610,848,2,2,https://sman2perbaungan.sch.id/ujian/vAEr058B7o/masuk,268,0,58
+1779725330693,342,Masuk Ujian-1,200,OK,Siswa Ujian 1-2,text,true,,46454,848,2,2,https://sman2perbaungan.sch.id/ujian/vAEr058B7o/hasil,319,0,51
+1779725332491,293,Mulai Ujian,302,Found,Siswa Ujian 1-1,text,true,,2595,1393,2,2,https://sman2perbaungan.sch.id/ujian/vAEr058B7o/mulai,292,0,52
+1779725333038,301,Mulai Ujian,302,Found,Siswa Ujian 1-2,text,true,,2610,1393,2,2,https://sman2perbaungan.sch.id/ujian/vAEr058B7o/mulai,300,0,53
+1779725334787,566,Ruang Ujian,200,OK,Siswa Ujian 1-1,text,true,,46756,1693,2,2,https://sman2perbaungan.sch.id/login?context=ujian,251,0,55
+1779725334787,252,Ruang Ujian-0,302,Found,Siswa Ujian 1-1,text,true,,2595,848,2,2,https://sman2perbaungan.sch.id/ujian/vAEr058B7o/ruang,251,0,55
+1779725335040,313,Ruang Ujian-1,200,OK,Siswa Ujian 1-1,text,true,,44161,845,2,2,https://sman2perbaungan.sch.id/login?context=ujian,291,0,51
+1779725335341,604,Ruang Ujian,200,OK,Siswa Ujian 1-2,text,true,,49064,1696,2,2,https://sman2perbaungan.sch.id/ujian/vAEr058B7o/hasil,266,0,52
+1779725335341,267,Ruang Ujian-0,302,Found,Siswa Ujian 1-2,text,true,,2610,848,2,2,https://sman2perbaungan.sch.id/ujian/vAEr058B7o/ruang,266,0,52
+1779725335609,336,Ruang Ujian-1,200,OK,Siswa Ujian 1-2,text,true,,46454,848,2,2,https://sman2perbaungan.sch.id/ujian/vAEr058B7o/hasil,317,0,50
+1779725337388,249,Simpan soal 1,302,Found,Siswa Ujian 1-1,text,true,,2595,1353,2,2,https://sman2perbaungan.sch.id/ujian/vAEr058B7o/simpan,248,0,51
+1779725337950,293,Simpan soal 1,403,Forbidden,Siswa Ujian 1-2,text,false,,2103,1353,2,2,https://sman2perbaungan.sch.id/ujian/vAEr058B7o/simpan,292,0,54
+1779725339640,253,Selesai Ujian,302,Found,Siswa Ujian 1-1,text,true,,2595,1324,2,2,https://sman2perbaungan.sch.id/ujian/vAEr058B7o/selesai,252,0,55
+1779725340246,524,Selesai Ujian,302,Found,Siswa Ujian 1-2,text,true,,2610,1324,2,2,https://sman2perbaungan.sch.id/ujian/vAEr058B7o/selesai,523,0,51
+1779725341898,646,Hasil Ujian,200,OK,Siswa Ujian 1-1,text,true,,46756,1693,2,2,https://sman2perbaungan.sch.id/login?context=ujian,251,0,54
+1779725341898,253,Hasil Ujian-0,302,Found,Siswa Ujian 1-1,text,true,,2595,848,2,2,https://sman2perbaungan.sch.id/ujian/vAEr058B7o/hasil,251,0,54
+1779725342153,391,Hasil Ujian-1,200,OK,Siswa Ujian 1-1,text,true,,44161,845,2,2,https://sman2perbaungan.sch.id/login?context=ujian,368,0,55
+1779725342776,459,Hasil Ujian,200,OK,Siswa Ujian 1-2,text,true,,46454,848,1,1,https://sman2perbaungan.sch.id/ujian/vAEr058B7o/hasil,437,0,57

@@ -2,17 +2,25 @@
 
 namespace App\Models;
 
+use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
 
 class Guru extends Model
 {
-    use SoftDeletes;
+    use HasHashId, SoftDeletes;
 
     protected $table = 'guru';
 
-    protected $fillable = ['user_id', 'nip', 'nama'];
+    protected $fillable = ['user_id', 'nip', 'nama', 'jabatan', 'tanggal_lahir'];
+
+    protected function casts(): array
+    {
+        return [
+            'tanggal_lahir' => 'date',
+        ];
+    }
 
     public function user(): BelongsTo
     {

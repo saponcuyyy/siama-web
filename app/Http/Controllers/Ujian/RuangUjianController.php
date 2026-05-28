@@ -3,9 +3,11 @@ namespace App\Http\Controllers\Ujian;
 
 use App\Http\Controllers\Controller;
 use App\Models\{SesiUjian, PesertaUjian, JawabanSiswa};
+use App\Jobs\CatatPelanggaranJob;
 use App\Services\Ujian\UjianService;
 use App\Http\Requests\Ujian\{MulaiUjianRequest, SimpanJawabanRequest};
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
@@ -23,9 +25,6 @@ class RuangUjianController extends Controller
         if (!$siswa) {
             return redirect()->route('dashboard');
         }
-        
-        \Illuminate\Support\Facades\Artisan::call('sesi:start-active');
-        \Illuminate\Support\Facades\Artisan::call('sesi:close-expired');
         
         // Sesi aktif: siswa terdaftar peserta ATAU rombel siswa ditugaskan ke sesi ini
         $sesiAktif = SesiUjian::with('paketUjian.mataPelajaran')
@@ -63,7 +62,7 @@ class RuangUjianController extends Controller
         Gate::authorize('ikutUjian', $sesi);
 
         $siswa = request()->user()->siswa;
-        
+         
         // Auto-create peserta jika belum ada dan rombel cocok (atau sesi tanpa rombel)
         $peserta = PesertaUjian::firstOrCreate(
             ['sesi_ujian_id' => $sesi->id, 'siswa_id' => $siswa->id],
@@ -77,7 +76,7 @@ class RuangUjianController extends Controller
 
         return Inertia::render('Ujian/Masuk', [
             'sesi'    => $sesi->load('paketUjian.mataPelajaran'),
-            'peserta' => $peserta
+            'peserta' => $peserta->load(['sesiUjian.paketUjian.mataPelajaran'])
         ]);
     }
 
@@ -129,27 +128,44 @@ class RuangUjianController extends Controller
             return redirect()->route('ujian.masuk', $sesi);
         }
 
+        // Cache soal untuk menghindari regenerasi urutan acak yang berulang
+        $cacheKey = 'ujian_soal_' . $peserta->id;
+        $soalList = Cache::remember($cacheKey, 3600, function () use ($peserta) {
+            return $this->ujianService->getSoalUntukSiswa($peserta);
+        });
+
         return Inertia::render('Ujian/Ruang', [
             'sesi'        => $sesi->load('paketUjian.mataPelajaran'),
             'peserta'     => $peserta,
-            'soal_list'   => $this->ujianService->getSoalUntukSiswa($peserta),
+            'soal_list'   => $soalList,
             'sisa_waktu'  => $peserta->sisa_waktu
         ]);
     }
 
-    // POST /ujian/{sesi}/simpan — endpoint auto-save jawaban
+    // POST /ujian/{sesi}/simpan — endpoint auto-save jawaban (simpan langsung)
     public function simpan(SimpanJawabanRequest $request, SesiUjian $sesi)
     {
         Gate::authorize('ikutUjian', $sesi);
 
         $peserta = PesertaUjian::where('sesi_ujian_id', $sesi->id)
-                               ->where('siswa_id', request()->user()->siswa->id)
-                               ->firstOrFail();
+                                ->where('siswa_id', request()->user()->siswa->id)
+                                ->firstOrFail();
 
         if ($peserta->status !== 'mengerjakan' || $peserta->sisa_waktu <= 0) {
             return response()->json(['message' => 'Waktu habis atau ujian sudah selesai'], 403);
         }
 
+        // Throttling: maksimal 1 simpan per 5 detik per soal
+        $lastSaveKey = 'ujian_last_save_' . $peserta->id . '_' . $request->soal_id;
+        $lastSave = Cache::get($lastSaveKey);
+
+        if ($lastSave && (now()->getTimestamp() - $lastSave) < 5) {
+            return response()->json(['status' => 'throttled']);
+        }
+
+        Cache::put($lastSaveKey, now()->getTimestamp(), 5);
+
+        // Simpan langsung ke database (ringan, index UNIQUE sudah ada)
         $jawaban = JawabanSiswa::firstOrNew([
             'peserta_ujian_id' => $peserta->id,
             'soal_id'          => $request->soal_id,
@@ -168,7 +184,7 @@ class RuangUjianController extends Controller
         return response()->json(['status' => 'success']);
     }
 
-    // POST /ujian/{sesi}/pelanggaran — log tab change/blur
+    // POST /ujian/{sesi}/pelanggaran — log tab change/blur via queue
     public function pelanggaran(Request $request, SesiUjian $sesi)
     {
         Gate::authorize('ikutUjian', $sesi);
@@ -178,17 +194,21 @@ class RuangUjianController extends Controller
                                ->firstOrFail();
 
         $tipe = $request->input('tipe', 'pindah_tab'); // default
-        
-        $this->ujianService->catatPelanggaran(
-            $peserta, 
-            $tipe, 
-            $request->ip(), 
+
+        CatatPelanggaranJob::dispatch(
+            $peserta->id,
+            $tipe,
+            $request->ip(),
             $request->userAgent()
         );
 
+        $current = PesertaUjian::where('id', $peserta->id)
+            ->select('status', 'jumlah_pelanggaran')
+            ->first();
+
         return response()->json([
-            'status' => $peserta->status,
-            'jumlah_pelanggaran' => $peserta->jumlah_pelanggaran
+            'status' => $current->status,
+            'jumlah_pelanggaran' => $current->jumlah_pelanggaran
         ]);
     }
 
@@ -200,6 +220,9 @@ class RuangUjianController extends Controller
         $peserta = PesertaUjian::where('sesi_ujian_id', $sesi->id)
                                ->where('siswa_id', $request->user()->siswa->id)
                                ->firstOrFail();
+
+        // Hapus cache soal agar data tidak basi
+        Cache::forget('ujian_soal_' . $peserta->id);
 
         $this->ujianService->akhiriUjian(
             $peserta, 

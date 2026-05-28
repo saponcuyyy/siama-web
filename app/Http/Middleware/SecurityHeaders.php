@@ -41,6 +41,10 @@ class SecurityHeaders
         $connectSrc .= '; ';
 
         if ($isDev) {
+            $connectDev = 'connect-src \'self\'' .
+                ($externalStorageUrl ? ' ' . $externalStorageUrl : '') .
+                ' ws://localhost:5173 ws://127.0.0.1:5173 http://localhost:5173 http://127.0.0.1:5173;';
+
             $response->headers->set('Content-Security-Policy',
                 "default-src 'self'; " .
                 "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net http://localhost:5173 http://127.0.0.1:5173; " .
@@ -48,7 +52,7 @@ class SecurityHeaders
                 "font-src 'self' data: https://fonts.gstatic.com; " .
                 $imgSrc .
                 "media-src 'self'" . ($externalStorageUrl ? ' ' . $externalStorageUrl : '') . "; " .
-                $connectSrc . "ws://localhost:5173 ws://127.0.0.1:5173 http://localhost:5173 http://127.0.0.1:5173;"
+                $connectDev
             );
         } else {
             $response->headers->set('Content-Security-Policy',

@@ -18,6 +18,8 @@ class SoalImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
     protected int $bankSoalId;
     public array $errors = [];
     public int $imported = 0;
+    protected array $buffer = [];
+    protected int $batchSize = 50;
 
     public function __construct(int $bankSoalId)
     {
@@ -27,7 +29,7 @@ class SoalImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
     public function collection(Collection $rows)
     {
         foreach ($rows as $index => $row) {
-            $rowNum = $index + 2; // +2 karena heading di baris 1
+            $rowNum = $index + 2;
 
             try {
                 $tipe = strtolower(trim($row['tipe'] ?? ''));
@@ -38,14 +40,13 @@ class SoalImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 $pembahasan = trim($row['pembahasan'] ?? '');
                 $bab = trim($row['bab'] ?? '');
 
-                // Validasi dasar
                 if (empty($tipe) || empty($pertanyaan)) {
                     $this->errors[] = "Baris {$rowNum}: Kolom 'tipe' dan 'pertanyaan' wajib diisi.";
                     continue;
                 }
 
                 if (!in_array($tipe, ['pg', 'essay', 'benar_salah', 'menjodohkan'])) {
-                    $this->errors[] = "Baris {$rowNum}: Tipe '{$tipe}' tidak valid. Gunakan: pg, essay, benar_salah, menjodohkan.";
+                    $this->errors[] = "Baris {$rowNum}: Tipe '{$tipe}' tidak valid.";
                     continue;
                 }
 
@@ -53,70 +54,88 @@ class SoalImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     $tingkat = 'sedang';
                 }
 
-                DB::transaction(function () use ($tipe, $pertanyaan, $bobot, $tingkat, $kunci, $pembahasan, $bab, $row, $rowNum) {
-                    $soal = Soal::create([
-                        'bank_soal_id'      => $this->bankSoalId,
-                        'tipe'              => $tipe,
-                        'pertanyaan'        => $pertanyaan,
-                        'bobot'             => max(1, $bobot),
-                        'tingkat_kesulitan' => $tingkat,
-                        'kunci_jawaban'     => strtoupper($kunci),
-                        'pembahasan'        => $pembahasan ?: null,
-                        'bab'               => $bab ?: null,
-                    ]);
-
-                    // Pilihan ganda → buat pilihan A–E
-                    if ($tipe === 'pg') {
-                        $pilihan = [
-                            'A' => trim($row['pilihan_a'] ?? $row['a'] ?? ''),
-                            'B' => trim($row['pilihan_b'] ?? $row['b'] ?? ''),
-                            'C' => trim($row['pilihan_c'] ?? $row['c'] ?? ''),
-                            'D' => trim($row['pilihan_d'] ?? $row['d'] ?? ''),
-                            'E' => trim($row['pilihan_e'] ?? $row['e'] ?? ''),
+                $pilihanData = [];
+                if ($tipe === 'pg') {
+                    $pilihan = [
+                        'A' => trim($row['pilihan_a'] ?? $row['a'] ?? ''),
+                        'B' => trim($row['pilihan_b'] ?? $row['b'] ?? ''),
+                        'C' => trim($row['pilihan_c'] ?? $row['c'] ?? ''),
+                        'D' => trim($row['pilihan_d'] ?? $row['d'] ?? ''),
+                        'E' => trim($row['pilihan_e'] ?? $row['e'] ?? ''),
+                    ];
+                    $urutan = 1;
+                    foreach ($pilihan as $kode => $teks) {
+                        if (empty($teks)) continue;
+                        $pilihanData[] = [
+                            'kode'     => $kode,
+                            'teks'     => $teks,
+                            'is_benar' => (strtoupper($kunci) === $kode),
+                            'urutan'   => $urutan++,
                         ];
-
-                        $urutan = 1;
-                        foreach ($pilihan as $kode => $teks) {
-                            if (empty($teks)) continue;
-
-                            PilihanJawaban::create([
-                                'soal_id'  => $soal->id,
-                                'kode'     => $kode,
-                                'teks'     => $teks,
-                                'is_benar' => (strtoupper($kunci) === $kode),
-                                'urutan'   => $urutan++,
-                            ]);
-                        }
-
-                        // Jika kunci tidak di-set, ambil dari is_benar
-                        if (empty($kunci)) {
-                            $this->errors[] = "Baris {$rowNum}: Kunci jawaban PG kosong.";
-                        }
                     }
-
-                    // Benar/Salah → kunci harus "Benar" atau "Salah"
-                    if ($tipe === 'benar_salah') {
-                        $kunciNorm = strtolower($kunci);
-                        if (!in_array($kunciNorm, ['benar', 'salah', 'true', 'false', '1', '0'])) {
-                            // Biarkan, validasi sudah di error array
-                        }
-                        foreach (['Benar', 'Salah'] as $i => $opt) {
-                            PilihanJawaban::create([
-                                'soal_id'  => $soal->id,
-                                'kode'     => $opt,
-                                'teks'     => $opt,
-                                'is_benar' => in_array($kunciNorm, ['benar', 'true', '1']) ? ($opt === 'Benar') : ($opt === 'Salah'),
-                                'urutan'   => $i + 1,
-                            ]);
-                        }
+                    if (empty($kunci)) {
+                        $this->errors[] = "Baris {$rowNum}: Kunci jawaban PG kosong.";
                     }
-                });
+                }
 
-                $this->imported++;
+                if ($tipe === 'benar_salah') {
+                    $kunciNorm = strtolower($kunci);
+                    $pilihanData = [
+                        ['kode' => 'Benar', 'teks' => 'Benar', 'is_benar' => in_array($kunciNorm, ['benar', 'true', '1']), 'urutan' => 1],
+                        ['kode' => 'Salah', 'teks' => 'Salah', 'is_benar' => !in_array($kunciNorm, ['benar', 'true', '1']), 'urutan' => 2],
+                    ];
+                }
 
+                $this->buffer[] = compact('tipe', 'pertanyaan', 'bobot', 'tingkat', 'kunci', 'pembahasan', 'bab', 'pilihanData', 'rowNum');
+
+                if (count($this->buffer) >= $this->batchSize) {
+                    $this->flushBuffer();
+                }
             } catch (\Exception $e) {
                 $this->errors[] = "Baris {$rowNum}: Gagal diproses — " . $e->getMessage();
             }
         }
+
+        $this->flushBuffer();
+    }
+
+    protected function flushBuffer(): void
+    {
+        if (empty($this->buffer)) return;
+
+        DB::transaction(function () {
+            foreach ($this->buffer as $data) {
+                $soal = Soal::create([
+                    'bank_soal_id'      => $this->bankSoalId,
+                    'tipe'              => $data['tipe'],
+                    'pertanyaan'        => $data['pertanyaan'],
+                    'bobot'             => max(1, $data['bobot']),
+                    'tingkat_kesulitan' => $data['tingkat'],
+                    'kunci_jawaban'     => strtoupper($data['kunci']),
+                    'pembahasan'        => $data['pembahasan'] ?: null,
+                    'bab'               => $data['bab'] ?: null,
+                ]);
+
+                if (!empty($data['pilihanData'])) {
+                    $pilihanInsert = [];
+                    foreach ($data['pilihanData'] as $p) {
+                        $pilihanInsert[] = [
+                            'soal_id'  => $soal->id,
+                            'kode'     => $p['kode'],
+                            'teks'     => $p['teks'],
+                            'is_benar' => $p['is_benar'],
+                            'urutan'   => $p['urutan'],
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+                    PilihanJawaban::insert($pilihanInsert);
+                }
+
+                $this->imported++;
+            }
+        });
+
+        $this->buffer = [];
     }
 }

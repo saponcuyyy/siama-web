@@ -8,6 +8,7 @@ use App\Imports\SoalImport;
 use App\Exports\SoalTemplateExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class SoalController extends Controller
@@ -32,20 +33,25 @@ class SoalController extends Controller
         ]);
 
         DB::transaction(function () use ($validated, $request) {
+            $urutanSoal = Soal::where('bank_soal_id', $validated['bank_soal_id'])->max('urutan') ?? 0;
+
             $soal = Soal::create([
                 'bank_soal_id'  => $validated['bank_soal_id'],
                 'tipe'          => $validated['tipe'],
                 'pertanyaan'    => $validated['pertanyaan'],
                 'bobot'         => $validated['bobot'],
                 'kunci_jawaban' => $validated['kunci_jawaban'],
+                'urutan'        => $urutanSoal + 1,
             ]);
 
             if ($validated['tipe'] === 'pg' && !empty($validated['pilihan'])) {
+                $urutanPil = 1;
                 foreach ($validated['pilihan'] as $pil) {
                     PilihanJawaban::create([
                         'soal_id' => $soal->id,
                         'kode'    => $pil['kode'],
                         'teks'    => $pil['teks'],
+                        'urutan'  => $urutanPil++,
                     ]);
 
                     if (!empty($pil['is_kunci'])) {
@@ -99,7 +105,12 @@ class SoalController extends Controller
 
             return back()->with('import_errors', $failures)->with('error', 'Beberapa baris gagal divalidasi.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal memproses file: ' . $e->getMessage());
+            Log::error('Excel import failed', [
+                'message' => $e->getMessage(),
+                'file'    => $request->file('file')->getClientOriginalName(),
+                'user'    => auth()->id(),
+            ]);
+            return back()->with('error', 'Gagal memproses file. Pastikan format file sesuai dengan template.');
         }
 
         $msg = "{$import->imported} soal berhasil diimpor.";
@@ -234,7 +245,12 @@ class SoalController extends Controller
             return back()->with('success', count($questions) . ' soal berhasil diimpor dari file Word.');
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan saat memproses file: ' . $e->getMessage());
+            Log::error('Word import failed', [
+                'message' => $e->getMessage(),
+                'file'    => $request->file('file')->getClientOriginalName(),
+                'user'    => auth()->id(),
+            ]);
+            return back()->with('error', 'Terjadi kesalahan saat memproses file. Pastikan format penanda sesuai template.');
         }
     }
 

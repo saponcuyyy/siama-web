@@ -1,6 +1,7 @@
 <script setup>
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { Head } from '@inertiajs/vue3';
+import { sanitize } from '@/sanitize';
 
 defineProps({
     pengumuman: Object,
@@ -38,7 +39,7 @@ defineProps({
                                         item.prioritas === 'normal' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-600'
                                     ]">{{ item.prioritas }}</span>
                                 </div>
-                                <div class="prose prose-sm max-w-none text-slate-600 mb-3" v-html="item.konten"></div>
+                                <div class="prose prose-sm max-w-none text-slate-600 mb-3" v-html="sanitize(item.konten)"></div>
                                 <div class="flex flex-wrap gap-4 text-xs text-slate-400 font-bold uppercase tracking-widest">
                                     <span>{{ new Date(item.created_at).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) }}</span>
                                     <span v-if="item.tanggal_selesai">· Berlaku s.d. {{ new Date(item.tanggal_selesai).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) }}</span>

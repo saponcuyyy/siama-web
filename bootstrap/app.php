@@ -19,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'exam.auth' => \App\Http\Middleware\ExamAuth::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'login',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

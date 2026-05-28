@@ -1,16 +1,16 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { 
-    LayoutDashboard, 
-    Users, 
-    UserSquare, 
-    Calendar, 
-    FileSpreadsheet, 
-    Library, 
-    FileText, 
-    History, 
-    Settings, 
+import {
+    LayoutDashboard,
+    Users,
+    UserSquare,
+    Calendar,
+    FileSpreadsheet,
+    Library,
+    FileText,
+    History,
+    Settings,
     Globe,
     ChevronLeft,
     ChevronRight,
@@ -27,7 +27,17 @@ import {
     MonitorPlay,
     BookOpen,
     BarChart3,
+    Shield,
+    Printer,
 } from 'lucide-vue-next';
+
+const icons = {
+    LayoutDashboard, Users, UserSquare, Calendar, FileSpreadsheet,
+    Library, FileText, History, Settings, Globe, ChevronLeft,
+    ChevronRight, ChevronDown, Bell, LogOut, GraduationCap, UserCheck,
+    Menu, X, Database, ClipboardList, Video, MonitorPlay, BookOpen,
+    BarChart3, Shield, Printer,
+};
 
 const page = usePage();
 const user = page.props.auth.user;
@@ -57,50 +67,56 @@ const navigation = [
     { 
         name: 'Dashboard', 
         href: route('dashboard'), 
-        icon: LayoutDashboard, 
+        icon: 'LayoutDashboard', 
         permission: 'dashboard.view' 
     },
     { 
         name: 'Web Management', 
         href: route('admin.web.dashboard'), 
-        icon: Globe, 
+        icon: 'Globe', 
         permission: 'dashboard.view' 
     },
     // ─── Master Akademik ─────────────────────────────
     { 
         name: 'Data Siswa', 
         href: route('admin.web.siswa.index'), 
-        icon: UserCheck, 
+        icon: 'UserCheck', 
         permission: 'siswa.view' 
     },
     { 
         name: 'Data Rombel', 
         href: route('admin.web.rombel.index'), 
-        icon: GraduationCap, 
+        icon: 'GraduationCap', 
+        permission: 'siswa.view' 
+    },
+    { 
+        name: 'Kartu Ujian', 
+        href: route('admin.web.kartu-ujian.index'), 
+        icon: 'Printer', 
         permission: 'siswa.view' 
     },
     { 
         name: 'Guru', 
-        href: '#', 
-        icon: UserSquare, 
+        href: route('admin.web.guru.index'), 
+        icon: 'UserSquare', 
         permission: 'guru.view' 
     },
     { 
         name: 'Jadwal', 
         href: '#', 
-        icon: Calendar, 
+        icon: 'Calendar', 
         permission: 'jadwal.view' 
     },
             { 
                 name: 'Nilai', 
                 href: route('admin.ujian.nilai.index'), 
-                icon: FileSpreadsheet, 
+                icon: 'FileSpreadsheet', 
                 permission: 'nilai.view' 
             },
     { 
         name: 'Perpustakaan', 
         href: '#', 
-        icon: Library, 
+        icon: 'Library', 
         permission: 'perpustakaan.view' 
     },
     // ─── Ujian (CBT) ─────────────────────────────────
@@ -108,14 +124,14 @@ const navigation = [
     { 
         name: 'Ujian (CBT)', 
         href: route('ujian.index'), 
-        icon: FileText, 
+        icon: 'FileText', 
         permission: 'ujian.view',
         showOnly: 'siswa',
     },
     // For admin/guru: group with submenu
     {
         name: 'Ujian (CBT)',
-        icon: FileText,
+        icon: 'FileText',
         permission: 'ujian.view',
         hideFor: 'siswa',
         group: 'ujian',
@@ -124,32 +140,53 @@ const navigation = [
             { 
                 name: 'Mata Pelajaran', 
                 href: route('admin.ujian.mata-pelajaran.index'), 
-                icon: BookOpen, 
+                icon: 'BookOpen', 
                 permission: 'ujian.view' 
             },
             { 
                 name: 'Bank Soal', 
                 href: route('admin.ujian.bank-soal.index'), 
-                icon: Database, 
+                icon: 'Database', 
                 permission: 'ujian.bank-soal.manage' 
             },
             { 
                 name: 'Paket Ujian', 
                 href: route('admin.ujian.paket.index'), 
-                icon: ClipboardList, 
+                icon: 'ClipboardList', 
                 permission: 'ujian.paket.manage' 
             },
             { 
                 name: 'Sesi Ujian', 
                 href: route('admin.ujian.sesi.index'), 
-                icon: MonitorPlay, 
+                icon: 'MonitorPlay', 
                 permission: 'ujian.sesi.manage' 
             },
             { 
                 name: 'Laporan Nilai', 
                 href: route('admin.ujian.laporan.index'), 
-                icon: BarChart3, 
+                icon: 'BarChart3', 
                 permission: 'ujian.sesi.manage' 
+            },
+        ]
+    },
+    {
+        name: 'Manajemen User',
+        icon: 'Users',
+        permission: 'users.view',
+        group: 'users',
+        prefix: '/admin/users',
+        children: [
+            { 
+                name: 'Users', 
+                href: route('admin.users.index'), 
+                icon: 'Users', 
+                permission: 'users.view' 
+            },
+            { 
+                name: 'Roles', 
+                href: route('admin.roles.index'), 
+                icon: 'Shield', 
+                permission: 'roles.view' 
             },
         ]
     },
@@ -157,13 +194,13 @@ const navigation = [
     { 
         name: 'Audit Trail', 
         href: '#', 
-        icon: History, 
+        icon: 'History', 
         permission: 'audit.view' 
     },
     { 
         name: 'Pengaturan', 
         href: '#', 
-        icon: Settings, 
+        icon: 'Settings', 
         permission: 'settings.view' 
     },
 ];
@@ -255,7 +292,7 @@ navigation.forEach(item => {
                                 'w-5 h-5 flex items-center justify-center transition-colors flex-shrink-0',
                                 isGroupActive(item.prefix) ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'
                             ]">
-                                <component :is="item.icon" class="w-5 h-5" stroke-width="2" />
+                                <component :is="icons[item.icon]" class="w-5 h-5" stroke-width="2" />
                             </div>
                             <span v-if="isSidebarOpen || isMobileMenuOpen" class="flex-1 text-sm font-semibold text-left transition-opacity duration-300">{{ item.name }}</span>
                             <ChevronDown 
@@ -301,7 +338,7 @@ navigation.forEach(item => {
                             'w-5 h-5 flex items-center justify-center transition-colors flex-shrink-0',
                             isActive(item.href) ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'
                         ]">
-                            <component :is="item.icon" class="w-5 h-5" stroke-width="2" />
+                            <component :is="icons[item.icon]" class="w-5 h-5" stroke-width="2" />
                         </div>
                         <span v-if="isSidebarOpen || isMobileMenuOpen" class="text-sm font-semibold transition-opacity duration-300">{{ item.name }}</span>
                         

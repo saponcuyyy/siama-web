@@ -18,7 +18,8 @@ class StartActiveSessions extends Command
     {
         $now = now();
 
-        $sessions = SesiUjian::where('status', 'menunggu')
+        $sessions = SesiUjian::with('rombels')
+            ->where('status', 'menunggu')
             ->where('waktu_mulai', '<=', $now)
             ->get();
 
@@ -30,13 +31,14 @@ class StartActiveSessions extends Command
 
                 $rombelIds = $this->getRombelIds($session);
                 if (!empty($rombelIds)) {
-                    $siswaList = Siswa::whereIn('rombel_id', $rombelIds)->get();
-                    foreach ($siswaList as $siswa) {
-                        PesertaUjian::firstOrCreate(
-                            ['sesi_ujian_id' => $session->id, 'siswa_id' => $siswa->id],
-                            ['status' => 'belum_mulai']
-                        );
-                    }
+                    Siswa::whereIn('rombel_id', $rombelIds)->chunk(200, function ($siswaList) use ($session) {
+                        foreach ($siswaList as $siswa) {
+                            PesertaUjian::firstOrCreate(
+                                ['sesi_ujian_id' => $session->id, 'siswa_id' => $siswa->id],
+                                ['status' => 'belum_mulai']
+                            );
+                        }
+                    });
                 }
             });
 
@@ -52,8 +54,10 @@ class StartActiveSessions extends Command
 
     private function getRombelIds(SesiUjian $sesi): array
     {
-        if ($sesi->rombels()->count() > 0) {
-            return $sesi->rombels()->pluck('rombel.id')->toArray();
+        $rombels = $sesi->rombels;
+
+        if ($rombels->isNotEmpty()) {
+            return $rombels->pluck('id')->toArray();
         }
 
         if ($sesi->rombel_id) {

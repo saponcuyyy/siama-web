@@ -6,55 +6,62 @@ use App\Models\Siswa;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Maatwebsite\Excel\Concerns\ToModel;
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\SkipsErrors;
-use Maatwebsite\Excel\Concerns\SkipsOnError;
-use Maatwebsite\Excel\Concerns\SkipsFailures;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
-use Maatwebsite\Excel\Validators\Failure;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
+use Illuminate\Support\Collection;
 use Carbon\Carbon;
 
-class SiswaRombelImport implements ToModel, WithHeadingRow, SkipsOnError, SkipsOnFailure
+class SiswaRombelImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 {
-    use SkipsErrors, SkipsFailures;
-
     protected int $rombelId;
     public array $createdAccounts = [];
+    protected array $buffer = [];
+    protected int $batchSize = 50;
 
     public function __construct(int $rombelId)
     {
         $this->rombelId = $rombelId;
     }
 
-    public function model(array $row): ?Siswa
+    public function collection(Collection $rows)
     {
-        if (empty($row['nisn']) || empty($row['nama']) || empty($row['tanggal_lahir'])) {
-            return null;
+        foreach ($rows as $row) {
+            if (empty($row['nisn']) || empty($row['nama']) || empty($row['tanggal_lahir'])) {
+                continue;
+            }
+
+            try {
+                $nisn = trim($row['nisn']);
+                $nama = trim($row['nama']);
+                $tgl = Carbon::parse($row['tanggal_lahir'])->format('Y-m-d');
+                $agama = !empty($row['agama']) ? trim($row['agama']) : null;
+                $password = Str::password(8);
+
+                $this->buffer[] = compact('nisn', 'nama', 'tgl', 'agama', 'password');
+
+                if (count($this->buffer) >= $this->batchSize) {
+                    $this->flushBuffer();
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
         }
 
-        $nisn = trim($row['nisn']);
-        $nama = trim($row['nama']);
+        $this->flushBuffer();
+    }
 
-        try {
-            $tgl = Carbon::parse($row['tanggal_lahir'])->format('Y-m-d');
-        } catch (\Exception $e) {
-            return null;
-        }
+    protected function flushBuffer(): void
+    {
+        if (empty($this->buffer)) return;
 
-        $agama = null;
-        if (!empty($row['agama'])) {
-            $agama = trim($row['agama']);
-        }
-
-        $formattedPassword = date('dmY', strtotime($tgl)) . '*';
-
-        try {
-            DB::transaction(function () use ($nisn, $nama, $tgl, $agama, $formattedPassword, &$siswa) {
+        DB::transaction(function () {
+            foreach ($this->buffer as $data) {
                 $user = User::create([
-                    'name'     => $nama,
-                    'email'    => $nisn,
-                    'password' => Hash::make($formattedPassword),
+                    'name'     => $data['nama'],
+                    'email'    => $data['nisn'],
+                    'password' => Hash::make($data['password']),
                 ]);
 
                 $user->assignRole('siswa');
@@ -62,21 +69,19 @@ class SiswaRombelImport implements ToModel, WithHeadingRow, SkipsOnError, SkipsO
                 $siswa = Siswa::create([
                     'user_id'       => $user->id,
                     'rombel_id'     => $this->rombelId,
-                    'nisn'          => $nisn,
-                    'nama'          => $nama,
-                    'tanggal_lahir' => $tgl,
-                    'agama'         => $agama,
+                    'nisn'          => $data['nisn'],
+                    'nama'          => $data['nama'],
+                    'tanggal_lahir' => $data['tgl'],
+                    'agama'         => $data['agama'],
                 ]);
-            });
 
-            $this->createdAccounts[] = [
-                'nisn'     => $nisn,
-                'password' => $formattedPassword,
-            ];
+                $this->createdAccounts[] = [
+                    'nisn'     => $data['nisn'],
+                    'password' => $data['password'],
+                ];
+            }
+        });
 
-            return $siswa ?? null;
-        } catch (\Exception $e) {
-            return null;
-        }
+        $this->buffer = [];
     }
 }

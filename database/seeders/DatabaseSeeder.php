@@ -67,6 +67,7 @@ class DatabaseSeeder extends Seeder
             'status_lulus' => 'lulus',
         ]);
 
+        $this->call(GuruSeeder::class);
         $this->call(DummyDataSeeder::class);
 
         // Seed a default Bank Soal for testing

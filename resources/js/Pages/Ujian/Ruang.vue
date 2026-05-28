@@ -2,6 +2,7 @@
 import { Head, router } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import axios from 'axios';
+import { sanitize } from '@/sanitize';
 
 const props = defineProps({
     sesi: Object,
@@ -279,7 +280,7 @@ function updateMatch(kiri, val) {
                         <div class="px-5 py-6 md:px-8 md:py-8 border-b border-slate-100">
                             <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Soal No. {{ currentIdx + 1 }}</p>
                             <div class="prose prose-slate max-w-none text-base md:text-lg leading-relaxed"
-                                v-html="currentSoal.pertanyaan" />
+                                v-html="sanitize(currentSoal.pertanyaan)" />
                         </div>
 
                         <!-- Answer area -->
@@ -301,7 +302,7 @@ function updateMatch(kiri, val) {
                                         <div v-if="opsi.gambar_url" class="rounded-xl overflow-hidden border border-slate-100 max-w-xs">
                                             <img :src="opsi.gambar_url" alt="Opsi" class="w-full h-auto" />
                                         </div>
-                                        <div v-if="opsi.teks" class="prose prose-sm prose-slate mt-1" v-html="opsi.teks" />
+                                        <div v-if="opsi.teks" class="prose prose-sm prose-slate mt-1" v-html="sanitize(opsi.teks)" />
                                     </div>
                                 </label>
                             </div>
