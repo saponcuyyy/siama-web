@@ -21,6 +21,12 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\LaporanUjianController;
 
+// ─── WEB CRON (Hostinger Fix) ──────────────────────────────────────────────────
+Route::get('/sys/cron', function () {
+    \Illuminate\Support\Facades\Artisan::call('schedule:run');
+    return 'Cron ran at ' . now();
+});
+
 // ─── PUBLIC ROUTES ───────────────────────────────────────────────────────────
 Route::get('/', [App\Http\Controllers\LandingController::class, 'index'])->name('home');
 

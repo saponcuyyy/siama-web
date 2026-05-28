@@ -40,6 +40,10 @@ echo "Mengunggah aset gambar ke public_html/images..."
 rsync -avz -e "ssh -p $PORT" \
   ./public/images/ $USER@$HOST:/home/$USER/public_html/images/
 
+echo "Mengunggah aset gambar ke direktori internal aplikasi (untuk fitur PDF/DomPDF)..."
+rsync -avz -e "ssh -p $PORT" \
+  ./public/images/ $USER@$HOST:$REMOTE_DIR/public/images/
+
 echo "Menyinkronkan manifest.json ke direktori aplikasi..."
 rsync -avz -e "ssh -p $PORT" \
   ./public/build/manifest.json $USER@$HOST:$REMOTE_DIR/public/build/manifest.json
