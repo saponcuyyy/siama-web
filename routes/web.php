@@ -244,7 +244,7 @@ Route::prefix('ujian')
             auth()->guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            return redirect('/login?context=ujian');
+            return redirect(route('login', ['context' => 'ujian']));
         })->name('logout');
         Route::get('/{sesi}/masuk', [App\Http\Controllers\Ujian\RuangUjianController::class, 'masuk'])->name('masuk');
         Route::post('/{sesi}/mulai', [App\Http\Controllers\Ujian\RuangUjianController::class, 'mulai'])->name('mulai');
