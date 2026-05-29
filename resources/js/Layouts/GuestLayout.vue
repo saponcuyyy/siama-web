@@ -76,6 +76,7 @@ onUnmounted(() => {
                     </Link>
                     
                     <Link 
+                        v-if="false"
                         :href="route('login')" 
                         class="bg-slate-900 text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-blue-600 transition-all active:scale-95 shadow-xl shadow-slate-200"
                     >
@@ -119,6 +120,7 @@ onUnmounted(() => {
                         Pengumuman Kelulusan
                     </Link>
                     <Link 
+                        v-if="false"
                         :href="route('login')" 
                         class="bg-blue-600 text-white w-full py-4 rounded-2xl text-center font-black text-xl shadow-xl shadow-blue-100 mt-2"
                     >
