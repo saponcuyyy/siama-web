@@ -59,7 +59,13 @@ Route::get('/dashboard', function () {
     if (auth()->user()->hasRole('siswa')) {
         return redirect()->route('ujian.index');
     }
-    return \Inertia\Inertia::render('Dashboard');
+    return \Inertia\Inertia::render('Dashboard', [
+        'stats' => [
+            'total_siswa' => \App\Models\Siswa::count(),
+            'total_guru' => \App\Models\Guru::count(),
+            'total_rombel' => \App\Models\Rombel::count(),
+        ]
+    ]);
 })->middleware(['auth'])->name('dashboard');
 
 // ─── CMS / MANAJEMEN WEBSITE ───────────────────────────────────────────────
