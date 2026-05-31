@@ -1,14 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
-
-const flash = computed(() => page.props.flash);
-const showFlash = ref(true);
-
-watch(flash, () => {
-    showFlash.value = true;
-    setTimeout(() => { showFlash.value = false; }, 5000);
-}, { deep: true });
 import {
     LayoutDashboard,
     Users,
@@ -49,6 +41,14 @@ const icons = {
 
 const page = usePage();
 const user = page.props.auth.user;
+
+const flash = computed(() => page.props.flash);
+const showFlash = ref(true);
+
+watch(flash, () => {
+    showFlash.value = true;
+    setTimeout(() => { showFlash.value = false; }, 5000);
+}, { deep: true });
 
 const isSidebarOpen = ref(true);
 const isUserMenuOpen = ref(false);
