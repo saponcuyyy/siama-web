@@ -18,7 +18,6 @@ const props = defineProps({
 const currentIdx = ref(0);
 const sisaDetik = ref(props.sisa_waktu);
 const timer = ref(null);
-const periodicTimer = ref(null);
 const autoSave = ref('saved');
 let autoSaveErrorTimer = null;
 const showNav = ref(false);
@@ -33,7 +32,12 @@ const isFullscreen = ref(false);
 const answers = ref({});
 let isRestoring = false;
 let saveTimer = null;
-let saveRetryTimer = null;
+
+// ── Batch save system ──
+const pendingBatch = ref(new Set());
+let batchTimer = null;
+let periodicBatchTimer = null;
+let isSending = false;
 
 const STORAGE_PREFIX = 'exam_answers_';
 
@@ -79,19 +83,56 @@ function onBeforeUnload() {
     saveAnswersToStorage();
 }
 
-function queueSave(durasi = 0) {
+function queueSave() {
+    const soal = currentSoal.value;
+    if (!soal) return;
+    pendingBatch.value.add(soal.id);
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => saveJawaban(durasi), 1500);
+    saveTimer = setTimeout(sendBatch, 2000);
 }
 
 function flushSave() {
-    if (saveTimer) {
-        clearTimeout(saveTimer);
-        saveTimer = null;
-        const soal = currentSoal.value;
-        if (soal && hasJawaban(answers.value[soal.id], soal.tipe)) {
-            saveJawaban(0);
+    clearTimeout(saveTimer);
+    saveTimer = null;
+    if (pendingBatch.value.size > 0) {
+        sendBatch();
+    }
+}
+
+async function sendBatch() {
+    if (isSending || pendingBatch.value.size === 0) return;
+    isSending = true;
+    autoSave.value = 'saving';
+
+    const ids = [...pendingBatch.value];
+    const batch = ids.map(id => ({
+        soal_id: id,
+        jawaban: answers.value[id] ?? null,
+        durasi: 0,
+    }));
+
+    try {
+        const res = await axios.post(
+            route('ujian.simpan-batch', props.sesi.hashid),
+            { answers: batch },
+            { timeout: 15000 }
+        );
+        if (res.data?.status === 'success') {
+            ids.forEach(id => pendingBatch.value.delete(id));
+            ids.forEach(id => {
+                const s = props.soal_list.find(x => x.id === id);
+                if (s) s.jawaban_siswa = answers.value[id];
+            });
+            autoSave.value = 'saved';
         }
+    } catch {
+        autoSave.value = 'error';
+        clearTimeout(autoSaveErrorTimer);
+        autoSaveErrorTimer = setTimeout(() => {
+            if (autoSave.value === 'error') autoSave.value = 'saved';
+        }, 5000);
+    } finally {
+        isSending = false;
     }
 }
 
@@ -102,20 +143,18 @@ const triggerMathJax = () => {
 };
 
 onMounted(() => {
-    // Restore answers from localStorage first (survives tab switches, page reloads, bfcache)
     const restored = restoreAnswersFromStorage();
     if (!restored) {
-        // Fall back to server props
         props.soal_list.forEach(s => { answers.value[s.id] = s.jawaban_siswa; });
     }
     startTimer();
+    startPeriodicBatch();
     document.addEventListener('visibilitychange', onVisibility);
     window.addEventListener('blur', onBlur);
     document.addEventListener('fullscreenchange', onFSChange);
     window.addEventListener('beforeunload', onBeforeUnload);
     if (props.sesi.wajib_fullscreen) requestFS();
     triggerMathJax();
-    startPeriodicSave();
 });
 
 watch(currentIdx, () => triggerMathJax());
@@ -126,9 +165,8 @@ watch(answers, () => {
 
 onUnmounted(() => {
     clearInterval(timer.value);
-    clearInterval(periodicTimer.value);
+    clearInterval(periodicBatchTimer);
     clearTimeout(saveTimer);
-    clearTimeout(saveRetryTimer);
     clearTimeout(autoSaveErrorTimer);
     document.removeEventListener('visibilitychange', onVisibility);
     window.removeEventListener('blur', onBlur);
@@ -142,6 +180,12 @@ function startTimer() {
         if (sisaDetik.value > 0) sisaDetik.value--;
         else { clearInterval(timer.value); submitUjian('waktu_habis'); }
     }, 1000);
+}
+
+function startPeriodicBatch() {
+    periodicBatchTimer = setInterval(() => {
+        if (pendingBatch.value.size > 0) sendBatch();
+    }, 10000);
 }
 
 const timeStr = computed(() => {
@@ -222,50 +266,6 @@ const unanswered = computed(() => total.value - answered.value);
 
 const currentSoal = computed(() => props.soal_list[currentIdx.value]);
 
-// Save with retry
-async function saveJawaban(durasi = 0, retries = 2) {
-    const soalId = currentSoal.value?.id;
-    if (!soalId) return;
-    const jawaban = answers.value[soalId];
-    autoSave.value = 'saving';
-    for (let attempt = 0; attempt <= retries; attempt++) {
-        try {
-            const res = await axios.post(route('ujian.simpan', props.sesi.hashid), {
-                soal_id: soalId, jawaban, durasi
-            }, { timeout: 10000 });
-            if (res.data?.status === 'success') {
-                const s = props.soal_list.find(x => x.id === soalId);
-                if (s) s.jawaban_siswa = jawaban;
-            }
-            autoSave.value = 'saved';
-            return;
-        } catch {
-            if (attempt < retries) {
-                await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
-            } else {
-                autoSave.value = 'error';
-                resetAutoSaveError();
-            }
-        }
-    }
-}
-
-function startPeriodicSave() {
-    periodicTimer.value = setInterval(() => {
-        const soal = currentSoal.value;
-        if (soal && hasJawaban(answers.value[soal.id], soal.tipe)) {
-            saveJawaban(0);
-        }
-    }, 30000);
-}
-
-function resetAutoSaveError() {
-    if (autoSaveErrorTimer) clearTimeout(autoSaveErrorTimer);
-    if (autoSave.value === 'error') {
-        autoSaveErrorTimer = setTimeout(() => { autoSave.value = 'saved'; }, 5000);
-    }
-}
-
 function scrollToTop() {
     const main = document.querySelector('main.overflow-y-auto');
     if (main) main.scrollTop = 0;
@@ -294,41 +294,27 @@ function hasJawaban(a, tipe) {
     return a !== '';
 }
 
-async function saveAllJawaban() {
-    const promises = props.soal_list
+function getAllAnswered() {
+    return props.soal_list
         .filter(s => hasJawaban(answers.value[s.id], s.tipe))
-        .map(s => {
-            const soalId = s.id;
-            const jawaban = answers.value[soalId];
-            return axios.post(route('ujian.simpan', props.sesi.hashid), {
-                soal_id: soalId, jawaban, durasi: 0
-            }, { timeout: 15000 }).then((res) => {
-                if (res.data?.status === 'success') {
-                    s.jawaban_siswa = jawaban;
-                }
-            });
-        });
-    if (promises.length === 0) return;
-    const results = await Promise.allSettled(promises);
-    const failed = results.filter(r => r.status === 'rejected');
-    if (failed.length > 0) {
-        // Retry failed once
-        const retryPromises = failed.map((_, i) => {
-            const idx = results.findIndex(r => r === failed[i]);
-            const s = props.soal_list.filter(x => hasJawaban(answers.value[x.id], x.tipe))[idx];
-            if (!s) return Promise.resolve();
-            return axios.post(route('ujian.simpan', props.sesi.hashid), {
-                soal_id: s.id, jawaban: answers.value[s.id], durasi: 0
-            }, { timeout: 15000 });
-        });
-        await Promise.allSettled(retryPromises);
-    }
+        .map(s => ({
+            soal_id: s.id,
+            jawaban: answers.value[s.id],
+            durasi: 0,
+        }));
 }
 
 async function executeSubmit() {
     submitting.value = true;
     try {
-        await saveAllJawaban();
+        const allAnswers = getAllAnswered();
+        if (allAnswers.length > 0) {
+            await axios.post(
+                route('ujian.simpan-batch', props.sesi.hashid),
+                { answers: allAnswers },
+                { timeout: 30000 }
+            );
+        }
         clearAnswersFromStorage();
         if (document.fullscreenElement) {
             try { await document.exitFullscreen(); } catch {}

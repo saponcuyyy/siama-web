@@ -29,6 +29,7 @@ import {
     BarChart3,
     Shield,
     Printer,
+    Layers,
 } from 'lucide-vue-next';
 
 const icons = {
@@ -36,7 +37,7 @@ const icons = {
     Library, FileText, History, Settings, Globe, ChevronLeft,
     ChevronRight, ChevronDown, Bell, LogOut, GraduationCap, UserCheck,
     Menu, X, Database, ClipboardList, Video, MonitorPlay, BookOpen,
-    BarChart3, Shield, Printer,
+    BarChart3, Shield, Printer, Layers,
 };
 
 const page = usePage();
@@ -108,6 +109,18 @@ const navigation = [
         href: route('admin.web.kartu-ujian.index'), 
         icon: 'Printer', 
         permission: 'siswa.view' 
+    },
+    { 
+        name: 'Tahun Ajaran', 
+        href: route('admin.web.tahun-ajaran.index'), 
+        icon: 'Calendar', 
+        permission: 'dashboard.view' 
+    },
+    { 
+        name: 'Semester', 
+        href: route('admin.web.semester.index'), 
+        icon: 'Layers', 
+        permission: 'dashboard.view' 
     },
     { 
         name: 'Guru', 

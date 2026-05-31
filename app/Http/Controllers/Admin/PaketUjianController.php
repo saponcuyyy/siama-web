@@ -47,19 +47,9 @@ class PaketUjianController extends Controller
         $tahunAjaran = TahunAjaran::where('is_active', true)->first();
         $semester = Semester::where('is_active', true)->first();
 
-        if (!$guru) {
-            return back()->withErrors(['kode' => 'Data guru tidak ditemukan untuk pengguna ini. Pastikan akun Anda terdaftar sebagai guru.']);
-        }
-        if (!$tahunAjaran) {
-            return back()->withErrors(['kode' => 'Tahun ajaran aktif tidak ditemukan. Silakan atur tahun ajaran aktif terlebih dahulu.']);
-        }
-        if (!$semester) {
-            return back()->withErrors(['kode' => 'Semester aktif tidak ditemukan. Silakan atur semester aktif terlebih dahulu.']);
-        }
-
-        $validated['guru_id'] = $guru->id;
-        $validated['tahun_ajaran_id'] = $tahunAjaran->id;
-        $validated['semester_id'] = $semester->id;
+        $validated['guru_id'] = $guru?->id;
+        $validated['tahun_ajaran_id'] = $tahunAjaran?->id;
+        $validated['semester_id'] = $semester?->id;
         $validated['dibuat_oleh'] = Auth::id();
         $validated['status'] = 'draft';
 

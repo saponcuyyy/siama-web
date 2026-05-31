@@ -5,9 +5,10 @@ use App\Http\Controllers\Controller;
 use App\Enums\{PesertaStatus, SesiStatus};
 use App\Models\{SesiUjian, PesertaUjian, JawabanSiswa};
 use App\Services\Ujian\UjianService;
-use App\Http\Requests\Ujian\{MulaiUjianRequest, SimpanJawabanRequest};
+use App\Http\Requests\Ujian\{MulaiUjianRequest, SimpanJawabanRequest, SimpanBatchJawabanRequest};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -193,14 +194,60 @@ class RuangUjianController extends Controller
         ]);
     }
 
+    private function cachedPeserta(SesiUjian $sesi): PesertaUjian
+    {
+        return Cache::remember('peserta_ujian_' . $sesi->id . '_' . auth()->id(), 60, function () use ($sesi) {
+            return PesertaUjian::where('sesi_ujian_id', $sesi->id)
+                ->where('siswa_id', auth()->user()->siswa->id)
+                ->firstOrFail();
+        });
+    }
+
+    // POST /ujian/{sesi}/simpan-batch — simpan banyak jawaban dalam 1 request
+    public function simpanBatch(SimpanBatchJawabanRequest $request, SesiUjian $sesi)
+    {
+        Gate::authorize('ikutUjian', $sesi);
+
+        $peserta = $this->cachedPeserta($sesi);
+
+        if ($this->checkAndCloseIfExpired($sesi, $peserta, $request)) {
+            return response()->json(['message' => 'Waktu habis atau ujian sudah selesai'], 403);
+        }
+
+        $answers = $request->input('answers', []);
+
+        DB::transaction(function () use ($answers, $peserta) {
+            foreach ($answers as $item) {
+                $jawaban = JawabanSiswa::firstOrNew([
+                    'peserta_ujian_id' => $peserta->id,
+                    'soal_id'          => $item['soal_id'],
+                ]);
+
+                if (is_array($item['jawaban'])) {
+                    $jawaban->jawaban_menjodohkan = $item['jawaban'];
+                } else {
+                    $jawaban->jawaban = $item['jawaban'];
+                }
+
+                $jawaban->durasi_detik = ($jawaban->durasi_detik ?? 0) + ($item['durasi'] ?? 0);
+                $jawaban->dijawab_at   = now();
+                $jawaban->is_ragu      = $item['is_ragu'] ?? false;
+
+                if ($jawaban->isDirty()) {
+                    $jawaban->save();
+                }
+            }
+        });
+
+        return response()->json(['status' => 'success', 'count' => count($answers)]);
+    }
+
     // POST /ujian/{sesi}/simpan — endpoint auto-save jawaban (simpan langsung)
     public function simpan(SimpanJawabanRequest $request, SesiUjian $sesi)
     {
         Gate::authorize('ikutUjian', $sesi);
 
-        $peserta = PesertaUjian::where('sesi_ujian_id', $sesi->id)
-                                ->where('siswa_id', request()->user()->siswa->id)
-                                ->firstOrFail();
+        $peserta = $this->cachedPeserta($sesi);
 
         if ($this->checkAndCloseIfExpired($sesi, $peserta, $request)) {
             return response()->json(['message' => 'Waktu habis atau ujian sudah selesai'], 403);

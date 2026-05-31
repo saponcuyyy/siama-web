@@ -123,6 +123,14 @@ Route::prefix('admin/web')
         Route::get('guru/template', [GuruController::class, 'downloadTemplate'])->name('guru.template');
         Route::resource('guru', GuruController::class)->except(['create', 'edit', 'show']);
 
+        // Tahun Ajaran
+        Route::resource('tahun-ajaran', App\Http\Controllers\Admin\Akademik\TahunAjaranController::class)
+            ->except(['create', 'edit', 'show']);
+
+        // Semester
+        Route::resource('semester', App\Http\Controllers\Admin\Akademik\SemesterController::class)
+            ->except(['create', 'edit', 'show']);
+
         // Siswa
         Route::resource('siswa', SiswaController::class)->except(['create', 'edit', 'show']);
         Route::post('siswa/import', [SiswaController::class, 'import'])->name('siswa.import');
@@ -233,6 +241,7 @@ Route::prefix('ujian')
         Route::post('/{sesi}/mulai', [App\Http\Controllers\Ujian\RuangUjianController::class, 'mulai'])->name('mulai');
         Route::get('/{sesi}/ruang', [App\Http\Controllers\Ujian\RuangUjianController::class, 'ruang'])->name('ruang');
         Route::post('/{sesi}/simpan', [App\Http\Controllers\Ujian\RuangUjianController::class, 'simpan'])->name('simpan');
+        Route::post('/{sesi}/simpan-batch', [App\Http\Controllers\Ujian\RuangUjianController::class, 'simpanBatch'])->name('simpan-batch');
         Route::post('/{sesi}/selesai', [App\Http\Controllers\Ujian\RuangUjianController::class, 'selesai'])->name('selesai');
         Route::post('/{sesi}/pelanggaran', [App\Http\Controllers\Ujian\RuangUjianController::class, 'pelanggaran'])->name('pelanggaran');
         Route::get('/{sesi}/hasil', [App\Http\Controllers\Ujian\RuangUjianController::class, 'hasil'])->name('hasil');
