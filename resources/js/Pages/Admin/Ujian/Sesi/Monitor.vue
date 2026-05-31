@@ -1,5 +1,5 @@
 <script setup>
-import { Head, router } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { ref, onMounted, onUnmounted } from 'vue';
 import { RefreshCcw, Activity, AlertOctagon, CheckCircle2, Clock, Users, ChevronLeft, ChevronRight } from 'lucide-vue-next';
@@ -270,14 +270,19 @@ const confirmDiskualifikasi = () => {
                                     <p class="truncate w-32" :title="p.browser">{{ p.browser || '-' }}</p>
                                 </td>
                                 <td class="p-4 pr-6 text-right">
-                                    <button 
-                                        v-if="p.status === 'mengerjakan'"
-                                        @click="diskualifikasiManual(p)"
-                                        class="px-3 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 rounded-lg text-xs font-bold transition-colors"
-                                    >
-                                        Diskualifikasi
-                                    </button>
-                                    <span v-else class="text-slate-300 text-xs font-medium">N/A</span>
+                                    <div class="flex items-center justify-end gap-2">
+                                        <Link :href="route('admin.ujian.sesi.peserta.detail', [sesi.hashid, p.id])"
+                                            class="px-3 py-1.5 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold transition-colors">
+                                            Detail
+                                        </Link>
+                                        <button 
+                                            v-if="p.status === 'mengerjakan'"
+                                            @click="diskualifikasiManual(p)"
+                                            class="px-3 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 rounded-lg text-xs font-bold transition-colors"
+                                        >
+                                            Diskualifikasi
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             
@@ -318,7 +323,7 @@ const confirmDiskualifikasi = () => {
                                 @click="goToPage(link.label)"
                                 class="min-w-[32px] h-8 px-2 rounded-lg text-xs font-bold transition-colors"
                                 :class="link.active ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-100'"
-                                v-html="link.label"
+                                v-text="link.label"
                             />
                         </template>
                         <button @click="goToPage(peserta.current_page + 1)" :disabled="!peserta.next_page_url"

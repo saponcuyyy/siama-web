@@ -82,14 +82,16 @@ onMounted(() => {
                         </div>
                         <div class="space-y-2">
                             <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Jam Operasional</p>
-                            <p class="text-slate-900 font-bold">Senin - Jumat, 07:30 - 15:30</p>
+                            <p class="text-slate-900 font-bold">{{ settings?.jam_operasional || 'Senin - Jumat, 07:30 - 15:30' }}</p>
                         </div>
                     </div>
 
-                    <div class="flex gap-4 pt-4">
-                        <a v-if="settings?.facebook" :href="settings.facebook" target="_blank" class="w-12 h-12 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all">FB</a>
-                        <a v-if="settings?.instagram" :href="settings.instagram" target="_blank" class="w-12 h-12 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all">IG</a>
-                        <a v-if="settings?.youtube" :href="settings.youtube" target="_blank" class="w-12 h-12 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-red-600 hover:text-white transition-all">YT</a>
+                    <div class="flex flex-wrap gap-4 pt-4">
+                        <a v-if="settings?.website" :href="settings.website" target="_blank" class="w-12 h-12 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all font-black text-xs" title="Website Resmi">WWW</a>
+                        <a v-if="settings?.facebook" :href="settings.facebook" target="_blank" class="w-12 h-12 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all font-black text-xs" title="Facebook">FB</a>
+                        <a v-if="settings?.instagram" :href="settings.instagram" target="_blank" class="w-12 h-12 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all font-black text-xs" title="Instagram">IG</a>
+                        <a v-if="settings?.youtube" :href="settings.youtube" target="_blank" class="w-12 h-12 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-red-600 hover:text-white transition-all font-black text-xs" title="YouTube">YT</a>
+                        <a v-if="settings?.tiktok" :href="settings.tiktok" target="_blank" class="w-12 h-12 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-black hover:text-white transition-all font-black text-xs" title="TikTok">TK</a>
                     </div>
                 </div>
 

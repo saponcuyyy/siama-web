@@ -21,3 +21,11 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+credentials.csv
+deploy-config.sh
+scratch/
+gen-tutwuri.php
+generate-logos.php
+jmeter.log
+tests/performance/seed-test-users.php
+tests/performance/results/

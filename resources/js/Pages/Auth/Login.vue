@@ -1,6 +1,8 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+
+const currentYear = computed(() => new Date().getFullYear());
 
 const form = useForm({
     email: '',
@@ -70,7 +72,7 @@ const submit = () => {
 
                 <!-- Footer Info -->
                 <div class="text-white/40 text-xs font-bold uppercase tracking-widest animate-in fade-in duration-1000 delay-1000">
-                    &copy; 2024 SMA Negeri 2 Perbaungan • Versi 2.0.0
+                    &copy; {{ currentYear }} SMA Negeri 2 Perbaungan • Versi 2.0.0
                 </div>
             </div>
         </div>
@@ -112,7 +114,7 @@ const submit = () => {
                     <div class="space-y-2 group">
                         <div class="flex justify-between items-center px-1">
                             <label class="block text-xs font-black text-slate-400 uppercase tracking-widest group-focus-within:text-indigo-600 transition-colors" for="password">Kata Sandi</label>
-                            <Link href="#" class="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-500 transition-colors">
+                            <Link :href="route('password.request')" class="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-500 transition-colors">
                                 Lupa sandi?
                             </Link>
                         </div>
@@ -173,7 +175,7 @@ const submit = () => {
             
             <!-- Mobile Footer -->
             <div class="lg:hidden absolute bottom-8 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                &copy; 2024 SMA Negeri 2 Perbaungan
+                &copy; {{ currentYear }} SMA Negeri 2 Perbaungan
             </div>
         </div>
     </div>

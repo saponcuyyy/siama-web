@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Slider;
 use App\Services\Website\FileUploadService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class SliderController extends Controller
@@ -83,9 +84,11 @@ class SliderController extends Controller
             'ids.*' => 'exists:sliders,id',
         ]);
 
+        $updates = [];
         foreach ($request->ids as $index => $id) {
-            Slider::where('id', $id)->update(['urutan' => $index]);
+            $updates[] = ['id' => $id, 'urutan' => $index];
         }
+        DB::table('sliders')->upsert($updates, ['id'], ['urutan']);
 
         return back()->with('success', 'Urutan slider diperbarui.');
     }

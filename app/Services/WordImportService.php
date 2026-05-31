@@ -58,16 +58,33 @@ class WordImportService
         }
 
         // 2. Extract media images and save them
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
         $mediaMap = [];
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $filename = $zip->getNameIndex($i);
             if (str_contains($filename, 'word/media/')) {
-                $extension = pathinfo($filename, PATHINFO_EXTENSION);
+                $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+                if (!in_array($extension, $allowedExtensions, true)) {
+                    continue;
+                }
+
                 $newName = 'cbt_img_' . Str::random(12) . '.' . $extension;
-                
+
                 $imageContent = $zip->getFromIndex($i);
+
+                // Validate MIME type from content
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mime = finfo_buffer($finfo, $imageContent);
+                finfo_close($finfo);
+
+                $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (!in_array($mime, $allowedMimes, true)) {
+                    continue;
+                }
+
                 Storage::disk('public')->put('ujian/' . $newName, $imageContent);
-                
+
                 // Map the original word path (e.g. media/image1.png) to public URL
                 $wordPath = str_replace('word/', '', $filename);
                 $mediaMap[$wordPath] = Storage::url('ujian/' . $newName);

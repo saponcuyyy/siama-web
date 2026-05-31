@@ -35,9 +35,11 @@ onUnmounted(() => {
             <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
                 <!-- Logo -->
                 <Link href="/" class="flex items-center gap-3 group">
-                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-200 group-hover:scale-110 transition-transform">
-                        S
-                    </div>
+                    <img 
+                        src="/images/logo-small.png" 
+                        alt="Logo SMA Negeri 2 Perbaungan"
+                        class="w-10 h-10 object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-md"
+                    />
                     <div>
                         <h1 :class="['font-black leading-tight transition-colors', isScrolled ? 'text-slate-900' : 'text-slate-900']">
                             {{ settings?.nama_sekolah || 'SMA NEGERI 2' }}
@@ -67,13 +69,6 @@ onUnmounted(() => {
                             </Link>
                         </div>
                     </div>
-                    
-                    <Link 
-                        :href="route('public.kelulusan')" 
-                        class="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors py-2 block mr-4"
-                    >
-                        Pengumuman Kelulusan
-                    </Link>
                     
                     <Link 
                         v-if="false"
@@ -113,12 +108,7 @@ onUnmounted(() => {
                             </Link>
                         </div>
                     </div>
-                    <Link 
-                        :href="route('public.kelulusan')" 
-                        class="bg-emerald-50 text-emerald-600 border border-emerald-200 w-full py-4 rounded-2xl text-center font-black text-xl shadow-sm mt-2"
-                    >
-                        Pengumuman Kelulusan
-                    </Link>
+
                     <Link 
                         v-if="false"
                         :href="route('login')" 
@@ -140,7 +130,13 @@ onUnmounted(() => {
             <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
                 <div class="space-y-6">
                     <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl">S</div>
+                        <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-md flex-shrink-0 p-1">
+                            <img 
+                                src="/images/logo-small.png" 
+                                alt="Logo SMA Negeri 2 Perbaungan"
+                                class="w-full h-full object-contain"
+                            />
+                        </div>
                         <h2 class="font-black text-xl leading-tight uppercase">{{ settings?.nama_sekolah || 'SMA N 2 Perbaungan' }}</h2>
                     </div>
                     <p class="text-slate-400 text-sm leading-relaxed">{{ settings?.tagline || 'Mencetak generasi unggul, berkarakter, dan berdaya saing global.' }}</p>
@@ -150,6 +146,17 @@ onUnmounted(() => {
                     <ul class="space-y-4">
                         <li v-for="menu in menus" :key="menu.id">
                             <Link :href="menu.url" class="text-slate-400 hover:text-white transition-colors font-bold text-sm">{{ menu.label }}</Link>
+                        </li>
+                        <li class="pt-2">
+                            <Link 
+                                :href="route('public.kelulusan')" 
+                                class="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-4 py-2 rounded-xl font-black text-sm hover:bg-emerald-500/20 hover:text-emerald-300 transition-all"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                                </svg>
+                                Pengumuman Kelulusan
+                            </Link>
                         </li>
                     </ul>
                 </div>
@@ -172,10 +179,12 @@ onUnmounted(() => {
                 </div>
                 <div>
                     <h3 class="font-black text-lg mb-6 uppercase tracking-wider text-blue-400">Media Sosial</h3>
-                    <div class="flex gap-4">
-                        <a v-if="settings?.facebook" :href="settings.facebook" target="_blank" class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center hover:bg-blue-600 transition-all">FB</a>
-                        <a v-if="settings?.instagram" :href="settings.instagram" target="_blank" class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center hover:bg-pink-600 transition-all">IG</a>
-                        <a v-if="settings?.youtube" :href="settings.youtube" target="_blank" class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center hover:bg-red-600 transition-all">YT</a>
+                    <div class="flex flex-wrap gap-4">
+                        <a v-if="settings?.website" :href="settings.website" target="_blank" class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center hover:bg-emerald-600 transition-all font-black text-xs" title="Website Resmi">WWW</a>
+                        <a v-if="settings?.facebook" :href="settings.facebook" target="_blank" class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center hover:bg-blue-600 transition-all font-black text-xs" title="Facebook">FB</a>
+                        <a v-if="settings?.instagram" :href="settings.instagram" target="_blank" class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center hover:bg-pink-600 transition-all font-black text-xs" title="Instagram">IG</a>
+                        <a v-if="settings?.youtube" :href="settings.youtube" target="_blank" class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center hover:bg-red-600 transition-all font-black text-xs" title="YouTube">YT</a>
+                        <a v-if="settings?.tiktok" :href="settings.tiktok" target="_blank" class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center hover:bg-black hover:text-white transition-all font-black text-xs" title="TikTok">TK</a>
                     </div>
                 </div>
             </div>

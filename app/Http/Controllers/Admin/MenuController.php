@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Menu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class MenuController extends Controller
@@ -60,12 +61,15 @@ class MenuController extends Controller
             'menus' => 'required|array',
         ]);
 
+        $updates = [];
         foreach ($request->menus as $index => $item) {
-            Menu::where('id', $item['id'])->update([
-                'urutan' => $index,
-                'parent_id' => $item['parent_id'] ?? null
-            ]);
+            $updates[] = [
+                'id'        => $item['id'],
+                'urutan'    => $index,
+                'parent_id' => $item['parent_id'] ?? null,
+            ];
         }
+        DB::table('menus')->upsert($updates, ['id'], ['urutan', 'parent_id']);
 
         return back()->with('success', 'Urutan menu diperbarui.');
     }

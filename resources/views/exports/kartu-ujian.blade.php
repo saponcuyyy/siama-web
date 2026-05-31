@@ -165,7 +165,7 @@
                     </tr>
                     <tr>
                         <td class="label">Password</td>
-                        <td class="value highlight">: {{ date('dmY', strtotime($p->siswa->tanggal_lahir)) . '*' }}</td>
+                        <td class="value">: <em>sesuai tanggal lahir *</em></td>
                     </tr>
                     <tr>
                         <td class="label">Link Ujian</td>

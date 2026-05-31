@@ -1,8 +1,9 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import SearchableSelect from '@/Components/SearchableSelect.vue';
+import Pagination from '@/Components/Pagination.vue';
 import { 
     Package, Plus, Search, Eye, FileText, Settings, X, Check, BookOpen
 } from 'lucide-vue-next';
@@ -24,12 +25,18 @@ const mapelOptions = computed(() =>
 const search = ref(props.filters.search || '');
 const showModal = ref(false);
 
+const selectedMapel = computed(() =>
+    props.mapelList.find(m => m.id == form.mata_pelajaran_id)
+);
+
 const form = useForm({
     mata_pelajaran_id: '',
     kode: '',
     nama: '',
     deskripsi: '',
     durasi_menit: 90,
+    jenis: 'uh',
+    tingkat: '',
     acak_soal: true,
     acak_jawaban: true,
 });
@@ -37,6 +44,11 @@ const form = useForm({
 const handleSearch = () => {
     router.get(route('admin.ujian.paket.index'), { search: search.value }, { preserveState: true, replace: true });
 };
+
+watch(() => form.mata_pelajaran_id, (val) => {
+    const mapel = props.mapelList.find(m => m.id == val);
+    if (mapel) form.tingkat = mapel.tingkat;
+});
 
 const submitForm = () => {
     form.post(route('admin.ujian.paket.store'), {
@@ -142,21 +154,7 @@ const submitForm = () => {
                     </table>
                 </div>
                 
-                <!-- Pagination -->
-                <div v-if="paketList.links.length > 3" class="p-4 border-t border-slate-100 flex justify-center">
-                    <div class="flex flex-wrap gap-1">
-                        <template v-for="(link, k) in paketList.links" :key="k">
-                            <Link 
-                                v-if="link.url"
-                                :href="link.url"
-                                class="px-3 py-1 rounded-lg text-sm font-medium transition-colors"
-                                :class="link.active ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'"
-                                v-html="link.label"
-                            />
-                            <span v-else class="px-3 py-1 text-sm text-slate-400" v-html="link.label"></span>
-                        </template>
-                    </div>
-                </div>
+                <Pagination :data="paketList" />
             </div>
         </div>
 
@@ -202,6 +200,26 @@ const submitForm = () => {
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Deskripsi (Opsional)</label>
                             <textarea v-model="form.deskripsi" rows="2" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-indigo-600 focus:border-indigo-600"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Jenis Ujian</label>
+                                <select v-model="form.jenis" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-indigo-600 focus:border-indigo-600">
+                                    <option value="uh">UH (Ulangan Harian)</option>
+                                    <option value="uts">UTS</option>
+                                    <option value="uas">UAS</option>
+                                    <option value="pas">PAS</option>
+                                    <option value="try_out">Try Out</option>
+                                    <option value="lainnya">Lainnya</option>
+                                </select>
+                                <p v-if="form.errors.jenis" class="text-xs text-rose-500 mt-1 font-bold">{{ form.errors.jenis }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Tingkat Kelas</label>
+                                <input type="text" :value="form.tingkat" readonly placeholder="Pilih mata pelajaran" class="w-full px-4 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 cursor-not-allowed">
+                                <p v-if="form.errors.tingkat" class="text-xs text-rose-500 mt-1 font-bold">{{ form.errors.tingkat }}</p>
+                            </div>
                         </div>
 
                         <div class="flex gap-6 mt-4">

@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use Hashids\Hashids;
+use App\Exceptions\InvalidHashIdException;
 
 class HashId
 {
@@ -34,7 +35,7 @@ class HashId
     {
         $id = static::decode($hash);
         if ($id === null) {
-            abort(404);
+            throw new InvalidHashIdException;
         }
         return $id;
     }

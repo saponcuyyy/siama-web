@@ -31,14 +31,25 @@ class StartActiveSessions extends Command
 
                 $rombelIds = $this->getRombelIds($session);
                 if (!empty($rombelIds)) {
-                    Siswa::whereIn('rombel_id', $rombelIds)->chunk(200, function ($siswaList) use ($session) {
-                        foreach ($siswaList as $siswa) {
-                            PesertaUjian::firstOrCreate(
-                                ['sesi_ujian_id' => $session->id, 'siswa_id' => $siswa->id],
-                                ['status' => 'belum_mulai']
-                            );
-                        }
-                    });
+                    $siswaIds = Siswa::whereIn('rombel_id', $rombelIds)->pluck('id');
+                    $existing = PesertaUjian::where('sesi_ujian_id', $session->id)
+                        ->whereIn('siswa_id', $siswaIds)
+                        ->pluck('siswa_id');
+
+                    $newIds = $siswaIds->diff($existing);
+                    $now = now();
+
+                    $newPeserta = $newIds->map(fn($id) => [
+                        'sesi_ujian_id' => $session->id,
+                        'siswa_id'      => $id,
+                        'status'        => 'belum_mulai',
+                        'created_at'    => $now,
+                        'updated_at'    => $now,
+                    ])->toArray();
+
+                    if (!empty($newPeserta)) {
+                        PesertaUjian::insert($newPeserta);
+                    }
                 }
             });
 

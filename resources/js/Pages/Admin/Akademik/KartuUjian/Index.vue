@@ -1,7 +1,8 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Printer, GraduationCap, Users, Search } from 'lucide-vue-next';
+import Pagination from '@/Components/Pagination.vue';
+import { Printer, GraduationCap, Users } from 'lucide-vue-next';
 
 const props = defineProps({
     rombelList: Object,
@@ -52,17 +53,7 @@ const props = defineProps({
                 </div>
             </div>
 
-            <div v-if="rombelList.links.length > 3" class="flex justify-center">
-                <div class="flex flex-wrap gap-1">
-                    <template v-for="(link, k) in rombelList.links" :key="k">
-                        <Link v-if="link.url" :href="link.url"
-                            class="px-3 py-1 rounded-lg text-sm font-medium transition-colors"
-                            :class="link.active ? 'bg-indigo-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'"
-                            v-html="link.label" />
-                        <span v-else class="px-3 py-1 text-sm text-slate-400" v-html="link.label" />
-                    </template>
-                </div>
-            </div>
+            <Pagination :data="rombelList" />
         </div>
     </AuthenticatedLayout>
 </template>

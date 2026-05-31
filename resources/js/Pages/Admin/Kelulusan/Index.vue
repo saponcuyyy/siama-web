@@ -1,7 +1,8 @@
 <script setup>
 import AdminWebLayout from '@/Layouts/AdminWebLayout.vue';
+import Pagination from '@/Components/Pagination.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps({
     siswas: Object,
@@ -275,21 +276,7 @@ const formatDate = (d) =>
                     </table>
                 </div>
 
-                <!-- Pagination -->
-                <div v-if="siswas.last_page > 1" class="px-6 py-4 border-t border-slate-100 flex items-center justify-between text-sm">
-                    <span class="text-slate-400 font-semibold">Menampilkan {{ siswas.from }}-{{ siswas.to }} dari {{ siswas.total }} siswa</span>
-                    <div class="flex gap-2">
-                        <a v-for="link in siswas.links" :key="link.label"
-                           v-html="link.label"
-                           :href="link.url"
-                           :class="[
-                               'px-3 py-1 rounded-lg text-sm font-bold transition-all',
-                               link.active ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-slate-100',
-                               !link.url ? 'opacity-40 pointer-events-none' : ''
-                           ]"
-                        />
-                    </div>
-                </div>
+                <Pagination :data="siswas" />
             </div>
         </div>
     </AdminWebLayout>

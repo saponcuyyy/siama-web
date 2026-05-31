@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\SesiStatus;
 use App\Http\Controllers\Controller;
-use App\Models\{SesiUjian, PesertaUjian, Rombel, Semester, TahunAjaran};
+use App\Models\{SesiUjian, PesertaUjian, Rombel, Semester};
 use App\Exports\RekapNilaiRombelExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class LaporanUjianController extends Controller
     {
         $query = SesiUjian::with(['paketUjian.mataPelajaran', 'rombel'])
             ->withCount('pesertaUjian')
-            ->whereIn('status', ['selesai', 'berlangsung'])
+            ->whereIn('status', [SesiStatus::SELESAI->value, SesiStatus::BERLANGSUNG->value])
             ->latest('waktu_selesai');
 
         if ($request->search) {

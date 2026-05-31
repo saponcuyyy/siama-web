@@ -22,10 +22,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\LaporanUjianController;
 
 // ─── WEB CRON (Hostinger Fix) ──────────────────────────────────────────────────
-Route::get('/sys/cron', function () {
-    \Illuminate\Support\Facades\Artisan::call('schedule:run');
-    return 'Cron ran at ' . now();
-});
+Route::get('/sys/cron', \App\Http\Controllers\Sys\CronController::class);
 
 // ─── PUBLIC ROUTES ───────────────────────────────────────────────────────────
 Route::get('/', [App\Http\Controllers\LandingController::class, 'index'])->name('home');
@@ -42,11 +39,7 @@ Route::get('/berita/{slug}', [App\Http\Controllers\Public\BeritaPublikController
 Route::get('/pengumuman', [App\Http\Controllers\Public\PengumumanPublikController::class, 'index'])->name('public.pengumuman.index');
 Route::get('/galeri', [App\Http\Controllers\Public\GaleriPublikController::class, 'index'])->name('public.galeri.index');
 Route::get('/galeri/{album}', [App\Http\Controllers\Public\GaleriPublikController::class, 'show'])->name('public.galeri.show');
-Route::get('/kontak', function() {
-    return \Inertia\Inertia::render('Public/Kontak', [
-        'settings' => \Illuminate\Support\Facades\Cache::remember('settings', 3600, fn () => \App\Models\Setting::pluck('value', 'key')),
-    ]);
-})->name('public.kontak');
+Route::get('/kontak', [\App\Http\Controllers\Public\KontakController::class, 'index'])->name('public.kontak');
 Route::post('/kontak', [App\Http\Controllers\Public\PesanController::class, 'store'])->name('public.pesan.store');
 
 // Halaman Statis Dinamis
@@ -55,23 +48,14 @@ Route::get('/halaman/{slug}', [App\Http\Controllers\Public\PagePublikController:
 
 
 // Dashboard akademik
-Route::get('/dashboard', function () {
-    if (auth()->user()->hasRole('siswa')) {
-        return redirect()->route('ujian.index');
-    }
-    return \Inertia\Inertia::render('Dashboard', [
-        'stats' => [
-            'total_siswa' => \App\Models\Siswa::count(),
-            'total_guru' => \App\Models\Guru::count(),
-            'total_rombel' => \App\Models\Rombel::count(),
-        ]
-    ]);
-})->middleware(['auth'])->name('dashboard');
+Route::get('/dashboard', \App\Http\Controllers\DashboardController::class)
+    ->middleware(['auth', 'sync.ujian'])
+    ->name('dashboard');
 
 // ─── CMS / MANAJEMEN WEBSITE ───────────────────────────────────────────────
 Route::prefix('admin/web')
     ->name('admin.web.')
-    ->middleware(['auth', 'can:dashboard.view'])
+    ->middleware(['auth', 'can:dashboard.view', 'sync.ujian'])
     ->group(function () {
 
         // Dashboard Web
@@ -135,6 +119,8 @@ Route::prefix('admin/web')
                ->name('kartu-ujian.index');
 
         // Guru
+        Route::post('guru/import', [GuruController::class, 'import'])->name('guru.import');
+        Route::get('guru/template', [GuruController::class, 'downloadTemplate'])->name('guru.template');
         Route::resource('guru', GuruController::class)->except(['create', 'edit', 'show']);
 
         // Siswa
@@ -146,7 +132,7 @@ Route::prefix('admin/web')
 // ─── UJIAN ONLINE (CBT) - ADMIN / GURU ─────────────────────────────────────
 Route::prefix('admin/ujian')
     ->name('admin.ujian.')
-    ->middleware(['auth'])
+    ->middleware(['auth', 'sync.ujian'])
     ->group(function () {
         // Mata Pelajaran
         Route::resource('mata-pelajaran', App\Http\Controllers\Admin\MataPelajaranController::class)
@@ -198,6 +184,8 @@ Route::prefix('admin/ujian')
                     [App\Http\Controllers\Admin\SesiUjianController::class, 'generatePeserta'])->name('sesi.generate-peserta');
         Route::get('sesi/{sesi}/monitor',
                    [App\Http\Controllers\Admin\SesiUjianController::class, 'monitor'])->name('sesi.monitor');
+        Route::get('sesi/{sesi}/peserta/{peserta}',
+                   [App\Http\Controllers\Admin\SesiUjianController::class, 'detailPeserta'])->name('sesi.peserta.detail');
         Route::get('sesi/{sesi}/kartu-ujian',
                    [App\Http\Controllers\Admin\SesiUjianController::class, 'kartuUjian'])->name('sesi.kartu-ujian');
 
@@ -228,7 +216,7 @@ Route::prefix('admin/ujian')
 // ─── MANAJEMEN USER & RBAC ──────────────────────────────────────────────
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['auth', 'can:dashboard.view'])
+    ->middleware(['auth', 'can:dashboard.view', 'sync.ujian'])
     ->group(function () {
         Route::resource('users', UserController::class)->except(['create', 'edit', 'show']);
         Route::resource('roles', RoleController::class)->except(['create', 'edit', 'show']);
@@ -237,15 +225,10 @@ Route::prefix('admin')
 // ─── UJIAN ONLINE (CBT) - SISWA ────────────────────────────────────────────
 Route::prefix('ujian')
     ->name('ujian.')
-    ->middleware(['exam.auth', 'throttle:60,1'])
+    ->middleware(['exam.auth', 'throttle:60,1', 'sync.ujian'])
     ->group(function () {
         Route::get('/', [App\Http\Controllers\Ujian\RuangUjianController::class, 'index'])->name('index');
-        Route::post('/logout', function (\Illuminate\Http\Request $request) {
-            auth()->guard('web')->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-            return redirect(route('login', ['context' => 'ujian']));
-        })->name('logout');
+        Route::post('/logout', [App\Http\Controllers\Ujian\RuangUjianController::class, 'logout'])->name('logout');
         Route::get('/{sesi}/masuk', [App\Http\Controllers\Ujian\RuangUjianController::class, 'masuk'])->name('masuk');
         Route::post('/{sesi}/mulai', [App\Http\Controllers\Ujian\RuangUjianController::class, 'mulai'])->name('mulai');
         Route::get('/{sesi}/ruang', [App\Http\Controllers\Ujian\RuangUjianController::class, 'ruang'])->name('ruang');

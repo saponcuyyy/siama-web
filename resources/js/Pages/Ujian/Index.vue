@@ -12,6 +12,23 @@ const formatDate = (date) => {
     const d = new Date(date);
     return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
+
+const formatJadwal = (mulaiStr, selesaiStr) => {
+    if (!mulaiStr) return '';
+    const mulai = new Date(mulaiStr);
+    const optionsDate = { day: 'numeric', month: 'long', year: 'numeric' };
+    const dateFormatted = mulai.toLocaleDateString('id-ID', optionsDate);
+    
+    const formatTime = (date) => {
+        const h = String(date.getHours()).padStart(2, '0');
+        const m = String(date.getMinutes()).padStart(2, '0');
+        return `${h}.${m}`;
+    };
+    
+    const start = formatTime(mulai);
+    const end = selesaiStr ? formatTime(new Date(selesaiStr)) : 'selesai';
+    return `${dateFormatted.toLowerCase()} pukul ${start} - ${end}`;
+};
 </script>
 
 <template>
@@ -62,7 +79,7 @@ const formatDate = (date) => {
                                     <div class="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 flex-shrink-0">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                     </div>
-                                    <span>{{ formatDate(sesi.waktu_mulai) }}</span>
+                                    <span>{{ formatJadwal(sesi.waktu_mulai, sesi.waktu_selesai) }}</span>
                                 </div>
                                 <div class="flex items-center gap-3 text-sm text-slate-600 font-medium">
                                     <div class="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 flex-shrink-0">

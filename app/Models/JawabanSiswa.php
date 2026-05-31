@@ -18,20 +18,24 @@ class JawabanSiswa extends Model
         'jawaban_menjodohkan',
         'is_benar',
         'nilai',
+        'skor',
         'catatan_guru',
         'dinilai_oleh',
         'dinilai_at',
         'dijawab_at',
         'durasi_detik',
+        'is_ragu',
     ];
 
     protected $casts = [
         'jawaban_menjodohkan' => 'array',
         'is_benar' => 'boolean',
         'nilai' => 'float',
+        'skor' => 'float',
         'dinilai_at' => 'datetime',
         'dijawab_at' => 'datetime',
         'durasi_detik' => 'integer',
+        'is_ragu' => 'boolean',
     ];
 
     public function pesertaUjian(): BelongsTo

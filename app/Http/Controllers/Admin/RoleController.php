@@ -16,13 +16,14 @@ class RoleController extends Controller
     {
         $roles = Role::where('guard_name', 'web')
             ->with('permissions')
+            ->withCount('users')
             ->orderBy('name')
             ->get()
             ->map(fn($role) => [
                 'id'          => $role->id,
                 'name'        => $role->name,
                 'permissions' => $role->permissions->pluck('name'),
-                'users_count' => $role->users()->count(),
+                'users_count' => $role->users_count,
             ]);
 
         $permissions = Permission::where('guard_name', 'web')

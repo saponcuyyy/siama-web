@@ -50,7 +50,7 @@ class SiswaController extends Controller
             'rombel_id'     => 'required|exists:rombel,id',
         ]);
 
-        $randomPassword = Str::password(8);
+        $randomPassword = Str::password(10);
 
         DB::transaction(function () use ($validated, $randomPassword) {
             // Buat akun user untuk login portal ujian
@@ -85,11 +85,10 @@ class SiswaController extends Controller
             'tanggal_lahir' => 'required|date',
             'agama'         => 'nullable|string|max:50',
             'rombel_id'     => 'required|exists:rombel,id',
+            'reset_password' => 'nullable|boolean',
         ]);
 
-        $formattedPassword = date('dmY', strtotime($validated['tanggal_lahir'])) . '*';
-
-        DB::transaction(function () use ($siswa, $validated, $formattedPassword) {
+        DB::transaction(function () use ($siswa, $validated) {
             $siswa->update([
                 'nama'          => $validated['nama'],
                 'nisn'          => $validated['nisn'],
@@ -98,13 +97,21 @@ class SiswaController extends Controller
                 'rombel_id'     => $validated['rombel_id'],
             ]);
 
-            // Sync user name, email (NISN), & password jika ada user terkait
+            // Sync user name & email (NISN)
             if ($siswa->user_id) {
-                $siswa->user->update([
-                    'name'     => $validated['nama'],
-                    'email'    => $validated['nisn'],
-                    'password' => Hash::make($formattedPassword),
-                ]);
+                $userData = [
+                    'name'  => $validated['nama'],
+                    'email' => $validated['nisn'],
+                ];
+
+                // Hanya reset password jika checkbox reset_password dicentang
+                if (!empty($validated['reset_password'])) {
+                    $newPassword = Str::password(10);
+                    $userData['password'] = Hash::make($newPassword);
+                    $siswa->freshPassword = $newPassword;
+                }
+
+                $siswa->user->update($userData);
             }
         });
 
@@ -120,7 +127,11 @@ class SiswaController extends Controller
 
         $rombel = Rombel::findOrFail($request->rombel_id);
         $import = new SiswaRombelImport((int) $request->rombel_id);
-        Excel::import($import, $request->file('file'));
+        try {
+            Excel::import($import, $request->file('file'));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengimpor: ' . $e->getMessage());
+        }
 
         $failures = $import->failures();
         $errors   = $import->errors();
@@ -131,9 +142,9 @@ class SiswaController extends Controller
         if ($total > 0) {
             $list = collect($import->createdAccounts)
                 ->take(5)
-                ->map(fn($a) => "{$a['nisn']} / {$a['password']}")
+                ->map(fn($a) => $a['nisn'])
                 ->implode(', ');
-            $message .= " Akun dibuat: {$list}" . (count($import->createdAccounts) > 5 ? ', ...' : '');
+            $message .= " NISN: {$list}" . (count($import->createdAccounts) > 5 ? ', ...' : '');
         }
 
         if ($failures->count() > 0 || count($errors) > 0) {

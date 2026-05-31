@@ -28,6 +28,7 @@ class SiswaKelulusanController extends Controller
             ->selectRaw("COALESCE(SUM(CAST(status_lulus = 'lulus' AS UNSIGNED)), 0) as lulus")
             ->selectRaw("COALESCE(SUM(CAST(status_lulus = 'tidak_lulus' AS UNSIGNED)), 0) as tidak_lulus")
             ->selectRaw("COALESCE(SUM(CAST(status_lulus = 'ditunda' AS UNSIGNED)), 0) as ditunda")
+            ->toBase()
             ->first();
 
         return Inertia::render('Admin/Kelulusan/Index', [
@@ -53,7 +54,11 @@ class SiswaKelulusanController extends Controller
         }
 
         $import = new SiswaImport();
-        Excel::import($import, $request->file('file'));
+        try {
+            Excel::import($import, $request->file('file'));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengimpor: ' . $e->getMessage());
+        }
 
         $failures = $import->failures();
         $errors   = $import->errors();

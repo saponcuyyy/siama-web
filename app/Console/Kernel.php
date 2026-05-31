@@ -25,13 +25,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // Auto-start sesi yang sudah mencapai waktu_mulai
         $schedule->command('sesi:start-active')->everyMinute();
-        // Auto-close sesi yang sudah melewati waktu_selesai
         $schedule->command('sesi:close-expired')->everyMinute();
-        // Proses semua job queue (auto-save jawaban, pelanggaran, dll)
-        $schedule->command('queue:work --stop-when-empty --sleep=1 --tries=3 --timeout=120')
-            ->everyThirtySeconds()->withoutOverlapping()->runInBackground();
     }
 
     /**

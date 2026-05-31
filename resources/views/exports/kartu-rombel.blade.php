@@ -163,7 +163,7 @@
                                                     <td class="label">Pass</td>
                                                     <td class="colon">:</td>
                                                     <td class="value" style="font-family: monospace; font-size: 11px; color: #dc2626;">
-                                                        {{ $s->tanggal_lahir ? date('dmY', strtotime($s->tanggal_lahir)) . '*' : '********' }}
+                                                        <em>sesuai tanggal lahir *</em>
                                                     </td>
                                                 </tr>
                                             </table>

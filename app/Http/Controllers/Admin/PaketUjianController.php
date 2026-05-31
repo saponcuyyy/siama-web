@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\{PaketUjian, MataPelajaran, Soal};
+use App\Models\{Guru, PaketUjian, MataPelajaran, Soal, TahunAjaran, Semester};
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -37,11 +37,25 @@ class PaketUjianController extends Controller
             'nama' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
             'durasi_menit' => 'required|integer|min:1',
+            'jenis' => 'required|in:uh,uts,uas,pas,try_out,lainnya',
+            'tingkat' => 'required|in:X,XI,XII',
             'acak_soal' => 'boolean',
             'acak_jawaban' => 'boolean',
         ]);
 
+        $guru = Guru::where('user_id', Auth::id())->first();
+        $tahunAjaran = TahunAjaran::where('is_active', true)->first();
+        $semester = Semester::where('is_active', true)->first();
+
+        abort_unless($guru, 400, 'Data guru tidak ditemukan untuk pengguna ini. Pastikan akun Anda terdaftar sebagai guru.');
+        abort_unless($tahunAjaran, 400, 'Tahun ajaran aktif tidak ditemukan. Silakan atur tahun ajaran aktif terlebih dahulu.');
+        abort_unless($semester, 400, 'Semester aktif tidak ditemukan. Silakan atur semester aktif terlebih dahulu.');
+
+        $validated['guru_id'] = $guru->id;
+        $validated['tahun_ajaran_id'] = $tahunAjaran->id;
+        $validated['semester_id'] = $semester->id;
         $validated['dibuat_oleh'] = Auth::id();
+        $validated['status'] = 'draft';
 
         PaketUjian::create($validated);
 

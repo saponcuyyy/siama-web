@@ -1,7 +1,6 @@
 <script setup>
 import AdminWebLayout from '@/Layouts/AdminWebLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
 
 const props = defineProps({ berita: Object });
 

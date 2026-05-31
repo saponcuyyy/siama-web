@@ -16,7 +16,10 @@ defineProps({
     about: Object,
     visiMisi: Object,
     menus: Array,
-    settings: Object
+    settings: Object,
+    total_siswa: Number,
+    total_guru: Number,
+    total_fasilitas: Number
 });
 </script>
 
@@ -28,9 +31,16 @@ defineProps({
         </Head>
 
         <!-- Dynamic Landing Page Content -->
-        <Hero :sliders="sliders" />
+        <Hero :sliders="sliders" :settings="settings" />
         
-        <About :about="about" :visiMisi="visiMisi" />
+        <About 
+            :about="about" 
+            :visiMisi="visiMisi" 
+            :settings="settings" 
+            :total_siswa="total_siswa" 
+            :total_guru="total_guru" 
+            :total_fasilitas="total_fasilitas" 
+        />
 
         <NewsEvents :berita="berita" :pengumuman="pengumuman" />
 

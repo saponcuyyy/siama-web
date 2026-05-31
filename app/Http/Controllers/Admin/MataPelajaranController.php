@@ -59,12 +59,13 @@ class MataPelajaranController extends Controller
     {
         $validated = $request->validate([
             'nama'    => 'required|string|max:100',
-            'kode'    => 'required|string|max:20',
+            'kode'    => 'required|string|max:20|unique:mata_pelajaran,kode,' . $mataPelajaran->id,
             'tingkat' => 'required|in:X,XI,XII',
             'jurusan' => 'nullable|in:IPA,IPS',
         ], [
             'nama.required'    => 'Nama mata pelajaran wajib diisi.',
             'kode.required'    => 'Kode mata pelajaran wajib diisi.',
+            'kode.unique'      => 'Kode mata pelajaran sudah digunakan.',
             'tingkat.required' => 'Tingkat kelas wajib dipilih.',
             'tingkat.in'       => 'Tingkat kelas tidak valid.',
             'jurusan.in'       => 'Jurusan tidak valid.',

@@ -6,6 +6,12 @@ const page = usePage();
 const user = page.props.auth.user;
 const isLogoutOpen = ref(false);
 
+function avatarUrl(name) {
+    const initials = name.split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase() || 'U';
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><rect width="32" height="32" fill="#6366f1" rx="50%"/><text x="16" y="16" text-anchor="middle" dominant-baseline="central" fill="white" font-family="system-ui" font-weight="700" font-size="14">${initials}</text></svg>`;
+    return `data:image/svg+xml;base64,${btoa(svg)}`;
+}
+
 function onDocClick(e) {
     if (isLogoutOpen.value) isLogoutOpen.value = false;
 }
@@ -29,7 +35,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick));
                         @click="isLogoutOpen = !isLogoutOpen"
                         class="w-8 h-8 bg-indigo-100 rounded-full overflow-hidden border border-indigo-200 hover:border-indigo-400 transition-colors"
                     >
-                        <img :src="`https://ui-avatars.com/api/?name=${user.name}&background=6366f1&color=fff`" alt="" class="w-full h-full object-cover" />
+                        <img :src="avatarUrl(user.name)" alt="Avatar" class="w-full h-full object-cover" />
                     </button>
                     <div
                         v-if="isLogoutOpen"

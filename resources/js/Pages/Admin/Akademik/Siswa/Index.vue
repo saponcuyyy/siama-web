@@ -1,7 +1,8 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import Pagination from '@/Components/Pagination.vue';
 import { UserCheck, Plus, Search, Pencil, Trash2, X, Check, Users, Info, Upload, Download, FileSpreadsheet } from 'lucide-vue-next';
 import dayjs from 'dayjs';
 
@@ -262,18 +263,7 @@ const submitImport = () => {
                     </table>
                 </div>
 
-                <!-- Pagination -->
-                <div v-if="siswaList.links && siswaList.links.length > 3" class="p-4 border-t border-slate-100 flex justify-center">
-                    <div class="flex flex-wrap gap-1">
-                        <template v-for="(link, k) in siswaList.links" :key="k">
-                            <Link v-if="link.url" :href="link.url"
-                                class="px-3 py-1 rounded-lg text-sm font-medium transition-colors"
-                                :class="link.active ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'"
-                                v-html="link.label" />
-                            <span v-else class="px-3 py-1 text-sm text-slate-400" v-html="link.label" />
-                        </template>
-                    </div>
-                </div>
+                <Pagination :data="siswaList" />
             </div>
         </div>
 

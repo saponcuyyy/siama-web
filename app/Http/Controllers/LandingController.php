@@ -10,7 +10,6 @@ use App\Models\Album;
 use App\Models\Setting;
 use App\Models\Menu;
 use App\Models\Page;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
@@ -22,7 +21,8 @@ class LandingController extends Controller
             return [
                 'sliders' => Slider::where('status', 'aktif')->orderBy('urutan')->limit(10)->get(),
                 'berita' => Berita::with('kategori')->where('status', 'published')->latest()->take(6)->get(),
-                'pengumuman' => Pengumuman::where('status', 'aktif')
+                'pengumuman' => Pengumuman::with('author')
+                    ->where('status', 'aktif')
                     ->where(function($q) {
                         $q->whereNull('tanggal_selesai')
                           ->orWhere('tanggal_selesai', '>=', now());
@@ -34,6 +34,9 @@ class LandingController extends Controller
                 'visiMisi' => Page::where('slug', 'visi-misi')->first(),
                 'menus' => Menu::with('children')->whereNull('parent_id')->where('status', 'aktif')->orderBy('urutan')->get(),
                 'settings' => Setting::pluck('value', 'key'),
+                'total_siswa' => \App\Models\Siswa::count(),
+                'total_guru' => \App\Models\Guru::count(),
+                'total_fasilitas' => Fasilitas::where('status', 'aktif')->count(),
             ];
         }));
     }

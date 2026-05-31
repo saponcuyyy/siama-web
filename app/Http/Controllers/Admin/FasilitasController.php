@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Fasilitas;
 use App\Services\Website\FileUploadService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class FasilitasController extends Controller
@@ -82,9 +83,11 @@ class FasilitasController extends Controller
             'ids.*' => 'exists:fasilitas,id',
         ]);
 
+        $updates = [];
         foreach ($request->ids as $index => $id) {
-            Fasilitas::where('id', $id)->update(['urutan' => $index]);
+            $updates[] = ['id' => $id, 'urutan' => $index];
         }
+        DB::table('fasilitas')->upsert($updates, ['id'], ['urutan']);
 
         return back()->with('success', 'Urutan fasilitas diperbarui.');
     }

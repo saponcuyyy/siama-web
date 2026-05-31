@@ -1,8 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { Head, Link, useForm, router } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Shield, Plus, Pencil, Trash2, X, Check, Users, Lock, AlertTriangle } from 'lucide-vue-next';
+import { ref } from 'vue';
+import { Head, useForm, router } from '@inertiajs/vue3';
+import { Shield, Plus, Pencil, Trash2, X, Check, Lock, AlertTriangle } from 'lucide-vue-next';
 
 const props = defineProps({
     roleList: Array,

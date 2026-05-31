@@ -4,11 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Album;
-use App\Models\Galeri;
 use App\Services\Website\FileUploadService;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class AlbumController extends Controller
 {
@@ -88,8 +87,11 @@ class AlbumController extends Controller
 
         foreach ($request->file('photos') as $photo) {
             $uploaded = $this->fileUploadService->uploadImage($photo, 'galeri');
+            $originalName = pathinfo($photo->getClientOriginalName(), PATHINFO_FILENAME);
+            $sanitizedTitle = Str::limit(Str::slug($originalName), 200);
+
             $album->galeri()->create([
-                'judul' => $photo->getClientOriginalName(),
+                'judul' => $sanitizedTitle,
                 'file_path' => $uploaded['path'],
                 'status' => 'aktif',
                 'created_by' => auth()->id(),

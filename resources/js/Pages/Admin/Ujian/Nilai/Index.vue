@@ -1,5 +1,5 @@
 <script setup>
-import { Head, router, Link } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { ref, computed } from 'vue';
 import { FileSpreadsheet, ArrowUpDown, ChevronDown, Download } from 'lucide-vue-next';

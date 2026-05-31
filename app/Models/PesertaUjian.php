@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Enums\PesertaStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\{
     BelongsTo, HasMany
@@ -57,13 +58,20 @@ class PesertaUjian extends Model
     {
         if (!$this->mulai_at) return 0;
 
-        $durasi = $this->sesiUjian->paketUjian->durasi_menit * 60;
-        $terpakai = now()->diffInSeconds($this->mulai_at);
+        $durasiMenit = $this->sesiUjian?->paketUjian?->durasi_menit ?? 0;
+        $durasi = $durasiMenit * 60;
+        if ($durasi <= 0) return 0;
+
+        // Waktu terpakai = selisih mulai_at → now (positif karena mulai_at di masa lalu)
+        $terpakai = max(0, $this->mulai_at->diffInSeconds(now(), false));
         $sisaDariDurasi = max(0, $durasi - $terpakai);
 
-        // Batasi dengan waktu_selesai sesi sebagai batas mutlak
-        if ($this->sesiUjian->waktu_selesai && now()->lt($this->sesiUjian->waktu_selesai)) {
-            $sisaDariSesi = now()->diffInSeconds($this->sesiUjian->waktu_selesai);
+        // Batasi dengan waktu_selesai + toleransi_menit sebagai batas mutlak sesi
+        if ($this->sesiUjian?->waktu_selesai) {
+            $toleransiDetik = ($this->sesiUjian->toleransi_menit ?? 0) * 60;
+            $batasEfektif = $this->sesiUjian->waktu_selesai->copy()->addSeconds($toleransiDetik);
+            // Sisa sesi = selisih now → batasEfektif (positif selama ujian masih berlangsung)
+            $sisaDariSesi = max(0, now()->diffInSeconds($batasEfektif, false));
             return min($sisaDariDurasi, $sisaDariSesi);
         }
 
@@ -73,7 +81,7 @@ class PesertaUjian extends Model
     // Apakah siswa sedang aktif mengerjakan di device lain?
     public function isSesiAktifDiDevice(string $deviceToken): bool
     {
-        return $this->status === 'mengerjakan'
+        return $this->status === PesertaStatus::MENGERJAKAN->value
             && $this->device_token
             && $this->device_token !== $deviceToken;
     }

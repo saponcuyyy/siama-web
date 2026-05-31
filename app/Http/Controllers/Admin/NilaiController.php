@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\PesertaStatus;
 use App\Http\Controllers\Controller;
 use App\Models\MataPelajaran;
 use App\Models\PesertaUjian;
@@ -16,7 +17,7 @@ class NilaiController extends Controller
     protected function getData($rombelId)
     {
         $mapels = MataPelajaran::whereHas('paketUjian.sesiUjian.pesertaUjian', function ($q) {
-                $q->where('status', 'selesai');
+                $q->where('status', PesertaStatus::SELESAI->value);
             })
             ->orderBy('nama')
             ->get(['id', 'nama']);
@@ -29,16 +30,18 @@ class NilaiController extends Controller
                     'sesiUjian.paketUjian.mataPelajaran:id,nama',
                 ])
                 ->whereHas('siswa', fn($q) => $q->where('rombel_id', $rombelId))
-                ->where('status', 'selesai')
+                ->where('status', PesertaStatus::SELESAI->value)
                 ->select('id', 'siswa_id', 'sesi_ujian_id', 'nilai_pg', 'nilai_bs', 'nilai_menjodohkan', 'nilai_essay', 'nilai_akhir')
                 ->get()
                 ->groupBy('siswa_id');
 
             $rows = $pesertaBySiswa->map(function ($items) use ($mapels) {
-                $siswa = $items->first()->siswa;
+                $first = $items->first();
+                $siswa = $first?->siswa;
 
-                $perMapel = $items->groupBy(fn($p) => $p->sesiUjian->paketUjian->mataPelajaran->nama)
-                    ->map(fn($group) => $group->sortByDesc('id')->first());
+                $perMapel = $items->groupBy(function ($p) {
+                    return $p->sesiUjian?->paketUjian?->mataPelajaran?->nama ?? 'Tanpa Mapel';
+                })->map(fn($group) => $group->sortByDesc('id')->first());
 
                 $nilai = $mapels->mapWithKeys(fn($m) => [
                     $m->id => $perMapel->get($m->nama)?->nilai_akhir,
@@ -49,9 +52,9 @@ class NilaiController extends Controller
                 $rata = $count > 0 ? round($total / $count, 2) : null;
 
                 return [
-                    'siswa_id' => $siswa->id,
-                    'nama'     => $siswa->nama,
-                    'nisn'     => $siswa->nisn,
+                    'siswa_id' => $siswa?->id,
+                    'nama'     => $siswa?->nama ?? '-',
+                    'nisn'     => $siswa?->nisn ?? '-',
                     'nilai'    => $nilai,
                     'rata_rata' => $rata,
                 ];
@@ -80,6 +83,10 @@ class NilaiController extends Controller
     public function export(Request $request)
     {
         $rombelId = $request->input('rombel_id');
+        if (!$rombelId) {
+            return back()->with('error', 'Pilih rombel terlebih dahulu.');
+        }
+
         $rombel = Rombel::findOrFail($rombelId);
 
         [$mapels, $rows] = $this->getData($rombelId);

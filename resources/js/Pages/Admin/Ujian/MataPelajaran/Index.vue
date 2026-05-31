@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import Pagination from '@/Components/Pagination.vue';
 import { BookOpen, Plus, Search, Pencil, Trash2, X, Check, AlertTriangle, BookMarked, Filter } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -258,21 +259,7 @@ const hasActiveFilters = computed(() => search.value || filterTingkat.value || f
                     </table>
                 </div>
 
-                <!-- Pagination -->
-                <div v-if="mapelList.links.length > 3" class="p-4 border-t border-slate-100 flex justify-center">
-                    <div class="flex flex-wrap gap-1">
-                        <template v-for="(link, k) in mapelList.links" :key="k">
-                            <a
-                                v-if="link.url"
-                                :href="link.url"
-                                class="px-3 py-1.5 rounded-lg text-sm font-bold transition-colors"
-                                :class="link.active ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'"
-                                v-html="link.label"
-                            />
-                            <span v-else class="px-3 py-1.5 text-sm text-slate-400" v-html="link.label" />
-                        </template>
-                    </div>
-                </div>
+                <Pagination :data="mapelList" />
             </div>
         </div>
 

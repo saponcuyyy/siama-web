@@ -3,6 +3,10 @@ import { Head, router } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import axios from 'axios';
 import { sanitize } from '@/sanitize';
+import SoalPG from '@/Components/SoalPG.vue';
+import SoalEssay from '@/Components/SoalEssay.vue';
+import SoalBenarSalah from '@/Components/SoalBenarSalah.vue';
+import SoalMenjodohkan from '@/Components/SoalMenjodohkan.vue';
 
 const props = defineProps({
     sesi: Object,
@@ -14,7 +18,9 @@ const props = defineProps({
 const currentIdx = ref(0);
 const sisaDetik = ref(props.sisa_waktu);
 const timer = ref(null);
+const periodicTimer = ref(null);
 const autoSave = ref('saved');
+let autoSaveErrorTimer = null;
 const showNav = ref(false);
 const showConfirm = ref(false);
 const showViolation = ref(false);
@@ -25,6 +31,69 @@ const isSubmittingOrConfirming = ref(false);
 const isFullscreen = ref(false);
 
 const answers = ref({});
+let isRestoring = false;
+let saveTimer = null;
+let saveRetryTimer = null;
+
+const STORAGE_PREFIX = 'exam_answers_';
+
+function getStorageKey() {
+    return STORAGE_PREFIX + props.sesi.hashid;
+}
+
+function saveAnswersToStorage() {
+    try {
+        localStorage.setItem(getStorageKey(), JSON.stringify(answers.value));
+    } catch {
+        // storage unavailable or full
+    }
+}
+
+function restoreAnswersFromStorage() {
+    try {
+        const saved = localStorage.getItem(getStorageKey());
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            let restored = false;
+            isRestoring = true;
+            props.soal_list.forEach(s => {
+                if (parsed[s.id] !== undefined) {
+                    answers.value[s.id] = parsed[s.id];
+                    restored = true;
+                }
+            });
+            isRestoring = false;
+            return restored;
+        }
+    } catch {
+        isRestoring = false;
+    }
+    return false;
+}
+
+function clearAnswersFromStorage() {
+    localStorage.removeItem(getStorageKey());
+}
+
+function onBeforeUnload() {
+    saveAnswersToStorage();
+}
+
+function queueSave(durasi = 0) {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => saveJawaban(durasi), 1500);
+}
+
+function flushSave() {
+    if (saveTimer) {
+        clearTimeout(saveTimer);
+        saveTimer = null;
+        const soal = currentSoal.value;
+        if (soal && hasJawaban(answers.value[soal.id], soal.tipe)) {
+            saveJawaban(0);
+        }
+    }
+}
 
 const triggerMathJax = () => {
     nextTick(() => {
@@ -33,22 +102,38 @@ const triggerMathJax = () => {
 };
 
 onMounted(() => {
-    props.soal_list.forEach(s => { answers.value[s.id] = s.jawaban_siswa; });
+    // Restore answers from localStorage first (survives tab switches, page reloads, bfcache)
+    const restored = restoreAnswersFromStorage();
+    if (!restored) {
+        // Fall back to server props
+        props.soal_list.forEach(s => { answers.value[s.id] = s.jawaban_siswa; });
+    }
     startTimer();
     document.addEventListener('visibilitychange', onVisibility);
     window.addEventListener('blur', onBlur);
     document.addEventListener('fullscreenchange', onFSChange);
+    window.addEventListener('beforeunload', onBeforeUnload);
     if (props.sesi.wajib_fullscreen) requestFS();
     triggerMathJax();
+    startPeriodicSave();
 });
 
 watch(currentIdx, () => triggerMathJax());
 
+watch(answers, () => {
+    if (!isRestoring) saveAnswersToStorage();
+}, { deep: true });
+
 onUnmounted(() => {
     clearInterval(timer.value);
+    clearInterval(periodicTimer.value);
+    clearTimeout(saveTimer);
+    clearTimeout(saveRetryTimer);
+    clearTimeout(autoSaveErrorTimer);
     document.removeEventListener('visibilitychange', onVisibility);
     window.removeEventListener('blur', onBlur);
     document.removeEventListener('fullscreenchange', onFSChange);
+    window.removeEventListener('beforeunload', onBeforeUnload);
 });
 
 // Timer
@@ -73,16 +158,23 @@ const timeLow = computed(() => sisaDetik.value < 300);
 // Anti-cheat
 function onVisibility() {
     if (isSubmittingOrConfirming.value) return;
-    if (document.visibilityState === 'hidden') report('pindah_tab');
+    if (document.visibilityState === 'hidden') {
+        saveAnswersToStorage();
+        report('pindah_tab');
+    }
 }
 function onBlur() {
     if (isSubmittingOrConfirming.value) return;
+    saveAnswersToStorage();
     report('blur_window');
 }
 function onFSChange() {
     isFullscreen.value = !!document.fullscreenElement;
     if (isSubmittingOrConfirming.value) return;
-    if (!isFullscreen.value && props.sesi.wajib_fullscreen) report('keluar_fullscreen');
+    if (!isFullscreen.value && props.sesi.wajib_fullscreen) {
+        saveAnswersToStorage();
+        report('keluar_fullscreen');
+    }
 }
 
 async function requestFS() {
@@ -93,7 +185,7 @@ async function report(tipe) {
     if (isSubmittingOrConfirming.value) return;
     isSubmittingOrConfirming.value = true;
     try {
-        const r = await axios.post(route('ujian.pelanggaran', props.sesi.hashid), { tipe });
+        const r = await axios.post(route('ujian.pelanggaran', props.sesi.hashid), { tipe }, { timeout: 10000 });
         if (r.data.status === 'didiskualifikasi') { showDQ.value = true; }
         else {
             violation.value = { tipe, count: r.data.jumlah_pelanggaran };
@@ -106,10 +198,9 @@ async function report(tipe) {
 
 function closeViolation() {
     showViolation.value = false;
-    setTimeout(() => {
-        isSubmittingOrConfirming.value = false;
-        if (props.sesi.wajib_fullscreen) requestFS();
-    }, 500);
+    restoreAnswersFromStorage();
+    isSubmittingOrConfirming.value = false;
+    if (props.sesi.wajib_fullscreen) requestFS();
 }
 
 function goToResults() { window.location.href = route('ujian.hasil', props.sesi.hashid); }
@@ -131,19 +222,48 @@ const unanswered = computed(() => total.value - answered.value);
 
 const currentSoal = computed(() => props.soal_list[currentIdx.value]);
 
-// Save
-async function saveJawaban(durasi = 0) {
-    autoSave.value = 'saving';
-    const soalId = currentSoal.value.id;
+// Save with retry
+async function saveJawaban(durasi = 0, retries = 2) {
+    const soalId = currentSoal.value?.id;
+    if (!soalId) return;
     const jawaban = answers.value[soalId];
-    try {
-        await axios.post(route('ujian.simpan', props.sesi.hashid), {
-            soal_id: soalId, jawaban, durasi
-        });
-        autoSave.value = 'saved';
-        const s = props.soal_list.find(x => x.id === soalId);
-        if (s) s.jawaban_siswa = jawaban;
-    } catch { autoSave.value = 'error'; }
+    autoSave.value = 'saving';
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+            const res = await axios.post(route('ujian.simpan', props.sesi.hashid), {
+                soal_id: soalId, jawaban, durasi
+            }, { timeout: 10000 });
+            if (res.data?.status === 'success') {
+                const s = props.soal_list.find(x => x.id === soalId);
+                if (s) s.jawaban_siswa = jawaban;
+            }
+            autoSave.value = 'saved';
+            return;
+        } catch {
+            if (attempt < retries) {
+                await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+            } else {
+                autoSave.value = 'error';
+                resetAutoSaveError();
+            }
+        }
+    }
+}
+
+function startPeriodicSave() {
+    periodicTimer.value = setInterval(() => {
+        const soal = currentSoal.value;
+        if (soal && hasJawaban(answers.value[soal.id], soal.tipe)) {
+            saveJawaban(0);
+        }
+    }, 30000);
+}
+
+function resetAutoSaveError() {
+    if (autoSaveErrorTimer) clearTimeout(autoSaveErrorTimer);
+    if (autoSave.value === 'error') {
+        autoSaveErrorTimer = setTimeout(() => { autoSave.value = 'saved'; }, 5000);
+    }
 }
 
 function scrollToTop() {
@@ -151,9 +271,9 @@ function scrollToTop() {
     if (main) main.scrollTop = 0;
 }
 
-function next() { if (currentIdx.value < props.soal_list.length - 1) { currentIdx.value++; scrollToTop(); } }
-function prev() { if (currentIdx.value > 0) { currentIdx.value--; scrollToTop(); } }
-function jump(i) { currentIdx.value = i; showNav.value = false; scrollToTop(); }
+function next() { flushSave(); if (currentIdx.value < props.soal_list.length - 1) { currentIdx.value++; scrollToTop(); } }
+function prev() { flushSave(); if (currentIdx.value > 0) { currentIdx.value--; scrollToTop(); } }
+function jump(i) { flushSave(); currentIdx.value = i; showNav.value = false; scrollToTop(); }
 
 function submitUjian(reason = 'submit_manual') {
     if (reason === 'submit_manual') { isSubmittingOrConfirming.value = true; showConfirm.value = true; }
@@ -162,27 +282,69 @@ function submitUjian(reason = 'submit_manual') {
 
 function closeConfirm() {
     showConfirm.value = false;
-    setTimeout(() => { isSubmittingOrConfirming.value = false; }, 500);
+    isSubmittingOrConfirming.value = false;
 }
 
-function executeSubmit() {
+function hasJawaban(a, tipe) {
+    if (a === undefined || a === null) return false;
+    if (tipe === 'menjodohkan') {
+        if (typeof a !== 'object') return false;
+        return Object.keys(a).length > 0 && Object.values(a).some(v => v && v !== '');
+    }
+    return a !== '';
+}
+
+async function saveAllJawaban() {
+    const promises = props.soal_list
+        .filter(s => hasJawaban(answers.value[s.id], s.tipe))
+        .map(s => {
+            const soalId = s.id;
+            const jawaban = answers.value[soalId];
+            return axios.post(route('ujian.simpan', props.sesi.hashid), {
+                soal_id: soalId, jawaban, durasi: 0
+            }, { timeout: 15000 }).then((res) => {
+                if (res.data?.status === 'success') {
+                    s.jawaban_siswa = jawaban;
+                }
+            });
+        });
+    if (promises.length === 0) return;
+    const results = await Promise.allSettled(promises);
+    const failed = results.filter(r => r.status === 'rejected');
+    if (failed.length > 0) {
+        // Retry failed once
+        const retryPromises = failed.map((_, i) => {
+            const idx = results.findIndex(r => r === failed[i]);
+            const s = props.soal_list.filter(x => hasJawaban(answers.value[x.id], x.tipe))[idx];
+            if (!s) return Promise.resolve();
+            return axios.post(route('ujian.simpan', props.sesi.hashid), {
+                soal_id: s.id, jawaban: answers.value[s.id], durasi: 0
+            }, { timeout: 15000 });
+        });
+        await Promise.allSettled(retryPromises);
+    }
+}
+
+async function executeSubmit() {
     submitting.value = true;
-    saveJawaban(0).finally(() => {
+    try {
+        await saveAllJawaban();
+        clearAnswersFromStorage();
+        if (document.fullscreenElement) {
+            try { await document.exitFullscreen(); } catch {}
+        }
         router.post(route('ujian.selesai', props.sesi.hashid), {}, {
-            onSuccess: () => { if (document.fullscreenElement) document.exitFullscreen(); },
+            onSuccess: () => {},
             onError: () => { submitting.value = false; isSubmittingOrConfirming.value = false; showConfirm.value = false; }
         });
-    });
+    } catch {
+        submitting.value = false;
+        isSubmittingOrConfirming.value = false;
+        showConfirm.value = false;
+    }
 }
 
-// Menjodohkan
-function updateMatch(kiri, val) {
-    const id = currentSoal.value.id;
-    const cur = answers.value[id] || {};
-    cur[kiri] = val;
-    answers.value[id] = { ...cur };
-    saveJawaban(2);
-}
+
 </script>
 
 <template>
@@ -231,9 +393,12 @@ function updateMatch(kiri, val) {
 
             <div class="flex items-center gap-2 md:gap-3">
                 <!-- Save status -->
-                <span class="text-[10px] font-bold uppercase tracking-wider hidden xs:inline"
-                    :class="autoSave==='saving'?'text-amber-500':autoSave==='saved'?'text-emerald-500':'text-rose-500'">
-                    {{ autoSave==='saving'?'Menyimpan...':autoSave==='saved'?'' :'Error' }}
+                <span class="text-[10px] font-bold uppercase tracking-wider items-center gap-1.5"
+                    :class="autoSave==='saving'?'text-amber-500 flex':autoSave==='saved'?'text-emerald-500 flex':'text-rose-500 flex'">
+                    <span v-if="autoSave==='saving'" class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                    <span v-else-if="autoSave==='saved'" class="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span v-else class="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                    {{ autoSave==='saving'?'Menyimpan...':autoSave==='saved'?'Tersimpan':'Gagal Simpan' }}
                 </span>
 
                 <!-- Timer -->
@@ -285,84 +450,26 @@ function updateMatch(kiri, val) {
 
                         <!-- Answer area -->
                         <div class="px-5 py-6 md:px-8 md:py-8">
-
-                            <!-- PG -->
-                            <div v-if="currentSoal.tipe === 'pg'" class="space-y-3">
-                                <label v-for="opsi in currentSoal.pilihan" :key="opsi.kode"
-                                    class="flex items-start gap-3 md:gap-4 p-4 md:p-5 rounded-xl md:rounded-2xl border-2 cursor-pointer transition-all"
-                                    :class="answers[currentSoal.id] === opsi.kode
-                                        ? 'border-emerald-500 bg-emerald-50/50'
-                                        : 'border-slate-200 bg-white hover:border-slate-300'">
-                                    <div class="flex items-center h-5 md:h-6">
-                                        <input type="radio" :name="'s'+currentSoal.id" :value="opsi.kode"
-                                            v-model="answers[currentSoal.id]" @change="saveJawaban(2)"
-                                            class="w-4 h-4 md:w-5 md:h-5 accent-emerald-600" />
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <div v-if="opsi.gambar_url" class="rounded-xl overflow-hidden border border-slate-100 max-w-xs">
-                                            <img :src="opsi.gambar_url" alt="Opsi" class="w-full h-auto" />
-                                        </div>
-                                        <div v-if="opsi.teks" class="prose prose-sm prose-slate mt-1" v-html="sanitize(opsi.teks)" />
-                                    </div>
-                                </label>
-                            </div>
-
-                            <!-- Benar/Salah -->
-                            <div v-else-if="currentSoal.tipe === 'benar_salah'" class="flex gap-4">
-                                <label v-for="opt in ['Benar','Salah']" :key="opt"
-                                    class="flex-1 flex items-center justify-center gap-2 p-5 md:p-6 rounded-xl md:rounded-2xl border-2 cursor-pointer transition-all font-black text-sm md:text-base uppercase tracking-wider"
-                                    :class="answers[currentSoal.id] === opt
-                                        ? opt==='Benar'?'border-emerald-500 bg-emerald-50 text-emerald-700':'border-rose-500 bg-rose-50 text-rose-700'
-                                        : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'">
-                                    <input type="radio" :value="opt" v-model="answers[currentSoal.id]"
-                                        @change="saveJawaban(2)" class="hidden" />
-                                    {{ opt }}
-                                </label>
-                            </div>
-
-                            <!-- Essay -->
-                            <div v-else-if="currentSoal.tipe === 'essay'">
-                                <textarea v-model="answers[currentSoal.id]" @blur="saveJawaban(5)"
-                                    rows="6" placeholder="Ketik jawaban Anda di sini..."
-                                    class="w-full p-4 md:p-5 bg-white border-2 border-slate-200 rounded-xl md:rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 text-slate-800 resize-y transition-all text-sm md:text-base">
-                                </textarea>
-                                <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mt-3 text-right">
-                                    Tersimpan otomatis saat pindah soal
-                                </p>
-                            </div>
-
-                            <!-- Menjodohkan -->
-                            <div v-else-if="currentSoal.tipe === 'menjodohkan'" class="space-y-4">
-                                <div class="p-4 md:p-5 rounded-xl md:rounded-2xl"
-                                    style="background:rgba(6,182,212,.04);border:1px solid rgba(6,182,212,.1)">
-                                    <p class="text-xs font-bold md:text-sm mb-4 flex items-center gap-2"
-                                        style="color:#0891b2">
-                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                                            <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
-                                        </svg>
-                                        Pasangkan dengan tepat
-                                    </p>
-                                    <div class="space-y-3">
-                                        <div v-for="(kiri,i) in currentSoal.pilihan_kiri" :key="i"
-                                            class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-                                            <div class="flex-1 p-3 md:p-4 bg-white rounded-xl border border-slate-200 font-medium text-slate-700 text-sm shadow-sm">
-                                                {{ kiri }}
-                                            </div>
-                                            <select :value="answers[currentSoal.id]?.[kiri]||''"
-                                                @change="e=>updateMatch(kiri,e.target.value)"
-                                                class="flex-1 p-3 md:p-4 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium text-sm shadow-sm cursor-pointer focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-                                                <option value="" disabled>-- Pilih --</option>
-                                                <option v-for="(kanan,j) in currentSoal.pilihan_kanan" :key="j" :value="kanan">
-                                                    {{ kanan }}
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
+                            <SoalPG v-if="currentSoal.tipe === 'pg'"
+                                :key="currentSoal.id"
+                                :soal="currentSoal" :jawaban="answers[currentSoal.id]"
+                                @update:jawaban="v => answers[currentSoal.id] = v"
+                                @save="queueSave" />
+                            <SoalBenarSalah v-else-if="currentSoal.tipe === 'benar_salah'"
+                                :key="currentSoal.id"
+                                :soal="currentSoal" :jawaban="answers[currentSoal.id]"
+                                @update:jawaban="v => answers[currentSoal.id] = v"
+                                @save="queueSave" />
+                            <SoalEssay v-else-if="currentSoal.tipe === 'essay'"
+                                :key="currentSoal.id"
+                                :soal="currentSoal" :jawaban="answers[currentSoal.id]"
+                                @update:jawaban="v => answers[currentSoal.id] = v"
+                                @save="queueSave" />
+                            <SoalMenjodohkan v-else-if="currentSoal.tipe === 'menjodohkan'"
+                                :key="currentSoal.id"
+                                :soal="currentSoal" :jawaban="answers[currentSoal.id]"
+                                @update:jawaban="v => answers[currentSoal.id] = v"
+                                @save="queueSave" />
                         </div>
                     </div>
                 </template>

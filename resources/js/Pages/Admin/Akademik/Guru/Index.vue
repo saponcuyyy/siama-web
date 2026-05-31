@@ -1,13 +1,15 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { Head, Link, useForm, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { UserSquare, Plus, Search, Pencil, Trash2, X, Check, Users, Info, Mail, CalendarDays, Briefcase } from 'lucide-vue-next';
+import Pagination from '@/Components/Pagination.vue';
+import { UserSquare, Plus, Search, Pencil, Trash2, X, Check, Users, Info, Mail, Briefcase, Upload, FileSpreadsheet, Download } from 'lucide-vue-next';
 import dayjs from 'dayjs';
 
 const props = defineProps({
     guruList: Object,
     filters: Object,
+    mapelList: Array,
 });
 
 const JABATAN_OPTIONS = [
@@ -44,15 +46,27 @@ const getBadgeClass = (jabatan) => JABATAN_BADGE[jabatan] ?? 'bg-slate-100 text-
 
 const search   = ref(props.filters.search || '');
 const showModal = ref(false);
+const showImportModal = ref(false);
 const editTarget = ref(null);
 
 const form = useForm({
-    nama:          '',
-    nip:           '',
-    jabatan:       'Guru',
-    email:         '',
-    tanggal_lahir: '',
+    nama:              '',
+    nip:               '',
+    jabatan:           'Guru',
+    email:             '',
+    tanggal_lahir:     '',
+    mata_pelajaran_ids: [],
 });
+
+const mapelDropdown = ref(false);
+
+const importForm = useForm({
+    file: null,
+});
+
+const selectedFile = ref(null);
+const fileInput = ref(null);
+const dragOver = ref(false);
 
 const openCreate = () => {
     editTarget.value = null;
@@ -61,13 +75,49 @@ const openCreate = () => {
     showModal.value = true;
 };
 
+const openImport = () => {
+    selectedFile.value = null;
+    importForm.reset();
+    showImportModal.value = true;
+};
+
+const triggerFileSelect = () => {
+    fileInput.value.click();
+};
+
+const onFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        selectedFile.value = file;
+        importForm.file = file;
+    }
+};
+
+const handleDrop = (e) => {
+    dragOver.value = false;
+    const file = e.dataTransfer.files[0];
+    if (file) {
+        selectedFile.value = file;
+        importForm.file = file;
+    }
+};
+
+const removeSelectedFile = () => {
+    selectedFile.value = null;
+    importForm.file = null;
+    if (fileInput.value) {
+        fileInput.value.value = '';
+    }
+};
+
 const openEdit = (guru) => {
     editTarget.value = guru;
-    form.nama          = guru.nama;
-    form.nip           = guru.nip;
-    form.jabatan       = guru.jabatan || 'Guru';
-    form.email         = guru.user?.email || '';
-    form.tanggal_lahir = guru.tanggal_lahir || '';
+    form.nama                = guru.nama;
+    form.nip                 = guru.nip;
+    form.jabatan             = guru.jabatan || 'Guru';
+    form.email               = guru.user?.email || '';
+    form.tanggal_lahir       = guru.tanggal_lahir || '';
+    form.mata_pelajaran_ids  = (guru.mata_pelajarans || []).map(m => m.id);
     showModal.value = true;
 };
 
@@ -78,6 +128,7 @@ const handleSearch = () => {
 };
 
 const submitForm = () => {
+    mapelDropdown.value = false;
     if (editTarget.value) {
         form.put(route('admin.web.guru.update', editTarget.value.hashid), {
             onSuccess: () => { showModal.value = false; form.reset(); },
@@ -87,6 +138,16 @@ const submitForm = () => {
             onSuccess: () => { showModal.value = false; form.reset(); },
         });
     }
+};
+
+const submitImport = () => {
+    importForm.post(route('admin.web.guru.import'), {
+        onSuccess: () => {
+            showImportModal.value = false;
+            selectedFile.value = null;
+            importForm.reset();
+        },
+    });
 };
 
 const formatDate = (date) => {
@@ -106,6 +167,16 @@ const getInitials = (name) => {
 
 const avatarColors = ['from-indigo-500 to-purple-600', 'from-emerald-500 to-teal-600', 'from-amber-500 to-orange-600', 'from-rose-500 to-pink-600', 'from-cyan-500 to-blue-600'];
 const getColor = (id) => avatarColors[id % avatarColors.length];
+
+const mapelLabel = (mapel) => {
+    const parts = [mapel.nama];
+    if (mapel.tingkat) {
+        parts.push(mapel.tingkat + (mapel.jurusan ? ' ' + mapel.jurusan : ''));
+    } else {
+        parts.push(mapel.kode);
+    }
+    return parts.join(' — ');
+};
 </script>
 
 <template>
@@ -121,7 +192,10 @@ const getColor = (id) => avatarColors[id % avatarColors.length];
                     </h1>
                     <p class="text-slate-500 font-medium mt-1">Kelola data guru beserta jabatan dan akun akses sistem.</p>
                 </div>
-                <div class="flex gap-3">
+                <div class="flex flex-wrap gap-2.5">
+                    <button @click="openImport" class="px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-bold rounded-xl flex items-center gap-2 transition-all shadow-sm">
+                        <Upload class="w-4 h-4 text-slate-500" /> Import Guru
+                    </button>
                     <button @click="openCreate" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-indigo-200">
                         <Plus class="w-5 h-5" /> Tambah Guru
                     </button>
@@ -175,6 +249,7 @@ const getColor = (id) => avatarColors[id % avatarColors.length];
                                 <th class="p-4 pl-6">Guru</th>
                                 <th class="p-4">NIP / NIK</th>
                                 <th class="p-4">Jabatan</th>
+                                <th class="p-4">Mata Pelajaran</th>
                                 <th class="p-4">Tanggal Lahir</th>
                                 <th class="p-4">Email</th>
                                 <th class="p-4 pr-6 text-right">Aksi</th>
@@ -204,6 +279,15 @@ const getColor = (id) => avatarColors[id % avatarColors.length];
                                         {{ guru.jabatan || 'Guru' }}
                                     </span>
                                 </td>
+                                <td class="p-4">
+                                    <div class="flex flex-wrap gap-1">
+                                        <span v-if="!guru.mata_pelajarans?.length" class="text-slate-400 text-xs">-</span>
+                                        <span v-for="mapel in (guru.mata_pelajarans || [])" :key="mapel.id"
+                                            class="inline-flex items-center px-2 py-0.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-lg">
+                                            {{ mapelLabel(mapel) }}
+                                        </span>
+                                    </div>
+                                </td>
                                 <td class="p-4 font-medium text-slate-600">
                                     {{ formatDate(guru.tanggal_lahir) }}
                                 </td>
@@ -225,7 +309,7 @@ const getColor = (id) => avatarColors[id % avatarColors.length];
                                 </td>
                             </tr>
                             <tr v-if="guruList.data.length === 0">
-                                <td colspan="6" class="p-12 text-center">
+                                <td colspan="7" class="p-12 text-center">
                                     <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-3 text-slate-400">
                                         <Users class="w-6 h-6" />
                                     </div>
@@ -237,18 +321,7 @@ const getColor = (id) => avatarColors[id % avatarColors.length];
                     </table>
                 </div>
 
-                <!-- Pagination -->
-                <div v-if="guruList.links && guruList.links.length > 3" class="p-4 border-t border-slate-100 flex justify-center">
-                    <div class="flex flex-wrap gap-1">
-                        <template v-for="(link, k) in guruList.links" :key="k">
-                            <Link v-if="link.url" :href="link.url"
-                                class="px-3 py-1 rounded-lg text-sm font-medium transition-colors"
-                                :class="link.active ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'"
-                                v-html="link.label" />
-                            <span v-else class="px-3 py-1 text-sm text-slate-400" v-html="link.label" />
-                        </template>
-                    </div>
-                </div>
+                <Pagination :data="guruList" />
             </div>
         </div>
 
@@ -257,7 +330,7 @@ const getColor = (id) => avatarColors[id % avatarColors.length];
             <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
                 <div class="flex items-center justify-between p-6 border-b border-slate-100">
                     <h2 class="text-xl font-black text-slate-900">{{ editTarget ? 'Edit Data Guru' : 'Tambah Guru Baru' }}</h2>
-                    <button @click="showModal = false" class="p-2 text-slate-400 hover:text-slate-600 bg-slate-50 rounded-xl transition-colors">
+                    <button @click="showModal = false; mapelDropdown = false" class="p-2 text-slate-400 hover:text-slate-600 bg-slate-50 rounded-xl transition-colors">
                         <X class="w-5 h-5" />
                     </button>
                 </div>
@@ -288,6 +361,26 @@ const getColor = (id) => avatarColors[id % avatarColors.length];
                         <p v-if="form.errors.jabatan" class="text-xs text-rose-500 mt-1 font-bold">{{ form.errors.jabatan }}</p>
                     </div>
 
+                    <div class="relative">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Mata Pelajaran Diampu</label>
+                        <button type="button" @click="mapelDropdown = !mapelDropdown"
+                            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-left flex items-center justify-between gap-2 hover:border-indigo-400 transition-colors">
+                            <span v-if="form.mata_pelajaran_ids.length === 0" class="text-slate-400">Pilih mata pelajaran...</span>
+                            <span v-else class="text-slate-700 font-medium">{{ form.mata_pelajaran_ids.length }} dipilih</span>
+                            <svg class="w-4 h-4 text-slate-400 transition-transform" :class="{'rotate-180': mapelDropdown}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div v-if="mapelDropdown"
+                            class="absolute z-10 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                            <label v-for="mapel in mapelList" :key="mapel.id"
+                                class="flex items-center gap-2.5 px-4 py-2 hover:bg-slate-50 cursor-pointer text-sm">
+                                <input type="checkbox" :value="mapel.id" v-model="form.mata_pelajaran_ids"
+                                    class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                                {{ mapelLabel(mapel) }}
+                            </label>
+                        </div>
+                        <p v-if="form.errors.mata_pelajaran_ids" class="text-xs text-rose-500 mt-1 font-bold">{{ form.errors.mata_pelajaran_ids }}</p>
+                    </div>
+
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Tanggal Lahir</label>
                         <input type="date" v-model="form.tanggal_lahir"
@@ -305,7 +398,7 @@ const getColor = (id) => avatarColors[id % avatarColors.length];
                     </div>
 
                     <div class="flex justify-end gap-3 pt-2">
-                        <button type="button" @click="showModal = false"
+                        <button type="button" @click="showModal = false; mapelDropdown = false"
                             class="px-5 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
                             Batal
                         </button>
@@ -315,6 +408,102 @@ const getColor = (id) => avatarColors[id % avatarColors.length];
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Modal Import Guru via Excel/CSV -->
+        <div v-if="showImportModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+            <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-fade-in">
+                <div class="flex items-center justify-between p-6 border-b border-slate-100">
+                    <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                        <FileSpreadsheet class="w-6 h-6 text-emerald-600" />
+                        Import Data Guru
+                    </h2>
+                    <button @click="showImportModal = false" class="p-2 text-slate-400 hover:text-slate-600 bg-slate-50 rounded-xl transition-colors">
+                        <X class="w-5 h-5" />
+                    </button>
+                </div>
+
+                <div class="p-6 space-y-5">
+                    <!-- Download Template Area -->
+                    <div class="p-4 bg-indigo-50/60 border border-indigo-100 rounded-2xl flex items-center justify-between gap-3">
+                        <div class="space-y-0.5">
+                            <h4 class="text-sm font-bold text-indigo-950">Template Import Excel</h4>
+                            <p class="text-xs text-indigo-700/80">Gunakan format resmi agar data terproses dengan benar.</p>
+                        </div>
+                        <a :href="route('admin.web.guru.template')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm shrink-0">
+                            <Download class="w-3.5 h-3.5" /> Unduh
+                        </a>
+                    </div>
+
+                    <!-- Drag and Drop Zone -->
+                    <div 
+                        @dragover.prevent="dragOver = true"
+                        @dragleave.prevent="dragOver = false"
+                        @drop.prevent="handleDrop"
+                        @click="triggerFileSelect"
+                        :class="[
+                            'border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200 flex flex-col items-center justify-center min-h-[160px]',
+                            dragOver 
+                                ? 'border-indigo-500 bg-indigo-50/30' 
+                                : 'border-slate-200 bg-slate-50/50 hover:border-indigo-400 hover:bg-indigo-50/5'
+                        ]"
+                    >
+                        <input 
+                            type="file" 
+                            ref="fileInput" 
+                            @change="onFileChange" 
+                            accept=".xlsx, .xls, .csv" 
+                            class="hidden" 
+                        />
+                        
+                        <div v-if="!selectedFile" class="space-y-2">
+                            <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-500">
+                                <Upload class="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">Klik untuk unggah atau tarik file kemari</p>
+                                <p class="text-xs text-slate-400 mt-1">Mendukung format .xlsx, .xls atau .csv (Maks. 10MB)</p>
+                            </div>
+                        </div>
+
+                        <div v-else class="w-full flex items-center gap-3 p-3 bg-emerald-50 border border-emerald-100 rounded-xl">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+                                <FileSpreadsheet class="w-5 h-5" />
+                            </div>
+                            <div class="text-left flex-1 min-w-0">
+                                <p class="text-sm font-bold text-slate-800 truncate">{{ selectedFile.name }}</p>
+                                <p class="text-xs text-slate-400">{{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB</p>
+                            </div>
+                            <button type="button" @click.stop="removeSelectedFile" class="p-1.5 hover:bg-emerald-100 text-emerald-700 rounded-lg transition-colors">
+                                <X class="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[11px] text-slate-500 leading-relaxed space-y-1">
+                        <p class="font-bold text-slate-700 uppercase tracking-wider text-[10px]">⚠️ Aturan Pengisian:</p>
+                        <p>1. Kolom <strong>nip</strong>, <strong>nama</strong>, dan <strong>email</strong> wajib terisi.</p>
+                        <p>2. Kolom <strong>email</strong> akan otomatis digunakan sebagai Username login portal guru.</p>
+                        <p>3. Password akun guru default diatur sebagai: <code class="bg-slate-200 px-1 py-0.5 rounded font-mono font-bold text-slate-700">guru123</code>.</p>
+                    </div>
+
+                    <!-- Footer buttons -->
+                    <div class="flex justify-end gap-3 pt-2">
+                        <button type="button" @click="showImportModal = false"
+                            class="px-5 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
+                            Batal
+                        </button>
+                        <button 
+                            @click="submitImport" 
+                            :disabled="!selectedFile || importForm.processing"
+                            class="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-60 shadow-lg shadow-indigo-150"
+                        >
+                            <Check class="w-4 h-4" /> 
+                            {{ importForm.processing ? 'Memproses...' : 'Mulai Import' }}
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>

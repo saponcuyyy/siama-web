@@ -1,12 +1,12 @@
 <?php
 namespace App\Services\Ujian;
 
+use App\Enums\SoalType;
+use App\Enums\PesertaStatus;
 use App\Models\{
     PesertaUjian, SesiUjian, Soal, JawabanSiswa, LogUjian
 };
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class UjianService
 {
@@ -15,6 +15,8 @@ class UjianService
      */
     public function mulaiUjian(PesertaUjian $peserta, string $deviceToken, string $ip, ?string $userAgent): void
     {
+        $peserta->loadMissing('sesiUjian.paketUjian');
+
         DB::transaction(function () use ($peserta, $deviceToken, $ip, $userAgent) {
             $paket = $peserta->sesiUjian->paketUjian;
             
@@ -36,7 +38,7 @@ class UjianService
                 if ($paket->acak_jawaban) {
                     $semuaSoal = Soal::with('pilihanJawaban')->whereIn('id', $urutanSoal)->get();
                     foreach ($semuaSoal as $s) {
-                        if ($s->tipe === 'pg') {
+                        if ($s->tipe === SoalType::PG->value) {
                             $urutanJawaban[$s->id] = $s->pilihanJawaban->shuffle()->pluck('kode')->toArray();
                         }
                     }
@@ -45,7 +47,7 @@ class UjianService
 
             // Update status peserta
             $peserta->update([
-                'status'         => 'mengerjakan',
+                'status'         => PesertaStatus::MENGERJAKAN->value,
                 'mulai_at'       => $peserta->mulai_at ?? now(),
                 'device_token'   => $deviceToken,
                 'ip_address'     => $ip,
@@ -70,23 +72,31 @@ class UjianService
      */
     public function catatPelanggaran(PesertaUjian $peserta, string $tipe, string $ip, ?string $userAgent): void
     {
+        $peserta->loadMissing('sesiUjian');
+
         DB::transaction(function () use ($peserta, $tipe, $ip, $userAgent) {
-            $peserta->increment('jumlah_pelanggaran');
+            $fresh = PesertaUjian::lockForUpdate()->find($peserta->id);
+
+            if (!$fresh || in_array($fresh->status, [PesertaStatus::SELESAI->value, PesertaStatus::DIDISKUALIFIKASI->value])) {
+                return;
+            }
+
+            $fresh->increment('jumlah_pelanggaran');
+            $fresh->refresh();
 
             LogUjian::create([
-                'peserta_ujian_id' => $peserta->id,
-                'tipe_event'       => $tipe, // e.g., 'pindah_tab'
+                'peserta_ujian_id' => $fresh->id,
+                'tipe_event'       => $tipe,
                 'ip_address'       => $ip,
                 'user_agent'       => $userAgent,
                 'terjadi_at'       => now(),
             ]);
 
-            // Diskualifikasi otomatis jika melebihi max_pelanggaran
-            if ($peserta->jumlah_pelanggaran >= $peserta->sesiUjian->max_pelanggaran) {
-                $peserta->update(['status' => 'didiskualifikasi', 'selesai_at' => now()]);
-                
+            if ($fresh->jumlah_pelanggaran >= ($fresh->sesiUjian?->max_pelanggaran ?? PHP_INT_MAX)) {
+                $fresh->update(['status' => PesertaStatus::DIDISKUALIFIKASI->value, 'selesai_at' => now()]);
+
                 LogUjian::create([
-                    'peserta_ujian_id' => $peserta->id,
+                    'peserta_ujian_id' => $fresh->id,
                     'tipe_event'       => 'diskualifikasi',
                     'keterangan'       => 'Mencapai batas maksimal pelanggaran',
                     'ip_address'       => $ip,
@@ -120,20 +130,20 @@ class UjianService
             $soal = $soalList[$soalId] ?? null;
             if (!$soal) continue;
 
+            // Jawaban yang sudah disimpan sebelumnya
+            $jawabanLog = $jawabanTersimpan[$soalId] ?? null;
+
             $soalData = [
                 'id'         => $soal->id,
                 'nomor'      => $nomor++,
                 'tipe'       => $soal->tipe,
                 'pertanyaan' => $soal->pertanyaan,
                 'gambar_url' => $soal->gambar_url,
-                'ragu'       => false, // State lokal untuk fitur "Ragu-ragu"
+                'ragu'       => $jawabanLog->is_ragu ?? false,
             ];
 
-            // Jawaban yang sudah disimpan sebelumnya
-            $jawabanLog = $jawabanTersimpan[$soalId] ?? null;
-
             // Acak urutan pilihan jawaban (PG)
-            if ($soal->tipe === 'pg') {
+            if ($soal->tipe === SoalType::PG->value) {
                 $urutanOpsi = $urutanJaw[$soalId] ?? null;
                 $opsi = $soal->pilihanJawaban->map(fn($p) => [
                     'kode' => $p->kode,
@@ -150,13 +160,13 @@ class UjianService
                 $soalData['pilihan'] = $opsi->values();
                 $soalData['jawaban_siswa'] = $jawabanLog->jawaban ?? null;
             } 
-            elseif ($soal->tipe === 'benar_salah') {
+            elseif ($soal->tipe === SoalType::BENAR_SALAH->value) {
                 $soalData['jawaban_siswa'] = $jawabanLog->jawaban ?? null;
             }
-            elseif ($soal->tipe === 'essay') {
+            elseif ($soal->tipe === SoalType::ESSAY->value) {
                 $soalData['jawaban_siswa'] = $jawabanLog->jawaban ?? '';
             }
-            elseif ($soal->tipe === 'menjodohkan') {
+            elseif ($soal->tipe === SoalType::MENJODOHKAN->value) {
                 $kiri = $soal->pasanganMenjodohkan->pluck('kiri')->shuffle();
                 $kanan = $soal->pasanganMenjodohkan->pluck('kanan')->shuffle();
                 
@@ -178,7 +188,7 @@ class UjianService
     {
         DB::transaction(function () use ($peserta, $ip, $userAgent) {
             $peserta->update([
-                'status'     => 'selesai',
+                'status'     => PesertaStatus::SELESAI->value,
                 'selesai_at' => now(),
             ]);
 
@@ -206,25 +216,31 @@ class UjianService
         $nilaiMenjodohkan = 0;
         $adaEssay = false;
 
+        $batchUpdates = [];
+
         foreach ($jawabanSiswa as $j) {
             $soal = $j->soal;
             if (!$soal) continue;
 
             switch ($soal->tipe) {
-                case 'pg':
-                case 'benar_salah':
-                    $isBenar = (strtolower(trim($j->jawaban)) === strtolower(trim($soal->kunci_jawaban)));
+                case SoalType::PG->value:
+                case SoalType::BENAR_SALAH->value:
+                    $jawaban = is_string($j->jawaban) ? trim($j->jawaban) : '';
+                    $isBenar = (strtolower($jawaban) === strtolower(trim($soal->kunci_jawaban)));
                     $nilai = $isBenar ? $soal->bobot : 0;
-                    $j->update([
-                        'is_benar' => $isBenar,
-                        'nilai'    => $nilai,
-                    ]);
+                    $batchUpdates[] = [
+                        'id'               => $j->id,
+                        'peserta_ujian_id' => $j->peserta_ujian_id,
+                        'soal_id'          => $j->soal_id,
+                        'is_benar'         => $isBenar,
+                        'nilai'            => $nilai,
+                    ];
                     
-                    if ($soal->tipe === 'pg') $nilaiPg += $nilai;
+                    if ($soal->tipe === SoalType::PG->value) $nilaiPg += $nilai;
                     else $nilaiBs += $nilai;
                     break;
                 
-                case 'menjodohkan':
+                case SoalType::MENJODOHKAN->value:
                     $pasangan = $soal->pasanganMenjodohkan->pluck('kanan','kiri');
                     $jawabanSiswaData = $j->jawaban_menjodohkan ?? [];
                     $benarCount = 0;
@@ -238,31 +254,47 @@ class UjianService
                         ? round(($benarCount / $totalPasangan) * $soal->bobot, 2) 
                         : 0;
                     
-                    $j->update([
-                        'is_benar' => $benarCount === $totalPasangan,
-                        'nilai'    => $nilai,
-                    ]);
+                    $batchUpdates[] = [
+                        'id'               => $j->id,
+                        'peserta_ujian_id' => $j->peserta_ujian_id,
+                        'soal_id'          => $j->soal_id,
+                        'is_benar'         => $benarCount === $totalPasangan,
+                        'nilai'            => $nilai,
+                    ];
                     $nilaiMenjodohkan += $nilai;
                     break;
                 
-                case 'essay':
+                case SoalType::ESSAY->value:
                     $adaEssay = true;
                     // Nilai essay akan diisi manual oleh guru
                     break;
             }
         }
 
-        $nilaiAkhir = $adaEssay 
-            ? null // Tunggu essay dinilai
-            : ($nilaiPg + $nilaiBs + $nilaiMenjodohkan);
+        if (!empty($batchUpdates)) {
+            JawabanSiswa::upsert($batchUpdates, ['id'], ['is_benar', 'nilai']);
+        }
+
+        $nilaiAkhir = $nilaiPg + $nilaiBs + $nilaiMenjodohkan;
+
+        if ($adaEssay) {
+            $jumlahNilaiEssay = $jawabanSiswa
+                ->filter(fn($j) => $j->soal?->tipe === SoalType::ESSAY->value)
+                ->sum('skor');
+
+            if ($jumlahNilaiEssay > 0) {
+                $nilaiAkhir += $jumlahNilaiEssay;
+            }
+        }
 
         $peserta->update([
             'nilai_pg'            => $nilaiPg,
             'nilai_bs'            => $nilaiBs,
             'nilai_menjodohkan'   => $nilaiMenjodohkan,
+            'nilai_essay'         => $adaEssay ? ($jumlahNilaiEssay ?? null) : null,
             'nilai_akhir'         => $nilaiAkhir,
             'sudah_dikoreksi'     => true,
-            'essay_sudah_dinilai' => !$adaEssay,
+            'essay_sudah_dinilai' => !$adaEssay || ($jumlahNilaiEssay ?? 0) === ($peserta->nilai_essay ?? 0),
         ]);
     }
 }

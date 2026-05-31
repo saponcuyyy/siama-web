@@ -15,10 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
-            \App\Http\Middleware\SyncUjianSessions::class,
+            \App\Http\Middleware\CheckSchedulerHeartbeat::class,
         ]);
         $middleware->alias([
-            'exam.auth' => \App\Http\Middleware\ExamAuth::class,
+            'exam.auth'        => \App\Http\Middleware\ExamAuth::class,
+            'sync.ujian'       => \App\Http\Middleware\SyncUjianSessions::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'login',

@@ -20,7 +20,8 @@ trait HasAuditTrail
 
     public function tapActivity(Activity $activity, string $eventName)
     {
-        $activity->ip_address = request()->ip();
-        $activity->user_agent = request()->userAgent();
+        $req = request();
+        $activity->ip_address = $req ? $req->ip() : '127.0.0.1';
+        $activity->user_agent = $req ? $req->userAgent() : 'console';
     }
 }

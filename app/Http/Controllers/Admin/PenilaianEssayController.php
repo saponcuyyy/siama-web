@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\{JawabanSiswa, SesiUjian, Soal};
+use App\Models\{JawabanSiswa};
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +34,7 @@ class PenilaianEssayController extends Controller
 
     public function nilai(Request $request, JawabanSiswa $jawaban)
     {
-        $jawaban->load('soal');
+        $jawaban->load(['soal', 'pesertaUjian']);
         
         $request->validate([
             'skor' => 'required|numeric|min:0|max:' . $jawaban->soal->bobot,
@@ -45,10 +45,16 @@ class PenilaianEssayController extends Controller
 
             $peserta = $jawaban->pesertaUjian;
 
-            $totalSkor = JawabanSiswa::where('peserta_ujian_id', $peserta->id)
+            $totalSkorEssay = JawabanSiswa::where('peserta_ujian_id', $peserta->id)
                 ->whereNotNull('skor')
                 ->sum('skor');
-            $peserta->update(['nilai_akhir' => $totalSkor]);
+
+            $nilaiAkhir = ($peserta->nilai_pg ?? 0)
+                + ($peserta->nilai_bs ?? 0)
+                + ($peserta->nilai_menjodohkan ?? 0)
+                + $totalSkorEssay;
+
+            $peserta->update(['nilai_akhir' => $nilaiAkhir]);
         });
 
         return back()->with('success', 'Nilai essay berhasil disimpan.');

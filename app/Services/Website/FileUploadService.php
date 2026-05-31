@@ -37,19 +37,32 @@ class FileUploadService
             );
         }
 
-        // 2. Generate nama file UUID
-        $extension = $file->getClientOriginalExtension();
-        $filename  = Str::uuid() . '.' . strtolower($extension);
+        // 2. Tentukan ekstensi dari MIME yang sudah divalidasi, bukan dari client
+        $extension = match ($detectedMime) {
+            'image/jpeg' => 'jpg',
+            'image/png'  => 'png',
+            'image/webp' => 'webp',
+            'image/gif'  => 'gif',
+            default      => 'jpg',
+        };
+        $filename  = Str::uuid() . '.' . $extension;
         $path      = $folder . '/' . $filename;
 
         // 3. Resize gambar jika lebar melebihi maxWidth
         $image = Image::read($file->getRealPath())
                       ->scaleDown(width: $maxWidth);
 
-        // 4. Upload ke MinIO
+        // 4. Pilih encoder sesuai format asli untuk menjaga transparansi
+        $encoded = match ($detectedMime) {
+            'image/png'  => $image->toPng(),
+            'image/webp' => $image->toWebp(quality: 85),
+            'image/gif'  => $image->toGif(),
+            default      => $image->toJpeg(quality: 85),
+        };
+
         Storage::disk($this->disk)->put(
             $path,
-            $image->toJpeg(quality: 85),
+            $encoded,
             'public'
         );
 
@@ -57,7 +70,7 @@ class FileUploadService
 
         // 5. Generate thumbnail jika diminta
         if ($thumbWidth) {
-            $thumbFilename = Str::uuid() . '_thumb.' . strtolower($extension);
+            $thumbFilename = Str::uuid() . '_thumb.' . $extension;
             $thumbPath     = $folder . '/thumbnails/' . $thumbFilename;
 
             $thumb = Image::read($file->getRealPath())

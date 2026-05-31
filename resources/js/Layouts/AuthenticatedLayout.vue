@@ -46,6 +46,12 @@ const isSidebarOpen = ref(true);
 const isUserMenuOpen = ref(false);
 const isMobileMenuOpen = ref(false);
 
+function avatarUrl(name) {
+    const initials = name.split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase() || 'U';
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><rect width="32" height="32" fill="#6366f1" rx="50%"/><text x="16" y="16" text-anchor="middle" dominant-baseline="central" fill="white" font-family="system-ui" font-weight="700" font-size="14">${initials}</text></svg>`;
+    return `data:image/svg+xml;base64,${btoa(svg)}`;
+}
+
 // Track which group menus are open
 const openGroups = ref({});
 
@@ -390,7 +396,7 @@ navigation.forEach(item => {
                             class="flex items-center gap-3 p-1 rounded-full hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
                         >
                             <div class="w-8 h-8 bg-indigo-100 rounded-full overflow-hidden border border-indigo-200">
-                                <img :src="`https://ui-avatars.com/api/?name=${user.name}&background=6366f1&color=fff`" alt="Avatar" />
+                                <img :src="avatarUrl(user.name)" alt="Avatar" />
                             </div>
                             <div class="hidden md:block text-left">
                                 <p class="text-xs font-black text-slate-900 leading-none">{{ user.name }}</p>

@@ -4,9 +4,10 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
+use App\Services\Ujian\UjianService;
+use App\Enums\PesertaStatus;
 
 class SyncUjianSessions
 {
@@ -41,27 +42,62 @@ class SyncUjianSessions
                         }
                         
                         if (!empty($rombelIds)) {
-                            \App\Models\Siswa::whereIn('rombel_id', $rombelIds)->chunk(200, function ($siswaList) use ($session) {
-                                foreach ($siswaList as $siswa) {
-                                    \App\Models\PesertaUjian::firstOrCreate(
-                                        ['sesi_ujian_id' => $session->id, 'siswa_id' => $siswa->id],
-                                        ['status' => 'belum_mulai']
-                                    );
-                                }
-                            });
+                            $siswaIds = \App\Models\Siswa::whereIn('rombel_id', $rombelIds)->pluck('id');
+                            $existing = \App\Models\PesertaUjian::where('sesi_ujian_id', $session->id)
+                                ->whereIn('siswa_id', $siswaIds)
+                                ->pluck('siswa_id');
+
+                            $newIds = $siswaIds->diff($existing);
+                            $now = now();
+
+                            $newPeserta = $newIds->map(fn($id) => [
+                                'sesi_ujian_id' => $session->id,
+                                'siswa_id'      => $id,
+                                'status'        => 'belum_mulai',
+                                'created_at'    => $now,
+                                'updated_at'    => $now,
+                            ])->toArray();
+
+                            if (!empty($newPeserta)) {
+                                \App\Models\PesertaUjian::insert($newPeserta);
+                            }
                         }
                     });
                 }
 
-                // 2. Close Expired Sessions
+                // 2. Close Expired Sessions (dengan toleransi_menit)
+                $ujianService = app(UjianService::class);
+
                 $expiredSessions = \App\Models\SesiUjian::whereIn('status', ['menunggu', 'berlangsung'])
-                    ->where('waktu_selesai', '<', $now)
-                    ->get();
+                    ->with(['pesertaUjian' => fn($q) => $q->where('status', PesertaStatus::MENGERJAKAN->value)])
+                    ->get()
+                    ->filter(function ($session) use ($now) {
+                        // Hitung batas waktu efektif dengan toleransi
+                        $batasWaktu = $session->waktu_selesai->copy()
+                            ->addMinutes($session->toleransi_menit ?? 0);
+                        return $batasWaktu->lt($now);
+                    });
 
                 foreach ($expiredSessions as $session) {
                     $session->update(['status' => 'selesai']);
-                    // Optionally end exams for pesertas, but updating session status prevents login anyway.
+
+                    // Akhiri ujian dengan scoring otomatis untuk peserta yang masih mengerjakan
+                    foreach ($session->pesertaUjian as $peserta) {
+                        try {
+                            $ujianService->akhiriUjian(
+                                $peserta,
+                                '127.0.0.1',
+                                'System/JIT-Sync'
+                            );
+                        } catch (\Throwable $e) {
+                            \Illuminate\Support\Facades\Log::error(
+                                "JIT Sync: Failed to close peserta {$peserta->id}: " . $e->getMessage()
+                            );
+                        }
+                    }
                 }
+
+                Cache::forever('cron_last_run', now()->timestamp);
 
                 \Illuminate\Support\Facades\Log::info('JIT Sync completed.');
             } catch (\Throwable $e) {

@@ -31,41 +31,51 @@ class MigrateStorageToMinio extends Command
     private function migrateSliders()
     {
         $this->info('Migrating Sliders...');
-        foreach (Slider::all() as $slider) {
-            $this->copyToMinio($slider->file_path);
-        }
+        Slider::chunk(100, function ($sliders) {
+            foreach ($sliders as $slider) {
+                $this->copyToMinio($slider->file_path);
+            }
+        });
     }
 
     private function migrateBerita()
     {
         $this->info('Migrating Berita...');
-        foreach (Berita::all() as $berita) {
-            $this->copyToMinio($berita->thumbnail);
-        }
+        Berita::chunk(100, function ($beritaList) {
+            foreach ($beritaList as $berita) {
+                $this->copyToMinio($berita->thumbnail);
+            }
+        });
     }
 
     private function migrateFasilitas()
     {
         $this->info('Migrating Fasilitas...');
-        foreach (Fasilitas::all() as $fasilitas) {
-            $this->copyToMinio($fasilitas->foto);
-        }
+        Fasilitas::chunk(100, function ($fasilitasList) {
+            foreach ($fasilitasList as $fasilitas) {
+                $this->copyToMinio($fasilitas->foto);
+            }
+        });
     }
 
     private function migrateAlbums()
     {
         $this->info('Migrating Albums...');
-        foreach (Album::all() as $album) {
-            $this->copyToMinio($album->cover);
-        }
+        Album::chunk(100, function ($albums) {
+            foreach ($albums as $album) {
+                $this->copyToMinio($album->cover);
+            }
+        });
     }
 
     private function migrateGaleri()
     {
         $this->info('Migrating Galeri...');
-        foreach (Galeri::all() as $galeri) {
-            $this->copyToMinio($galeri->file_path);
-        }
+        Galeri::chunk(100, function ($galeriList) {
+            foreach ($galeriList as $galeri) {
+                $this->copyToMinio($galeri->file_path);
+            }
+        });
     }
 
     private function copyToMinio($path)

@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import SearchableSelect from '@/Components/SearchableSelect.vue';
+import Pagination from '@/Components/Pagination.vue';
 import { 
     Database, Plus, Search, Eye, FileText, Check, X, BookOpen, Trash2, AlertTriangle
 } from 'lucide-vue-next';
@@ -156,21 +157,7 @@ const confirmDelete = () => {
                     </table>
                 </div>
                 
-                <!-- Pagination -->
-                <div v-if="bankSoalList.links.length > 3" class="p-4 border-t border-slate-100 flex justify-center">
-                    <div class="flex flex-wrap gap-1">
-                        <template v-for="(link, k) in bankSoalList.links" :key="k">
-                            <Link 
-                                v-if="link.url"
-                                :href="link.url"
-                                class="px-3 py-1 rounded-lg text-sm font-medium transition-colors"
-                                :class="link.active ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'"
-                                v-html="link.label"
-                            />
-                            <span v-else class="px-3 py-1 text-sm text-slate-400" v-html="link.label"></span>
-                        </template>
-                    </div>
-                </div>
+                <Pagination :data="bankSoalList" />
             </div>
         </div>
 

@@ -40,12 +40,12 @@ class Soal extends Model
 
     public function pilihanJawaban(): HasMany
     {
-        return $this->hasMany(PilihanJawaban::class)->orderBy('urutan');
+        return $this->hasMany(PilihanJawaban::class);
     }
 
     public function pasanganMenjodohkan(): HasMany
     {
-        return $this->hasMany(PasanganMenjodohkan::class)->orderBy('urutan');
+        return $this->hasMany(PasanganMenjodohkan::class);
     }
 
     // Accessor URL gambar soal dari MinIO

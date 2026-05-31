@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import Pagination from '@/Components/Pagination.vue';
 import { 
     CalendarClock, Plus, Search, MoreVertical, ShieldAlert, MonitorPlay, 
     X, Check, AlertTriangle, Play, Pause, XCircle, RefreshCcw, Printer
@@ -224,24 +225,7 @@ const getStatusColor = (status) => {
                     </table>
                 </div>
                 
-                <!-- Pagination -->
-                <div class="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div class="text-sm text-slate-500 font-medium">
-                        Menampilkan <span class="font-bold text-slate-900">{{ sesiList.from || 0 }}</span> sampai <span class="font-bold text-slate-900">{{ sesiList.to || 0 }}</span> dari <span class="font-bold text-slate-900">{{ sesiList.total }}</span> sesi
-                    </div>
-                    <div v-if="sesiList.links.length > 3" class="flex flex-wrap gap-1">
-                        <template v-for="(link, k) in sesiList.links" :key="k">
-                            <Link 
-                                v-if="link.url"
-                                :href="link.url"
-                                class="px-3 py-1 rounded-lg text-sm font-medium transition-colors"
-                                :class="link.active ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-100'"
-                                v-html="link.label"
-                            />
-                            <span v-else class="px-3 py-1 text-sm text-slate-400" v-html="link.label"></span>
-                        </template>
-                    </div>
-                </div>
+                <Pagination :data="sesiList" />
             </div>
         </div>
 
