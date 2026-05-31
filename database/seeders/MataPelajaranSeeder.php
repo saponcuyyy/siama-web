@@ -44,8 +44,8 @@ class MataPelajaranSeeder extends Seeder
         // Kelas X — hanya mapel umum (belum ada penjurusan)
         foreach ($this->common as $item) {
             MataPelajaran::create([
-                'kode'    => $item['kode'],
-                'nama'    => $item['nama'],
+                'kode' => $item['kode'],
+                'nama' => $item['nama'],
                 'tingkat' => 'X',
                 'jurusan' => null,
             ]);
@@ -55,8 +55,8 @@ class MataPelajaranSeeder extends Seeder
         foreach (['XI', 'XII'] as $tingkat) {
             foreach ($this->common as $item) {
                 MataPelajaran::create([
-                    'kode'    => $item['kode'],
-                    'nama'    => $item['nama'],
+                    'kode' => $item['kode'],
+                    'nama' => $item['nama'],
                     'tingkat' => $tingkat,
                     'jurusan' => null,
                 ]);
@@ -64,8 +64,8 @@ class MataPelajaranSeeder extends Seeder
 
             foreach ($this->ipa as $item) {
                 MataPelajaran::create([
-                    'kode'    => $item['kode'],
-                    'nama'    => $item['nama'],
+                    'kode' => $item['kode'],
+                    'nama' => $item['nama'],
                     'tingkat' => $tingkat,
                     'jurusan' => 'IPA',
                 ]);
@@ -73,8 +73,8 @@ class MataPelajaranSeeder extends Seeder
 
             foreach ($this->ips as $item) {
                 MataPelajaran::create([
-                    'kode'    => $item['kode'],
-                    'nama'    => $item['nama'],
+                    'kode' => $item['kode'],
+                    'nama' => $item['nama'],
                     'tingkat' => $tingkat,
                     'jurusan' => 'IPS',
                 ]);

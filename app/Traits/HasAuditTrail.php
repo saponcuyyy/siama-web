@@ -3,8 +3,8 @@
 namespace App\Traits;
 
 use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\Models\Activity;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 trait HasAuditTrail
 {

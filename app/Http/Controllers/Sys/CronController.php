@@ -20,6 +20,6 @@ class CronController extends Controller
         Artisan::call('schedule:run');
         Cache::forever('cron_last_run', now()->timestamp);
 
-        return 'Cron ran at ' . now();
+        return 'Cron ran at '.now();
     }
 }

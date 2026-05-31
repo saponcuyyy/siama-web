@@ -3,18 +3,18 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SiswaTemplateExport implements FromArray, WithHeadings, WithStyles, WithColumnWidths, WithEvents
+class SiswaTemplateExport implements FromArray, WithColumnWidths, WithEvents, WithHeadings, WithStyles
 {
     public function headings(): array
     {
@@ -41,17 +41,17 @@ class SiswaTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
         return [
             1 => [
                 'font' => [
-                    'bold'  => true,
+                    'bold' => true,
                     'color' => ['rgb' => 'FFFFFF'],
-                    'size'  => 11,
+                    'size' => 11,
                 ],
                 'fill' => [
-                    'fillType'   => Fill::FILL_SOLID,
+                    'fillType' => Fill::FILL_SOLID,
                     'startColor' => ['rgb' => '4F46E5'],
                 ],
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
-                    'vertical'   => Alignment::VERTICAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
                 ],
             ],
             '2:5' => [
@@ -86,7 +86,7 @@ class SiswaTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_THIN,
-                            'color'       => ['rgb' => 'D1D5DB'],
+                            'color' => ['rgb' => 'D1D5DB'],
                         ],
                     ],
                 ]);
@@ -136,13 +136,13 @@ class SiswaTemplateExport implements FromArray, WithHeadings, WithStyles, WithCo
                     [$cell, $label, $desc] = $item;
                     $petunjuk->setCellValue($cell, $label);
 
-                    if (!empty($desc)) {
-                        $nextCol = 'B' . substr($cell, 1);
+                    if (! empty($desc)) {
+                        $nextCol = 'B'.substr($cell, 1);
                         $petunjuk->setCellValue($nextCol, $desc);
                     }
                 }
 
-                $petunjuk->getStyle('A9')->getFont()->setBold(true)->setColor((new Color())->setRGB('DC2626'));
+                $petunjuk->getStyle('A9')->getFont()->setBold(true)->setColor((new Color)->setRGB('DC2626'));
 
                 $petunjuk->getColumnDimension('A')->setWidth(22);
                 $petunjuk->getColumnDimension('B')->setWidth(75);

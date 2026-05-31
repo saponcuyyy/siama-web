@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\SiswaTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Imports\SiswaRombelImport;
-use App\Models\Siswa;
 use App\Models\Rombel;
+use App\Models\Siswa;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,8 +24,8 @@ class SiswaController extends Controller
 
         if ($request->search) {
             $query->where(function ($q) use ($request) {
-                $q->where('nama', 'like', '%' . $request->search . '%')
-                  ->orWhere('nisn', 'like', '%' . $request->search . '%');
+                $q->where('nama', 'like', '%'.$request->search.'%')
+                    ->orWhere('nisn', 'like', '%'.$request->search.'%');
             });
         }
 
@@ -34,8 +34,8 @@ class SiswaController extends Controller
         }
 
         return Inertia::render('Admin/Akademik/Siswa/Index', [
-            'siswaList'  => $query->paginate(20)->withQueryString(),
-            'filters'    => $request->only(['search', 'rombel_id']),
+            'siswaList' => $query->paginate(20)->withQueryString(),
+            'filters' => $request->only(['search', 'rombel_id']),
             'rombelList' => Rombel::with('tahunAjaran')->select('id', 'nama', 'tingkat', 'tahun_ajaran_id')->orderBy('nama')->get(),
         ]);
     }
@@ -43,11 +43,11 @@ class SiswaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama'          => 'required|string|max:255',
-            'nisn'          => 'required|string|max:20|unique:siswa,nisn',
+            'nama' => 'required|string|max:255',
+            'nisn' => 'required|string|max:20|unique:siswa,nisn',
             'tanggal_lahir' => 'required|date',
-            'agama'         => 'nullable|string|max:50',
-            'rombel_id'     => 'required|exists:rombel,id',
+            'agama' => 'nullable|string|max:50',
+            'rombel_id' => 'required|exists:rombel,id',
         ]);
 
         $randomPassword = Str::password(10);
@@ -55,8 +55,8 @@ class SiswaController extends Controller
         DB::transaction(function () use ($validated, $randomPassword) {
             // Buat akun user untuk login portal ujian
             $user = User::create([
-                'name'     => $validated['nama'],
-                'email'    => $validated['nisn'],
+                'name' => $validated['nama'],
+                'email' => $validated['nisn'],
                 'password' => Hash::make($randomPassword),
             ]);
 
@@ -65,12 +65,12 @@ class SiswaController extends Controller
 
             // Buat data siswa
             Siswa::create([
-                'user_id'       => $user->id,
-                'nisn'          => $validated['nisn'],
-                'nama'          => $validated['nama'],
+                'user_id' => $user->id,
+                'nisn' => $validated['nisn'],
+                'nama' => $validated['nama'],
                 'tanggal_lahir' => $validated['tanggal_lahir'],
-                'agama'         => $validated['agama'] ?? null,
-                'rombel_id'     => $validated['rombel_id'],
+                'agama' => $validated['agama'] ?? null,
+                'rombel_id' => $validated['rombel_id'],
             ]);
         });
 
@@ -80,32 +80,32 @@ class SiswaController extends Controller
     public function update(Request $request, Siswa $siswa)
     {
         $validated = $request->validate([
-            'nama'          => 'required|string|max:255',
-            'nisn'          => 'required|string|max:20|unique:siswa,nisn,' . $siswa->id,
+            'nama' => 'required|string|max:255',
+            'nisn' => 'required|string|max:20|unique:siswa,nisn,'.$siswa->id,
             'tanggal_lahir' => 'required|date',
-            'agama'         => 'nullable|string|max:50',
-            'rombel_id'     => 'required|exists:rombel,id',
+            'agama' => 'nullable|string|max:50',
+            'rombel_id' => 'required|exists:rombel,id',
             'reset_password' => 'nullable|boolean',
         ]);
 
         DB::transaction(function () use ($siswa, $validated) {
             $siswa->update([
-                'nama'          => $validated['nama'],
-                'nisn'          => $validated['nisn'],
+                'nama' => $validated['nama'],
+                'nisn' => $validated['nisn'],
                 'tanggal_lahir' => $validated['tanggal_lahir'],
-                'agama'         => $validated['agama'] ?? null,
-                'rombel_id'     => $validated['rombel_id'],
+                'agama' => $validated['agama'] ?? null,
+                'rombel_id' => $validated['rombel_id'],
             ]);
 
             // Sync user name & email (NISN)
             if ($siswa->user_id) {
                 $userData = [
-                    'name'  => $validated['nama'],
+                    'name' => $validated['nama'],
                     'email' => $validated['nisn'],
                 ];
 
                 // Hanya reset password jika checkbox reset_password dicentang
-                if (!empty($validated['reset_password'])) {
+                if (! empty($validated['reset_password'])) {
                     $newPassword = Str::password(10);
                     $userData['password'] = Hash::make($newPassword);
                     $siswa->freshPassword = $newPassword;
@@ -121,7 +121,7 @@ class SiswaController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file'      => 'required|file|mimes:xlsx,xls,csv|max:10240',
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
             'rombel_id' => 'required|exists:rombel,id',
         ]);
 
@@ -130,26 +130,27 @@ class SiswaController extends Controller
         try {
             Excel::import($import, $request->file('file'));
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal mengimpor: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengimpor: '.$e->getMessage());
         }
 
         $failures = $import->failures();
-        $errors   = $import->errors();
-        $total    = count($import->createdAccounts);
+        $errors = $import->errors();
+        $total = count($import->createdAccounts);
 
         $message = "Import selesai. {$total} siswa berhasil ditambahkan ke rombel {$rombel->nama}.";
 
         if ($total > 0) {
             $list = collect($import->createdAccounts)
                 ->take(5)
-                ->map(fn($a) => $a['nisn'])
+                ->map(fn ($a) => $a['nisn'])
                 ->implode(', ');
-            $message .= " NISN: {$list}" . (count($import->createdAccounts) > 5 ? ', ...' : '');
+            $message .= " NISN: {$list}".(count($import->createdAccounts) > 5 ? ', ...' : '');
         }
 
         if ($failures->count() > 0 || count($errors) > 0) {
-            $failMessages = $failures->map(fn($f) => "Baris {$f->row()}: " . implode(', ', $f->errors()))->toArray();
-            return back()->with('warning', $message . ' | ' . count($failMessages) . ' baris gagal: ' . implode(' | ', $failMessages));
+            $failMessages = $failures->map(fn ($f) => "Baris {$f->row()}: ".implode(', ', $f->errors()))->toArray();
+
+            return back()->with('warning', $message.' | '.count($failMessages).' baris gagal: '.implode(' | ', $failMessages));
         }
 
         return back()->with('success', $message);

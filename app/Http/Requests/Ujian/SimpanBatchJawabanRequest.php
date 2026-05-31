@@ -14,10 +14,10 @@ class SimpanBatchJawabanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'answers'           => 'required|array|min:1|max:200',
+            'answers' => 'required|array|min:1|max:200',
             'answers.*.soal_id' => 'required|exists:soal,id',
             'answers.*.jawaban' => 'nullable',
-            'answers.*.durasi'  => 'required|integer|min:0',
+            'answers.*.durasi' => 'required|integer|min:0',
             'answers.*.is_ragu' => 'nullable|boolean',
         ];
     }

@@ -4,20 +4,22 @@ namespace App\Imports;
 
 use App\Models\Guru;
 use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
-use Illuminate\Support\Collection;
-use Carbon\Carbon;
 
-class GuruImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
+class GuruImport implements SkipsEmptyRows, ToCollection, WithHeadingRow
 {
     public array $createdAccounts = [];
+
     protected array $buffer = [];
+
     protected int $batchSize = 50;
 
     public function collection(Collection $rows)
@@ -31,14 +33,14 @@ class GuruImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 $nip = trim($row['nip']);
                 $nama = trim($row['nama']);
                 $email = trim($row['email']);
-                
-                $jabatan = !empty($row['jabatan']) ? trim($row['jabatan']) : 'Guru';
-                
+
+                $jabatan = ! empty($row['jabatan']) ? trim($row['jabatan']) : 'Guru';
+
                 $tgl = null;
-                if (!empty($row['tanggal_lahir'])) {
+                if (! empty($row['tanggal_lahir'])) {
                     $tgl = Carbon::parse($row['tanggal_lahir'])->format('Y-m-d');
                 }
-                
+
                 $password = Str::password(10);
 
                 // Check if user already exists
@@ -55,7 +57,8 @@ class GuruImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     $this->flushBuffer();
                 }
             } catch (\Exception $e) {
-                Log::warning('GuruImport: skip baris NIP ' . ($nip ?? 'unknown') . ' — ' . $e->getMessage());
+                Log::warning('GuruImport: skip baris NIP '.($nip ?? 'unknown').' — '.$e->getMessage());
+
                 continue;
             }
         }
@@ -65,30 +68,32 @@ class GuruImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
     protected function flushBuffer(): void
     {
-        if (empty($this->buffer)) return;
+        if (empty($this->buffer)) {
+            return;
+        }
 
         DB::transaction(function () {
             foreach ($this->buffer as $data) {
                 $user = User::create([
-                    'name'     => $data['nama'],
-                    'email'    => $data['email'],
+                    'name' => $data['nama'],
+                    'email' => $data['email'],
                     'password' => Hash::make($data['password']),
                 ]);
 
                 $user->assignRole('guru');
 
                 Guru::create([
-                    'user_id'       => $user->id,
-                    'nip'           => $data['nip'],
-                    'nama'          => $data['nama'],
-                    'jabatan'       => $data['jabatan'],
+                    'user_id' => $user->id,
+                    'nip' => $data['nip'],
+                    'nama' => $data['nama'],
+                    'jabatan' => $data['jabatan'],
                     'tanggal_lahir' => $data['tgl'],
                 ]);
 
                 $this->createdAccounts[] = [
-                    'email'    => $data['email'],
+                    'email' => $data['email'],
                     'password' => $data['password'],
-                    'nama'     => $data['nama']
+                    'nama' => $data['nama'],
                 ];
             }
         });

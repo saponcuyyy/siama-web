@@ -22,7 +22,7 @@ class GaleriController extends Controller
     public function update(Request $request, Galeri $galeri)
     {
         $validated = $request->validate([
-            'judul'  => 'nullable|string|max:255',
+            'judul' => 'nullable|string|max:255',
             'status' => 'required|in:aktif,nonaktif',
         ]);
 

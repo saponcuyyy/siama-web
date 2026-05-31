@@ -37,6 +37,6 @@ class KartuUjianController extends Controller
         $pdf = Pdf::loadView('exports.kartu-rombel', compact('rombel', 'siswa', 'kepalaSekolah'));
         $pdf->setPaper('A4', 'portrait');
 
-        return $pdf->stream('kartu-ujian-rombel-' . $rombel->hashid . '.pdf');
+        return $pdf->stream('kartu-ujian-rombel-'.$rombel->hashid.'.pdf');
     }
 }

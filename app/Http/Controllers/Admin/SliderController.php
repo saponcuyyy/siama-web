@@ -21,7 +21,7 @@ class SliderController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Web/Slider/Index', [
-            'sliders' => Slider::orderBy('urutan')->get()
+            'sliders' => Slider::orderBy('urutan')->get(),
         ]);
     }
 
@@ -74,6 +74,7 @@ class SliderController extends Controller
     {
         $this->fileUploadService->delete($slider->file_path);
         $slider->delete();
+
         return back()->with('success', 'Slider berhasil dihapus.');
     }
 

@@ -13,7 +13,7 @@ class PageController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Web/Halaman/Index', [
-            'pages' => Page::with('author:id,name')->latest()->paginate(10)
+            'pages' => Page::with('author:id,name')->latest()->paginate(10),
         ]);
     }
 
@@ -43,7 +43,7 @@ class PageController extends Controller
     public function edit(Page $halaman)
     {
         return Inertia::render('Admin/Web/Halaman/Form', [
-            'page' => $halaman
+            'page' => $halaman,
         ]);
     }
 
@@ -67,6 +67,7 @@ class PageController extends Controller
     public function destroy(Page $halaman)
     {
         $halaman->delete();
+
         return back()->with('success', 'Halaman berhasil dihapus.');
     }
 }

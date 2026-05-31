@@ -2,45 +2,67 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\{PesertaStatus, SesiStatus, SoalType};
+use App\Enums\PesertaStatus;
+use App\Enums\SesiStatus;
+use App\Enums\SoalType;
 use App\Http\Controllers\Controller;
-use App\Models\{SesiUjian, PaketUjian, Rombel, PesertaUjian, Siswa, Soal};
-use Illuminate\Support\Facades\DB;
+use App\Models\PaketUjian;
+use App\Models\PesertaUjian;
+use App\Models\Rombel;
+use App\Models\SesiUjian;
+use App\Models\Siswa;
+use App\Models\Soal;
+use App\Services\Ujian\UjianService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class SesiUjianController extends Controller
 {
+    private function guruMapelIds(): array
+    {
+        $user = Auth::user();
+        if (! $user->hasRole('guru')) {
+            return [];
+        }
+
+        return $user->guru?->mataPelajarans()->pluck('mata_pelajaran.id')->toArray() ?? [];
+    }
+
     public function index(Request $request)
     {
+        $guruMapelIds = $this->guruMapelIds();
+
         // JIT update status sesi yang expired secara global/admin
         $now = now();
         $expiredSessions = SesiUjian::whereIn('status', [SesiStatus::MENUNGGU->value, SesiStatus::BERLANGSUNG->value])
             ->get()
-            ->filter(function ($session) use ($now) {
+            ->filter(function ($session) {
                 $toleransiDetik = ($session->toleransi_menit ?? 0) * 60;
                 $batasWaktu = $session->waktu_selesai?->copy()->addSeconds($toleransiDetik);
+
                 return $batasWaktu && $batasWaktu->isPast();
             });
 
         if ($expiredSessions->isNotEmpty()) {
-            $ujianService = app(\App\Services\Ujian\UjianService::class);
+            $ujianService = app(UjianService::class);
             foreach ($expiredSessions as $session) {
                 $session->update(['status' => SesiStatus::SELESAI->value]);
-                
+
                 // Akhiri ujian untuk peserta yang masih status 'mengerjakan' di sesi ini
                 $pesertas = PesertaUjian::where('sesi_ujian_id', $session->id)
                     ->where('status', PesertaStatus::MENGERJAKAN->value)
                     ->get();
-                    
+
                 foreach ($pesertas as $peserta) {
                     try {
                         $ujianService->akhiriUjian($peserta, '127.0.0.1', 'System/JIT-Admin-Index');
                     } catch (\Throwable $e) {
-                        \Illuminate\Support\Facades\Log::error("Admin index check close failed for peserta {$peserta->id}: " . $e->getMessage());
+                        Log::error("Admin index check close failed for peserta {$peserta->id}: ".$e->getMessage());
                     }
                 }
             }
@@ -49,14 +71,23 @@ class SesiUjianController extends Controller
         $query = SesiUjian::with(['paketUjian.mataPelajaran', 'rombel', 'rombels', 'dibuatOleh'])
             ->latest();
 
+        if ($guruMapelIds) {
+            $query->whereHas('paketUjian', fn ($q) => $q->whereIn('mata_pelajaran_id', $guruMapelIds));
+        }
+
         if ($request->search) {
-            $query->where('nama_sesi', 'like', '%' . $request->search . '%');
+            $query->where('nama_sesi', 'like', '%'.$request->search.'%');
+        }
+
+        $paketList = PaketUjian::select('id', 'nama', 'kode');
+        if ($guruMapelIds) {
+            $paketList->whereIn('mata_pelajaran_id', $guruMapelIds);
         }
 
         return Inertia::render('Admin/Ujian/Sesi/Index', [
             'sesiList' => $query->paginate(15)->withQueryString(),
-            'filters'  => $request->only('search'),
-            'paketList' => PaketUjian::select('id', 'nama', 'kode')->get(),
+            'filters' => $request->only('search'),
+            'paketList' => $paketList->get(),
             'rombelList' => Rombel::select('id', 'nama')->get(),
         ]);
     }
@@ -76,7 +107,7 @@ class SesiUjianController extends Controller
             'catatan' => 'nullable|string',
         ]);
 
-        $validated['token'] = strtoupper(\Illuminate\Support\Str::random(8));
+        $validated['token'] = strtoupper(Str::random(8));
         $validated['dibuat_oleh'] = Auth::id();
         $validated['status'] = SesiStatus::MENUNGGU->value;
 
@@ -124,8 +155,8 @@ class SesiUjianController extends Controller
 
         PesertaUjian::create([
             'sesi_ujian_id' => $sesi->id,
-            'siswa_id'      => $siswa->id,
-            'status'        => 'belum_mulai',
+            'siswa_id' => $siswa->id,
+            'status' => 'belum_mulai',
         ]);
 
         return back()->with('success', "Siswa {$siswa->nama} berhasil ditambahkan sebagai peserta.");
@@ -138,7 +169,7 @@ class SesiUjianController extends Controller
     {
         $jumlah = $this->generatePesertaFromRombel($sesi);
 
-        if ($jumlah === 0 && !$this->getRombelIds($sesi)) {
+        if ($jumlah === 0 && ! $this->getRombelIds($sesi)) {
             return back()->with('error', 'Sesi ini tidak memiliki rombel yang ditugaskan.');
         }
 
@@ -152,7 +183,9 @@ class SesiUjianController extends Controller
     private function generatePesertaFromRombel(SesiUjian $sesi): int
     {
         $rombelIds = $this->getRombelIds($sesi);
-        if (empty($rombelIds)) return 0;
+        if (empty($rombelIds)) {
+            return 0;
+        }
 
         $siswaIds = Siswa::whereIn('rombel_id', $rombelIds)->pluck('id');
         $existing = PesertaUjian::where('sesi_ujian_id', $sesi->id)
@@ -162,15 +195,15 @@ class SesiUjianController extends Controller
         $newIds = $siswaIds->diff($existing);
         $now = now();
 
-        $newPeserta = $newIds->map(fn($id) => [
+        $newPeserta = $newIds->map(fn ($id) => [
             'sesi_ujian_id' => $sesi->id,
-            'siswa_id'      => $id,
-            'status'        => 'belum_mulai',
-            'created_at'    => $now,
-            'updated_at'    => $now,
+            'siswa_id' => $id,
+            'status' => 'belum_mulai',
+            'created_at' => $now,
+            'updated_at' => $now,
         ])->toArray();
 
-        if (!empty($newPeserta)) {
+        if (! empty($newPeserta)) {
             PesertaUjian::insert($newPeserta);
         }
 
@@ -201,17 +234,17 @@ class SesiUjianController extends Controller
         $batasWaktu = $sesi->waktu_selesai?->copy()->addSeconds($toleransiDetik);
         if ($batasWaktu && $batasWaktu->isPast() && in_array($sesi->status, [SesiStatus::MENUNGGU->value, SesiStatus::BERLANGSUNG->value])) {
             $sesi->update(['status' => SesiStatus::SELESAI->value]);
-            
-            $ujianService = app(\App\Services\Ujian\UjianService::class);
+
+            $ujianService = app(UjianService::class);
             $pesertas = PesertaUjian::where('sesi_ujian_id', $sesi->id)
                 ->where('status', PesertaStatus::MENGERJAKAN->value)
                 ->get();
-                
+
             foreach ($pesertas as $peserta) {
                 try {
                     $ujianService->akhiriUjian($peserta, '127.0.0.1', 'System/JIT-Admin-Monitor');
                 } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::error("Admin monitor check close failed for peserta {$peserta->id}: " . $e->getMessage());
+                    Log::error("Admin monitor check close failed for peserta {$peserta->id}: ".$e->getMessage());
                 }
             }
             $sesi->refresh();
@@ -222,7 +255,7 @@ class SesiUjianController extends Controller
         $perPage = (int) $request->input('per_page', 10);
 
         $peserta = PesertaUjian::with('siswa')
-            ->withCount(['jawabanSiswa as jawaban_terisi' => function($q) {
+            ->withCount(['jawabanSiswa as jawaban_terisi' => function ($q) {
                 $q->whereNotNull('jawaban')->orWhereNotNull('jawaban_menjodohkan');
             }])
             ->where('sesi_ujian_id', $sesi->id)
@@ -232,26 +265,27 @@ class SesiUjianController extends Controller
                 $p->progress = $total > 0 ? round(($p->jawaban_terisi / $total) * 100) : 0;
                 $p->jawaban_tersimpan = $p->jawaban_terisi;
                 $p->total_soal = $total;
+
                 return $p;
             });
 
-        $maxScore = Cache::remember('max_score_paket_' . $sesi->paket_ujian_id, 60, function () use ($sesi) {
+        $maxScore = Cache::remember('max_score_paket_'.$sesi->paket_ujian_id, 60, function () use ($sesi) {
             return $sesi->paketUjian->soal()->sum('bobot') ?: 100;
         });
 
         $stats = PesertaUjian::where('sesi_ujian_id', $sesi->id)
-            ->selectRaw("COUNT(*) as total")
-            ->selectRaw("SUM(CAST(status = ? AS UNSIGNED)) as mengerjakan", [PesertaStatus::MENGERJAKAN->value])
-            ->selectRaw("SUM(CAST(status = ? AS UNSIGNED)) as selesai", [PesertaStatus::SELESAI->value])
-            ->selectRaw("SUM(CAST(status = ? AS UNSIGNED)) as didiskualifikasi", [PesertaStatus::DIDISKUALIFIKASI->value])
-            ->selectRaw("ROUND(AVG(CASE WHEN status = ? AND nilai_akhir IS NOT NULL THEN nilai_akhir END), 2) as rata_nilai", [PesertaStatus::SELESAI->value])
+            ->selectRaw('COUNT(*) as total')
+            ->selectRaw('SUM(CAST(status = ? AS UNSIGNED)) as mengerjakan', [PesertaStatus::MENGERJAKAN->value])
+            ->selectRaw('SUM(CAST(status = ? AS UNSIGNED)) as selesai', [PesertaStatus::SELESAI->value])
+            ->selectRaw('SUM(CAST(status = ? AS UNSIGNED)) as didiskualifikasi', [PesertaStatus::DIDISKUALIFIKASI->value])
+            ->selectRaw('ROUND(AVG(CASE WHEN status = ? AND nilai_akhir IS NOT NULL THEN nilai_akhir END), 2) as rata_nilai', [PesertaStatus::SELESAI->value])
             ->first();
 
         return Inertia::render('Admin/Ujian/Sesi/Monitor', [
-            'sesi'      => $sesi,
-            'peserta'   => $peserta,
-            'stats'     => $stats,
-            'maxScore'  => $maxScore,
+            'sesi' => $sesi,
+            'peserta' => $peserta,
+            'stats' => $stats,
+            'maxScore' => $maxScore,
         ]);
     }
 
@@ -267,51 +301,53 @@ class SesiUjianController extends Controller
         $soalIds = $sesi->paketUjian->soal->pluck('id');
         $jawabanBySoal = $peserta->jawabanSiswa->keyBy('soal_id');
 
-        $soalList = Soal::with(['pilihanJawaban' => fn($q) => $q->orderBy('urutan'), 'pasanganMenjodohkan' => fn($q) => $q->orderBy('urutan')])
+        $soalList = Soal::with(['pilihanJawaban' => fn ($q) => $q->orderBy('urutan'), 'pasanganMenjodohkan' => fn ($q) => $q->orderBy('urutan')])
             ->whereIn('id', $soalIds)
             ->get()
             ->keyBy('id')
-            ->each(fn($s) => $s->makeVisible(['kunci_jawaban', 'pembahasan']));
+            ->each(fn ($s) => $s->makeVisible(['kunci_jawaban', 'pembahasan']));
 
         $jawabanList = [];
         $nomor = 1;
 
         foreach ($sesi->paketUjian->soal as $soalPivot) {
             $soal = $soalList[$soalPivot->id] ?? null;
-            if (!$soal) continue;
+            if (! $soal) {
+                continue;
+            }
 
             $jawaban = $jawabanBySoal[$soal->id] ?? null;
 
             $item = [
-                'nomor'           => $nomor++,
-                'soal_id'         => $soal->id,
-                'tipe'            => $soal->tipe,
-                'pertanyaan'      => $soal->pertanyaan,
-                'bobot'           => $soal->bobot,
-                'gambar_url'      => $soal->gambar_url,
-                'kunci_jawaban'   => $soal->kunci_jawaban,
-                'pembahasan'      => $soal->pembahasan,
-                'jawaban'         => $jawaban?->jawaban,
+                'nomor' => $nomor++,
+                'soal_id' => $soal->id,
+                'tipe' => $soal->tipe,
+                'pertanyaan' => $soal->pertanyaan,
+                'bobot' => $soal->bobot,
+                'gambar_url' => $soal->gambar_url,
+                'kunci_jawaban' => $soal->kunci_jawaban,
+                'pembahasan' => $soal->pembahasan,
+                'jawaban' => $jawaban?->jawaban,
                 'jawaban_menjodohkan' => $jawaban?->jawaban_menjodohkan,
-                'is_benar'        => $jawaban?->is_benar,
-                'nilai'           => $jawaban?->nilai,
-                'skor'            => $jawaban?->skor,
-                'is_ragu'         => $jawaban?->is_ragu,
-                'dijawab_at'      => $jawaban?->dijawab_at,
-                'durasi_detik'    => $jawaban?->durasi_detik,
-                'catatan_guru'    => $jawaban?->catatan_guru,
+                'is_benar' => $jawaban?->is_benar,
+                'nilai' => $jawaban?->nilai,
+                'skor' => $jawaban?->skor,
+                'is_ragu' => $jawaban?->is_ragu,
+                'dijawab_at' => $jawaban?->dijawab_at,
+                'durasi_detik' => $jawaban?->durasi_detik,
+                'catatan_guru' => $jawaban?->catatan_guru,
             ];
 
             if ($soal->tipe === SoalType::PG->value) {
-                $item['pilihan_jawaban'] = $soal->pilihanJawaban->map(fn($p) => [
-                    'kode'      => $p->kode,
-                    'teks'      => $p->teks,
+                $item['pilihan_jawaban'] = $soal->pilihanJawaban->map(fn ($p) => [
+                    'kode' => $p->kode,
+                    'teks' => $p->teks,
                     'gambar_url' => $p->gambar_url,
-                    'is_benar'  => $p->is_benar,
+                    'is_benar' => $p->is_benar,
                 ]);
             } elseif ($soal->tipe === SoalType::MENJODOHKAN->value) {
-                $item['pasangan_menjodohkan'] = $soal->pasanganMenjodohkan->map(fn($p) => [
-                    'kiri'  => $p->kiri,
+                $item['pasangan_menjodohkan'] = $soal->pasanganMenjodohkan->map(fn ($p) => [
+                    'kiri' => $p->kiri,
                     'kanan' => $p->kanan,
                 ]);
             }
@@ -320,10 +356,10 @@ class SesiUjianController extends Controller
         }
 
         return Inertia::render('Admin/Ujian/Sesi/PesertaDetail', [
-            'sesi'         => $sesi,
-            'peserta'      => $peserta,
-            'jawabanList'  => $jawabanList,
-            'maxScore'     => $sesi->paketUjian->soal->sum('bobot') ?: 100,
+            'sesi' => $sesi,
+            'peserta' => $peserta,
+            'jawabanList' => $jawabanList,
+            'maxScore' => $sesi->paketUjian->soal->sum('bobot') ?: 100,
         ]);
     }
 
@@ -335,7 +371,7 @@ class SesiUjianController extends Controller
 
         $peserta = PesertaUjian::with('siswa.rombel')
             ->where('sesi_ujian_id', $sesi->id)
-            ->whereHas('siswa', fn($q) => $q->whereIn('rombel_id', $rombelIds))
+            ->whereHas('siswa', fn ($q) => $q->whereIn('rombel_id', $rombelIds))
             ->orderBy(
                 PesertaUjian::select('nama')
                     ->from('siswa')
@@ -347,6 +383,6 @@ class SesiUjianController extends Controller
         $pdf = Pdf::loadView('exports.kartu-ujian', compact('sesi', 'peserta'));
         $pdf->setPaper('A4', 'portrait');
 
-        return $pdf->stream('kartu-ujian-' . $sesi->token . '.pdf');
+        return $pdf->stream('kartu-ujian-'.$sesi->token.'.pdf');
     }
 }

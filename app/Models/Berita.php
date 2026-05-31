@@ -12,8 +12,8 @@ use Illuminate\Support\Str;
 
 class Berita extends Model
 {
-    use HasHashId;
     use HasFactory, SoftDeletes;
+    use HasHashId;
 
     protected $table = 'berita';
 
@@ -27,7 +27,7 @@ class Berita extends Model
         'thumbnail',
         'status',
         'published_at',
-        'created_by'
+        'created_by',
     ];
 
     protected $casts = [
@@ -50,10 +50,9 @@ class Berita extends Model
     protected function imageUrl(): Attribute
     {
         return Attribute::make(
-            get: fn ($value, $attributes) => 
-                isset($attributes['thumbnail']) 
-                    ? (str_starts_with($attributes['thumbnail'], 'http') 
-                        ? $attributes['thumbnail'] 
+            get: fn ($value, $attributes) => isset($attributes['thumbnail'])
+                    ? (str_starts_with($attributes['thumbnail'], 'http')
+                        ? $attributes['thumbnail']
                         : Storage::disk('public')->url($attributes['thumbnail']))
                     : null,
         );

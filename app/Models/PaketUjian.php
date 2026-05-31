@@ -4,9 +4,10 @@ namespace App\Models;
 
 use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany};
-use App\Models\User;
 
 class PaketUjian extends Model
 {
@@ -72,8 +73,8 @@ class PaketUjian extends Model
     public function soal(): BelongsToMany
     {
         return $this->belongsToMany(Soal::class, 'paket_soal')
-                    ->withPivot('urutan', 'bobot_override')
-                    ->withTimestamps();
+            ->withPivot('urutan', 'bobot_override')
+            ->withTimestamps();
     }
 
     public function sesiUjian(): HasMany

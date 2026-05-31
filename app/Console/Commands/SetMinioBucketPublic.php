@@ -2,13 +2,14 @@
 
 namespace App\Console\Commands;
 
+use Aws\S3\S3Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
-use Aws\S3\S3Client;
 
 class SetMinioBucketPublic extends Command
 {
     protected $signature = 'minio:set-public';
+
     protected $description = 'Set MinIO bucket policy to public read-only';
 
     public function handle()
@@ -19,16 +20,16 @@ class SetMinioBucketPublic extends Command
         try {
             // Get S3 client from the disk
             $adapter = Storage::disk('minio')->getAdapter();
-            
+
             // We need the raw S3 client
             // If using league/flysystem-aws-s3-v3, the client is accessible
             $client = new S3Client([
                 'version' => 'latest',
-                'region'  => config('filesystems.disks.minio.region'),
+                'region' => config('filesystems.disks.minio.region'),
                 'endpoint' => config('filesystems.disks.minio.endpoint'),
                 'use_path_style_endpoint' => config('filesystems.disks.minio.use_path_style_endpoint'),
                 'credentials' => [
-                    'key'    => config('filesystems.disks.minio.key'),
+                    'key' => config('filesystems.disks.minio.key'),
                     'secret' => config('filesystems.disks.minio.secret'),
                 ],
             ]);
@@ -58,7 +59,7 @@ class SetMinioBucketPublic extends Command
 
             $this->info("✅ Bucket '$bucket' is now PUBLIC (read-only).");
         } catch (\Exception $e) {
-            $this->error("❌ Failed to set bucket policy: " . $e->getMessage());
+            $this->error('❌ Failed to set bucket policy: '.$e->getMessage());
             $this->line("Alternative: Run this in your terminal if you have 'mc' (MinIO Client):");
             $this->line("mc anonymous set download local/$bucket");
         }

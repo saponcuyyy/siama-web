@@ -2,8 +2,8 @@
 
 namespace App\Support;
 
-use Hashids\Hashids;
 use App\Exceptions\InvalidHashIdException;
+use Hashids\Hashids;
 
 class HashId
 {
@@ -17,6 +17,7 @@ class HashId
                 10
             );
         }
+
         return static::$instance;
     }
 
@@ -28,7 +29,8 @@ class HashId
     public static function decode(string $hash): ?int
     {
         $result = static::instance()->decode($hash);
-        return !empty($result) ? $result[0] : null;
+
+        return ! empty($result) ? $result[0] : null;
     }
 
     public static function decodeOrFail(string $hash): int
@@ -37,6 +39,7 @@ class HashId
         if ($id === null) {
             throw new InvalidHashIdException;
         }
+
         return $id;
     }
 }

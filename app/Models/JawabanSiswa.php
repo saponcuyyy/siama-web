@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class JawabanSiswa extends Model
 {
     use HasHashId;
+
     protected $table = 'jawaban_siswa';
 
     protected $fillable = [

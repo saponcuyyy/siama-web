@@ -20,7 +20,7 @@ class DashboardController extends Controller
                 'total_siswa' => Siswa::count(),
                 'total_guru' => Guru::count(),
                 'total_rombel' => Rombel::count(),
-            ]
+            ],
         ]);
     }
 }

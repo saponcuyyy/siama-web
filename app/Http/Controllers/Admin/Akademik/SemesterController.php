@@ -14,19 +14,19 @@ class SemesterController extends Controller
         $query = Semester::latest();
 
         if ($request->search) {
-            $query->where('nama', 'like', '%' . $request->search . '%');
+            $query->where('nama', 'like', '%'.$request->search.'%');
         }
 
         return Inertia::render('Admin/Akademik/Semester/Index', [
             'semesterList' => $query->paginate(15)->withQueryString(),
-            'filters'      => $request->only('search'),
+            'filters' => $request->only('search'),
         ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama'      => 'required|string|max:50|unique:semester,nama',
+            'nama' => 'required|string|max:50|unique:semester,nama',
             'is_active' => 'boolean',
         ]);
 
@@ -42,7 +42,7 @@ class SemesterController extends Controller
     public function update(Request $request, Semester $semester)
     {
         $validated = $request->validate([
-            'nama'      => 'required|string|max:50|unique:semester,nama,' . $semester->id,
+            'nama' => 'required|string|max:50|unique:semester,nama,'.$semester->id,
             'is_active' => 'boolean',
         ]);
 

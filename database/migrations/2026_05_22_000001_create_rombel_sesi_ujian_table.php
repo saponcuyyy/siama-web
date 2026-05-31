@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('rombel_sesi_ujian', function (Blueprint $table) {
             $table->foreignId('sesi_ujian_id')
-                  ->constrained('sesi_ujian')->cascadeOnDelete();
+                ->constrained('sesi_ujian')->cascadeOnDelete();
             $table->foreignId('rombel_id')
-                  ->constrained('rombel')->cascadeOnDelete();
+                ->constrained('rombel')->cascadeOnDelete();
             $table->primary(['sesi_ujian_id', 'rombel_id']);
         });
     }

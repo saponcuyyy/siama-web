@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
 use Aws\S3\S3Client;
+use Illuminate\Console\Command;
 
 class SetMinioCors extends Command
 {
     protected $signature = 'minio:set-cors';
+
     protected $description = 'Set CORS policy for MinIO bucket';
 
     public function handle()
@@ -17,11 +17,11 @@ class SetMinioCors extends Command
 
         $s3 = new S3Client([
             'version' => 'latest',
-            'region'  => env('MINIO_REGION', 'us-east-1'),
+            'region' => env('MINIO_REGION', 'us-east-1'),
             'endpoint' => env('MINIO_ENDPOINT', 'http://127.0.0.1:9000'),
             'use_path_style_endpoint' => true,
             'credentials' => [
-                'key'    => env('MINIO_KEY'),
+                'key' => env('MINIO_KEY'),
                 'secret' => env('MINIO_SECRET'),
             ],
         ]);
@@ -37,15 +37,15 @@ class SetMinioCors extends Command
                             'AllowedHeaders' => ['*'],
                             'AllowedMethods' => ['GET', 'HEAD'],
                             'AllowedOrigins' => ['*'], // For development
-                            'ExposeHeaders'  => [],
-                            'MaxAgeSeconds'  => 3000,
+                            'ExposeHeaders' => [],
+                            'MaxAgeSeconds' => 3000,
                         ],
                     ],
                 ],
             ]);
             $this->info("CORS policy set successfully for bucket: $bucket");
         } catch (\Exception $e) {
-            $this->error("Failed to set CORS: " . $e->getMessage());
+            $this->error('Failed to set CORS: '.$e->getMessage());
         }
     }
 }

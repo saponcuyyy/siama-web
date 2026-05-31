@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
@@ -19,9 +19,9 @@ class RoleController extends Controller
             ->withCount('users')
             ->orderBy('name')
             ->get()
-            ->map(fn($role) => [
-                'id'          => $role->id,
-                'name'        => $role->name,
+            ->map(fn ($role) => [
+                'id' => $role->id,
+                'name' => $role->name,
                 'permissions' => $role->permissions->pluck('name'),
                 'users_count' => $role->users_count,
             ]);
@@ -31,7 +31,7 @@ class RoleController extends Controller
             ->pluck('name');
 
         return Inertia::render('Admin/UserManagement/Roles/Index', [
-            'roleList'    => $roles,
+            'roleList' => $roles,
             'permissions' => $permissions,
         ]);
     }
@@ -39,19 +39,20 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'        => 'required|string|max:255|unique:roles,name',
+            'name' => 'required|string|max:255|unique:roles,name',
             'permissions' => 'nullable|array',
             'permissions.*' => 'string|exists:permissions,name',
         ]);
 
         DB::transaction(function () use ($validated) {
             $role = Role::create(['name' => $validated['name'], 'guard_name' => 'web']);
-            if (!empty($validated['permissions'])) {
+            if (! empty($validated['permissions'])) {
                 $role->syncPermissions($validated['permissions']);
             }
         });
 
         Cache::forget('spatie.permission.cache');
+
         return back()->with('success', 'Role berhasil ditambahkan.');
     }
 
@@ -62,7 +63,7 @@ class RoleController extends Controller
         }
 
         $validated = $request->validate([
-            'name'        => 'required|string|max:255|unique:roles,name,' . $role->id,
+            'name' => 'required|string|max:255|unique:roles,name,'.$role->id,
             'permissions' => 'nullable|array',
             'permissions.*' => 'string|exists:permissions,name',
         ]);
@@ -73,6 +74,7 @@ class RoleController extends Controller
         });
 
         Cache::forget('spatie.permission.cache');
+
         return back()->with('success', 'Role berhasil diperbarui.');
     }
 

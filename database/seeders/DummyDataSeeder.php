@@ -2,15 +2,15 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\Guru;
 use App\Models\Rombel;
 use App\Models\Siswa;
 use App\Models\TahunAjaran;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
 use Faker\Factory as Faker;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DummyDataSeeder extends Seeder
 {
@@ -21,10 +21,10 @@ class DummyDataSeeder extends Seeder
     {
         // 1. Get or Create active Tahun Ajaran
         $tahunAjaran = TahunAjaran::where('is_active', true)->first();
-        if (!$tahunAjaran) {
+        if (! $tahunAjaran) {
             $tahunAjaran = TahunAjaran::create([
                 'nama' => '2025/2026',
-                'is_active' => true
+                'is_active' => true,
             ]);
         }
 
@@ -40,7 +40,7 @@ class DummyDataSeeder extends Seeder
         $gurus = [];
         foreach ($dataGuru as $g) {
             $user = User::where('email', $g['email'])->first();
-            if (!$user) {
+            if (! $user) {
                 $user = User::create([
                     'name' => $g['nama'],
                     'email' => $g['email'],
@@ -50,7 +50,7 @@ class DummyDataSeeder extends Seeder
             }
 
             $guru = Guru::where('nip', $g['nip'])->first();
-            if (!$guru) {
+            if (! $guru) {
                 $guru = Guru::create([
                     'user_id' => $user->id,
                     'nip' => $g['nip'],
@@ -75,7 +75,7 @@ class DummyDataSeeder extends Seeder
                 ->where('tahun_ajaran_id', $tahunAjaran->id)
                 ->first();
 
-            if (!$rombel) {
+            if (! $rombel) {
                 Rombel::create([
                     'nama' => $r['nama'],
                     'tingkat' => $r['tingkat'],
@@ -111,14 +111,14 @@ class DummyDataSeeder extends Seeder
             for ($i = 1; $i <= 36; $i++) {
                 // Unique NISN pattern: 00 + birthYear_last_two_digits + rombel_id_padded + index_padded
                 // E.g. Class X (ID 1), index 5 -> 0010001005 (10 digits)
-                $nisn = sprintf("00%02d%03d%03d", $birthYear % 100, $rombel->id, $i);
-                
+                $nisn = sprintf('00%02d%03d%03d', $birthYear % 100, $rombel->id, $i);
+
                 $gender = $faker->randomElement(['male', 'female']);
                 $name = $faker->name($gender);
-                $birthDate = sprintf("%d-%02d-%02d", $birthYear, $faker->numberBetween(1, 12), $faker->numberBetween(1, 28));
+                $birthDate = sprintf('%d-%02d-%02d', $birthYear, $faker->numberBetween(1, 12), $faker->numberBetween(1, 28));
 
                 // Create user
-                $formattedPassword = date('dmY', strtotime($birthDate)) . '*';
+                $formattedPassword = date('dmY', strtotime($birthDate)).'*';
                 $user = User::create([
                     'name' => $name,
                     'email' => $nisn,

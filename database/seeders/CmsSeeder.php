@@ -12,7 +12,6 @@ use App\Models\Setting;
 use App\Models\Slider;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CmsSeeder extends Seeder
@@ -21,7 +20,7 @@ class CmsSeeder extends Seeder
     {
         // Disable foreign key checks for truncation
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        
+
         Slider::truncate();
         Fasilitas::truncate();
         KategoriBerita::truncate();
@@ -70,18 +69,22 @@ class CmsSeeder extends Seeder
                 'link_url' => '/kontak',
             ],
         ];
-        foreach ($sliders as $s) Slider::create($s);
+        foreach ($sliders as $s) {
+            Slider::create($s);
+        }
 
         // 3. Kategori Berita
         $kats = ['Kegiatan', 'Prestasi', 'Akademik', 'Eskul'];
-        foreach ($kats as $k) KategoriBerita::create(['nama' => $k, 'slug' => Str::slug($k)]);
+        foreach ($kats as $k) {
+            KategoriBerita::create(['nama' => $k, 'slug' => Str::slug($k)]);
+        }
 
         // 4. Berita
         $katIds = KategoriBerita::pluck('id')->toArray();
         for ($i = 1; $i <= 5; $i++) {
             Berita::create([
-                'judul' => 'Berita Sekolah Terkini Ke-' . $i,
-                'slug' => Str::slug('Berita Sekolah Terkini Ke-' . $i),
+                'judul' => 'Berita Sekolah Terkini Ke-'.$i,
+                'slug' => Str::slug('Berita Sekolah Terkini Ke-'.$i),
                 'kategori_id' => $katIds[array_rand($katIds)],
                 'ringkasan' => 'Ini adalah ringkasan berita dummy untuk keperluan tampilan frontend.',
                 'konten' => '<p>Ini adalah konten berita yang lebih lengkap. Berisi informasi mendalam tentang kejadian atau prestasi di sekolah.</p>',
@@ -94,7 +97,7 @@ class CmsSeeder extends Seeder
         // 5. Pengumuman
         for ($i = 1; $i <= 3; $i++) {
             Pengumuman::create([
-                'judul' => 'Pengumuman Penting Ke-' . $i,
+                'judul' => 'Pengumuman Penting Ke-'.$i,
                 'konten' => 'Diberitahukan kepada seluruh siswa bahwa kegiatan belajar mengajar akan ditiadakan pada hari libur nasional.',
                 'prioritas' => $i == 1 ? 'tinggi' : 'normal',
                 'status' => 'aktif',
@@ -105,25 +108,27 @@ class CmsSeeder extends Seeder
         // 6. Fasilitas
         $fasilitas = [
             [
-                'nama' => 'Laboratorium Komputer', 
-                'deskripsi' => 'Dilengkapi dengan 40 unit komputer high-end dan koneksi internet cepat.', 
+                'nama' => 'Laboratorium Komputer',
+                'deskripsi' => 'Dilengkapi dengan 40 unit komputer high-end dan koneksi internet cepat.',
                 'foto' => 'https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=800&auto=format&fit=crop',
-                'urutan' => 1
+                'urutan' => 1,
             ],
             [
-                'nama' => 'Perpustakaan Digital', 
-                'deskripsi' => 'Koleksi buku lengkap dengan akses e-book dan ruang baca nyaman.', 
+                'nama' => 'Perpustakaan Digital',
+                'deskripsi' => 'Koleksi buku lengkap dengan akses e-book dan ruang baca nyaman.',
                 'foto' => 'https://images.unsplash.com/photo-1521587760476-6c120c24443b?q=80&w=800&auto=format&fit=crop',
-                'urutan' => 2
+                'urutan' => 2,
             ],
             [
-                'nama' => 'Lapangan Olahraga', 
-                'deskripsi' => 'Lapangan basket dan futsal standar nasional untuk kegiatan fisik.', 
+                'nama' => 'Lapangan Olahraga',
+                'deskripsi' => 'Lapangan basket dan futsal standar nasional untuk kegiatan fisik.',
                 'foto' => 'https://images.unsplash.com/photo-1541339907198-e08756ebafe3?q=80&w=800&auto=format&fit=crop',
-                'urutan' => 3
+                'urutan' => 3,
             ],
         ];
-        foreach ($fasilitas as $f) Fasilitas::create($f);
+        foreach ($fasilitas as $f) {
+            Fasilitas::create($f);
+        }
 
         // 7. Albums
         $album = Album::create([

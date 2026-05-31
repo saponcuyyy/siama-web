@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Siswa;
+use Illuminate\Database\Seeder;
 
 class SiswaSeeder extends Seeder
 {
@@ -24,7 +24,7 @@ class SiswaSeeder extends Seeder
             'status_lulus' => 'tidak_lulus',
             'keterangan' => 'Maaf, Anda belum lulus. Silakan ikuti program perbaikan.',
         ]);
-        
+
         Siswa::create([
             'nisn' => '111111111',
             'nama' => 'Andi Darmawan',

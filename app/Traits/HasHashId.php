@@ -20,8 +20,10 @@ trait HasHashId
     {
         if ($field === null) {
             $id = HashId::decodeOrFail($value);
+
             return $this->where('id', $id)->firstOrFail();
         }
+
         return parent::resolveRouteBinding($value, $field);
     }
 
@@ -29,8 +31,10 @@ trait HasHashId
     {
         if ($field === null) {
             $id = HashId::decodeOrFail($value);
+
             return parent::resolveChildRouteBinding($childType, $id, 'id');
         }
+
         return parent::resolveChildRouteBinding($childType, $value, $field);
     }
 

@@ -1,15 +1,22 @@
 <?php
+
 namespace App\Http\Controllers\Ujian;
 
+use App\Enums\PesertaStatus;
+use App\Enums\SesiStatus;
 use App\Http\Controllers\Controller;
-use App\Enums\{PesertaStatus, SesiStatus};
-use App\Models\{SesiUjian, PesertaUjian, JawabanSiswa};
+use App\Http\Requests\Ujian\MulaiUjianRequest;
+use App\Http\Requests\Ujian\SimpanBatchJawabanRequest;
+use App\Http\Requests\Ujian\SimpanJawabanRequest;
+use App\Models\JawabanSiswa;
+use App\Models\PesertaUjian;
+use App\Models\SesiUjian;
 use App\Services\Ujian\UjianService;
-use App\Http\Requests\Ujian\{MulaiUjianRequest, SimpanJawabanRequest, SimpanBatchJawabanRequest};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -33,8 +40,8 @@ class RuangUjianController extends Controller
     public function index(Request $request)
     {
         $siswa = $request->user()->siswa;
-        
-        if (!$siswa) {
+
+        if (! $siswa) {
             return redirect()->route('dashboard');
         }
 
@@ -42,43 +49,44 @@ class RuangUjianController extends Controller
         $now = now();
         $expiredSessions = SesiUjian::whereIn('status', [SesiStatus::MENUNGGU->value, SesiStatus::BERLANGSUNG->value])
             ->where(function ($q) use ($siswa) {
-                $q->whereHas('pesertaUjian', fn($q2) => $q2->where('siswa_id', $siswa->id))
-                  ->orWhere('rombel_id', $siswa->rombel_id);
+                $q->whereHas('pesertaUjian', fn ($q2) => $q2->where('siswa_id', $siswa->id))
+                    ->orWhere('rombel_id', $siswa->rombel_id);
             })
             ->get()
-            ->filter(function ($session) use ($now) {
+            ->filter(function ($session) {
                 $toleransiDetik = ($session->toleransi_menit ?? 0) * 60;
                 $batasWaktu = $session->waktu_selesai?->copy()->addSeconds($toleransiDetik);
+
                 return $batasWaktu && $batasWaktu->isPast();
             });
 
         foreach ($expiredSessions as $session) {
             $session->update(['status' => SesiStatus::SELESAI->value]);
-            
+
             // Akhiri ujian untuk peserta yang masih status 'mengerjakan' di sesi ini
             $pesertas = PesertaUjian::where('sesi_ujian_id', $session->id)
                 ->where('status', PesertaStatus::MENGERJAKAN->value)
                 ->get();
-                
+
             foreach ($pesertas as $peserta) {
                 try {
                     $this->ujianService->akhiriUjian($peserta, $request->ip(), $request->userAgent());
                 } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::error("Index check close failed for peserta {$peserta->id}: " . $e->getMessage());
+                    Log::error("Index check close failed for peserta {$peserta->id}: ".$e->getMessage());
                 }
             }
         }
-        
+
         // Ambil sesi aktif (yang benar-benar masih aktif setelah pembersihan di atas)
         $sesiAktif = SesiUjian::with('paketUjian.mataPelajaran')
             ->where(function ($q) use ($siswa) {
-                $q->whereHas('pesertaUjian', fn($q2) => $q2->where('siswa_id', $siswa->id))
-                  ->orWhere('rombel_id', $siswa->rombel_id);
+                $q->whereHas('pesertaUjian', fn ($q2) => $q2->where('siswa_id', $siswa->id))
+                    ->orWhere('rombel_id', $siswa->rombel_id);
             })
             ->whereIn('status', [SesiStatus::MENUNGGU->value, SesiStatus::BERLANGSUNG->value])
             ->latest()
             ->get();
-            
+
         $riwayat = PesertaUjian::with(['sesiUjian.paketUjian'])
             ->where('siswa_id', $siswa->id)
             ->whereIn('status', [PesertaStatus::SELESAI->value, PesertaStatus::DIDISKUALIFIKASI->value])
@@ -93,8 +101,8 @@ class RuangUjianController extends Controller
             ->keyBy('sesi_ujian_id');
 
         return Inertia::render('Ujian/Index', [
-            'sesi_aktif'   => $sesiAktif,
-            'riwayat'      => $riwayat,
+            'sesi_aktif' => $sesiAktif,
+            'riwayat' => $riwayat,
             'peserta_saya' => $pesertaSaya,
         ]);
     }
@@ -105,7 +113,7 @@ class RuangUjianController extends Controller
         Gate::authorize('ikutUjian', $sesi);
 
         $siswa = request()->user()->siswa;
-         
+
         // Auto-create peserta jika belum ada dan rombel cocok (atau sesi tanpa rombel)
         $peserta = PesertaUjian::firstOrCreate(
             ['sesi_ujian_id' => $sesi->id, 'siswa_id' => $siswa->id],
@@ -122,8 +130,8 @@ class RuangUjianController extends Controller
         }
 
         return Inertia::render('Ujian/Masuk', [
-            'sesi'    => $sesi->load('paketUjian.mataPelajaran'),
-            'peserta' => $peserta->load(['sesiUjian.paketUjian.mataPelajaran'])
+            'sesi' => $sesi->load('paketUjian.mataPelajaran'),
+            'peserta' => $peserta->load(['sesiUjian.paketUjian.mataPelajaran']),
         ]);
     }
 
@@ -141,17 +149,17 @@ class RuangUjianController extends Controller
         }
 
         $peserta = PesertaUjian::where('sesi_ujian_id', $sesi->id)
-                               ->where('siswa_id', request()->user()->siswa->id)
-                               ->firstOrFail();
+            ->where('siswa_id', request()->user()->siswa->id)
+            ->firstOrFail();
 
         if ($peserta->isSesiAktifDiDevice($request->device_token)) {
             return back()->withErrors(['token' => 'Akun Anda sedang aktif mengerjakan ujian di perangkat lain.']);
         }
 
         $this->ujianService->mulaiUjian(
-            $peserta, 
-            $request->device_token, 
-            $request->ip(), 
+            $peserta,
+            $request->device_token,
+            $request->ip(),
             $request->userAgent()
         );
 
@@ -164,9 +172,9 @@ class RuangUjianController extends Controller
         Gate::authorize('ikutUjian', $sesi);
 
         $peserta = PesertaUjian::with(['jawabanSiswa', 'sesiUjian.paketUjian'])
-                               ->where('sesi_ujian_id', $sesi->id)
-                               ->where('siswa_id', request()->user()->siswa->id)
-                               ->firstOrFail();
+            ->where('sesi_ujian_id', $sesi->id)
+            ->where('siswa_id', request()->user()->siswa->id)
+            ->firstOrFail();
 
         if (in_array($peserta->status, [PesertaStatus::SELESAI->value, PesertaStatus::DIDISKUALIFIKASI->value])) {
             return redirect()->route('ujian.hasil', $sesi);
@@ -181,22 +189,22 @@ class RuangUjianController extends Controller
         }
 
         // Cache soal untuk menghindari regenerasi urutan acak yang berulang
-        $cacheKey = 'ujian_soal_' . $peserta->id;
+        $cacheKey = 'ujian_soal_'.$peserta->id;
         $soalList = Cache::remember($cacheKey, 3600, function () use ($peserta) {
             return $this->ujianService->getSoalUntukSiswa($peserta);
         });
 
         return Inertia::render('Ujian/Ruang', [
-            'sesi'        => $sesi->load('paketUjian.mataPelajaran'),
-            'peserta'     => $peserta,
-            'soal_list'   => $soalList,
-            'sisa_waktu'  => $peserta->sisa_waktu
+            'sesi' => $sesi->load('paketUjian.mataPelajaran'),
+            'peserta' => $peserta,
+            'soal_list' => $soalList,
+            'sisa_waktu' => $peserta->sisa_waktu,
         ]);
     }
 
     private function cachedPeserta(SesiUjian $sesi): PesertaUjian
     {
-        return Cache::remember('peserta_ujian_' . $sesi->id . '_' . auth()->id(), 60, function () use ($sesi) {
+        return Cache::remember('peserta_ujian_'.$sesi->id.'_'.auth()->id(), 60, function () use ($sesi) {
             return PesertaUjian::where('sesi_ujian_id', $sesi->id)
                 ->where('siswa_id', auth()->user()->siswa->id)
                 ->firstOrFail();
@@ -220,7 +228,7 @@ class RuangUjianController extends Controller
             foreach ($answers as $item) {
                 $jawaban = JawabanSiswa::firstOrNew([
                     'peserta_ujian_id' => $peserta->id,
-                    'soal_id'          => $item['soal_id'],
+                    'soal_id' => $item['soal_id'],
                 ]);
 
                 if (is_array($item['jawaban'])) {
@@ -230,8 +238,8 @@ class RuangUjianController extends Controller
                 }
 
                 $jawaban->durasi_detik = ($jawaban->durasi_detik ?? 0) + ($item['durasi'] ?? 0);
-                $jawaban->dijawab_at   = now();
-                $jawaban->is_ragu      = $item['is_ragu'] ?? false;
+                $jawaban->dijawab_at = now();
+                $jawaban->is_ragu = $item['is_ragu'] ?? false;
 
                 if ($jawaban->isDirty()) {
                     $jawaban->save();
@@ -254,7 +262,7 @@ class RuangUjianController extends Controller
         }
 
         // Throttling: maksimal 1 simpan per 5 detik per soal
-        $lastSaveKey = 'ujian_last_save_' . $peserta->id . '_' . $request->soal_id;
+        $lastSaveKey = 'ujian_last_save_'.$peserta->id.'_'.$request->soal_id;
         $lastSave = Cache::get($lastSaveKey);
 
         if ($lastSave && (now()->getTimestamp() - $lastSave) < 5) {
@@ -266,7 +274,7 @@ class RuangUjianController extends Controller
         // Simpan langsung ke database (ringan, index UNIQUE sudah ada)
         $jawaban = JawabanSiswa::firstOrNew([
             'peserta_ujian_id' => $peserta->id,
-            'soal_id'          => $request->soal_id,
+            'soal_id' => $request->soal_id,
         ]);
 
         if (is_array($request->jawaban)) {
@@ -276,8 +284,8 @@ class RuangUjianController extends Controller
         }
 
         $jawaban->durasi_detik = ($jawaban->durasi_detik ?? 0) + $request->durasi;
-        $jawaban->dijawab_at   = now();
-        $jawaban->is_ragu      = $request->is_ragu ?? false;
+        $jawaban->dijawab_at = now();
+        $jawaban->is_ragu = $request->is_ragu ?? false;
         $jawaban->save();
 
         return response()->json(['status' => 'success']);
@@ -289,13 +297,13 @@ class RuangUjianController extends Controller
         Gate::authorize('ikutUjian', $sesi);
 
         $peserta = PesertaUjian::where('sesi_ujian_id', $sesi->id)
-                               ->where('siswa_id', $request->user()->siswa->id)
-                               ->firstOrFail();
+            ->where('siswa_id', $request->user()->siswa->id)
+            ->firstOrFail();
 
         // Jika sudah selesai atau didiskualifikasi, jangan catat lagi
         if (in_array($peserta->status, [PesertaStatus::SELESAI->value, PesertaStatus::DIDISKUALIFIKASI->value])) {
             return response()->json([
-                'status'             => $peserta->status,
+                'status' => $peserta->status,
                 'jumlah_pelanggaran' => $peserta->jumlah_pelanggaran,
             ]);
         }
@@ -314,7 +322,7 @@ class RuangUjianController extends Controller
         $peserta->refresh();
 
         return response()->json([
-            'status'             => $peserta->status,
+            'status' => $peserta->status,
             'jumlah_pelanggaran' => $peserta->jumlah_pelanggaran,
         ]);
     }
@@ -325,15 +333,15 @@ class RuangUjianController extends Controller
         Gate::authorize('ikutUjian', $sesi);
 
         $peserta = PesertaUjian::where('sesi_ujian_id', $sesi->id)
-                               ->where('siswa_id', $request->user()->siswa->id)
-                               ->firstOrFail();
+            ->where('siswa_id', $request->user()->siswa->id)
+            ->firstOrFail();
 
         // Hapus cache soal agar data tidak basi
-        Cache::forget('ujian_soal_' . $peserta->id);
+        Cache::forget('ujian_soal_'.$peserta->id);
 
         $this->ujianService->akhiriUjian(
-            $peserta, 
-            $request->ip(), 
+            $peserta,
+            $request->ip(),
             $request->userAgent()
         );
 
@@ -346,13 +354,13 @@ class RuangUjianController extends Controller
         Gate::authorize('ikutUjian', $sesi);
 
         $peserta = PesertaUjian::with(['jawabanSiswa', 'sesiUjian.paketUjian'])
-                               ->where('sesi_ujian_id', $sesi->id)
-                               ->where('siswa_id', request()->user()->siswa->id)
-                               ->firstOrFail();
+            ->where('sesi_ujian_id', $sesi->id)
+            ->where('siswa_id', request()->user()->siswa->id)
+            ->firstOrFail();
 
         return Inertia::render('Ujian/Hasil', [
-            'sesi'    => $sesi->load('paketUjian.mataPelajaran'),
-            'peserta' => $peserta
+            'sesi' => $sesi->load('paketUjian.mataPelajaran'),
+            'peserta' => $peserta,
         ]);
     }
 
@@ -361,22 +369,23 @@ class RuangUjianController extends Controller
     {
         $toleransiDetik = ($sesi->toleransi_menit ?? 0) * 60;
         $batasWaktu = $sesi->waktu_selesai?->copy()->addSeconds($toleransiDetik);
-        
+
         if ($batasWaktu && $batasWaktu->isPast()) {
             if ($peserta->status === PesertaStatus::MENGERJAKAN->value) {
                 // Hapus cache soal agar data tidak basi
-                Cache::forget('ujian_soal_' . $peserta->id);
-                
+                Cache::forget('ujian_soal_'.$peserta->id);
+
                 $this->ujianService->akhiriUjian(
-                    $peserta, 
-                    $request->ip(), 
+                    $peserta,
+                    $request->ip(),
                     $request->userAgent()
                 );
                 $peserta->refresh();
             }
+
             return true;
         }
-        
+
         return false;
     }
 }

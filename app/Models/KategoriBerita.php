@@ -9,10 +9,11 @@ use Illuminate\Support\Str;
 
 class KategoriBerita extends Model
 {
-    use HasHashId;
     use HasFactory;
+    use HasHashId;
 
     protected $table = 'kategori_berita';
+
     protected $fillable = ['nama', 'slug'];
 
     protected static function boot()

@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\SesiUjian;
 use App\Models\PesertaUjian;
+use App\Models\SesiUjian;
 use App\Models\Siswa;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class StartActiveSessions extends Command
@@ -30,7 +30,7 @@ class StartActiveSessions extends Command
                 $session->update(['status' => 'berlangsung']);
 
                 $rombelIds = $this->getRombelIds($session);
-                if (!empty($rombelIds)) {
+                if (! empty($rombelIds)) {
                     $siswaIds = Siswa::whereIn('rombel_id', $rombelIds)->pluck('id');
                     $existing = PesertaUjian::where('sesi_ujian_id', $session->id)
                         ->whereIn('siswa_id', $siswaIds)
@@ -39,15 +39,15 @@ class StartActiveSessions extends Command
                     $newIds = $siswaIds->diff($existing);
                     $now = now();
 
-                    $newPeserta = $newIds->map(fn($id) => [
+                    $newPeserta = $newIds->map(fn ($id) => [
                         'sesi_ujian_id' => $session->id,
-                        'siswa_id'      => $id,
-                        'status'        => 'belum_mulai',
-                        'created_at'    => $now,
-                        'updated_at'    => $now,
+                        'siswa_id' => $id,
+                        'status' => 'belum_mulai',
+                        'created_at' => $now,
+                        'updated_at' => $now,
                     ])->toArray();
 
-                    if (!empty($newPeserta)) {
+                    if (! empty($newPeserta)) {
                         PesertaUjian::insert($newPeserta);
                     }
                 }

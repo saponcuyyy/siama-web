@@ -31,7 +31,7 @@ class FileUploadService
         $allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
         $detectedMime = $file->getMimeType();
 
-        if (!in_array($detectedMime, $allowedMimes)) {
+        if (! in_array($detectedMime, $allowedMimes)) {
             throw new \InvalidArgumentException(
                 "Tipe file tidak diizinkan: {$detectedMime}"
             );
@@ -40,24 +40,24 @@ class FileUploadService
         // 2. Tentukan ekstensi dari MIME yang sudah divalidasi, bukan dari client
         $extension = match ($detectedMime) {
             'image/jpeg' => 'jpg',
-            'image/png'  => 'png',
+            'image/png' => 'png',
             'image/webp' => 'webp',
-            'image/gif'  => 'gif',
-            default      => 'jpg',
+            'image/gif' => 'gif',
+            default => 'jpg',
         };
-        $filename  = Str::uuid() . '.' . $extension;
-        $path      = $folder . '/' . $filename;
+        $filename = Str::uuid().'.'.$extension;
+        $path = $folder.'/'.$filename;
 
         // 3. Resize gambar jika lebar melebihi maxWidth
         $image = Image::read($file->getRealPath())
-                      ->scaleDown(width: $maxWidth);
+            ->scaleDown(width: $maxWidth);
 
         // 4. Pilih encoder sesuai format asli untuk menjaga transparansi
         $encoded = match ($detectedMime) {
-            'image/png'  => $image->toPng(),
+            'image/png' => $image->toPng(),
             'image/webp' => $image->toWebp(quality: 85),
-            'image/gif'  => $image->toGif(),
-            default      => $image->toJpeg(quality: 85),
+            'image/gif' => $image->toGif(),
+            default => $image->toJpeg(quality: 85),
         };
 
         Storage::disk($this->disk)->put(
@@ -70,11 +70,11 @@ class FileUploadService
 
         // 5. Generate thumbnail jika diminta
         if ($thumbWidth) {
-            $thumbFilename = Str::uuid() . '_thumb.' . $extension;
-            $thumbPath     = $folder . '/thumbnails/' . $thumbFilename;
+            $thumbFilename = Str::uuid().'_thumb.'.$extension;
+            $thumbPath = $folder.'/thumbnails/'.$thumbFilename;
 
             $thumb = Image::read($file->getRealPath())
-                          ->scaleDown(width: $thumbWidth);
+                ->scaleDown(width: $thumbWidth);
 
             Storage::disk($this->disk)->put(
                 $thumbPath,
@@ -83,7 +83,7 @@ class FileUploadService
             );
 
             $result['thumbnail_path'] = $thumbPath;
-            $result['thumbnail_url']  = $this->getUrl($thumbPath);
+            $result['thumbnail_url'] = $this->getUrl($thumbPath);
         }
 
         return $result;
@@ -100,14 +100,14 @@ class FileUploadService
         $allowedMimes = ['application/pdf'];
         $detectedMime = $file->getMimeType();
 
-        if (!in_array($detectedMime, $allowedMimes)) {
+        if (! in_array($detectedMime, $allowedMimes)) {
             throw new \InvalidArgumentException(
-                "Hanya file PDF yang diizinkan."
+                'Hanya file PDF yang diizinkan.'
             );
         }
 
-        $filename = Str::uuid() . '.pdf';
-        $path     = $folder . '/' . $filename;
+        $filename = Str::uuid().'.pdf';
+        $path = $folder.'/'.$filename;
 
         Storage::disk($this->disk)->putFileAs(
             $folder,
@@ -118,7 +118,7 @@ class FileUploadService
 
         return [
             'path' => $path,
-            'url'  => $this->getUrl($path),
+            'url' => $this->getUrl($path),
         ];
     }
 

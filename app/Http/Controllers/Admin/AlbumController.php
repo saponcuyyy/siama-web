@@ -21,7 +21,7 @@ class AlbumController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Web/Album/Index', [
-            'albums' => Album::withCount('galeri')->latest()->paginate(12)
+            'albums' => Album::withCount('galeri')->latest()->paginate(12),
         ]);
     }
 
@@ -48,7 +48,7 @@ class AlbumController extends Controller
     {
         return Inertia::render('Admin/Web/Album/Show', [
             'album' => $album,
-            'photos' => $album->galeri()->latest()->paginate(20)->withQueryString()
+            'photos' => $album->galeri()->latest()->paginate(20)->withQueryString(),
         ]);
     }
 
@@ -75,6 +75,7 @@ class AlbumController extends Controller
     public function destroy(Album $album)
     {
         $album->delete();
+
         return back()->with('success', 'Album berhasil dihapus.');
     }
 

@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Pengumuman extends Model
 {
-    use HasHashId;
     use HasFactory, SoftDeletes;
+    use HasHashId;
 
     protected $table = 'pengumuman';
 
@@ -22,7 +22,7 @@ class Pengumuman extends Model
         'tanggal_mulai',
         'tanggal_selesai',
         'status',
-        'created_by'
+        'created_by',
     ];
 
     protected $casts = [

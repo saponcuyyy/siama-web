@@ -13,7 +13,7 @@ class MenuController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Web/Menu/Index', [
-            'menus' => Menu::with('children')->whereNull('parent_id')->orderBy('urutan')->get()
+            'menus' => Menu::with('children')->whereNull('parent_id')->orderBy('urutan')->get(),
         ]);
     }
 
@@ -52,6 +52,7 @@ class MenuController extends Controller
     public function destroy(Menu $menu)
     {
         $menu->delete(); // This will cascade delete children if database is set up that way, or we can handle it here.
+
         return back()->with('success', 'Menu berhasil dihapus.');
     }
 
@@ -64,8 +65,8 @@ class MenuController extends Controller
         $updates = [];
         foreach ($request->menus as $index => $item) {
             $updates[] = [
-                'id'        => $item['id'],
-                'urutan'    => $index,
+                'id' => $item['id'],
+                'urutan' => $index,
                 'parent_id' => $item['parent_id'] ?? null,
             ];
         }

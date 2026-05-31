@@ -14,7 +14,7 @@ class PesanController extends Controller
         $executed = RateLimiter::attempt(
             'send-message:'.$request->ip(),
             $perHour = 3,
-            function() use ($request) {
+            function () use ($request) {
                 $validated = $request->validate([
                     'nama' => 'required|string|max:100',
                     'email' => 'required|email|max:100',
@@ -30,7 +30,7 @@ class PesanController extends Controller
             60 * 60 // 1 hour
         );
 
-        if (!$executed) {
+        if (! $executed) {
             return back()->with('error', 'Terlalu banyak mencoba. Silakan coba lagi nanti (Maks 3 pesan/jam).');
         }
 

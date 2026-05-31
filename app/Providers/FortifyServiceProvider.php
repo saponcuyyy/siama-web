@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
-use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
+use Inertia\Inertia;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -36,35 +36,36 @@ class FortifyServiceProvider extends ServiceProvider
 
         Fortify::loginView(function () {
             if (request()->query('context') === 'ujian') {
-                return \Inertia\Inertia::render('Auth/LoginUjian');
+                return Inertia::render('Auth/LoginUjian');
             }
-            return \Inertia\Inertia::render('Auth/Login');
+
+            return Inertia::render('Auth/Login');
         });
 
         Fortify::registerView(function () {
-            return \Inertia\Inertia::render('Auth/Register');
+            return Inertia::render('Auth/Register');
         });
 
         Fortify::requestPasswordResetLinkView(function () {
-            return \Inertia\Inertia::render('Auth/ForgotPassword');
+            return Inertia::render('Auth/ForgotPassword');
         });
 
         Fortify::resetPasswordView(function ($request) {
-            return \Inertia\Inertia::render('Auth/ResetPassword', [
+            return Inertia::render('Auth/ResetPassword', [
                 'token' => $request->route('token'),
             ]);
         });
 
         Fortify::verifyEmailView(function () {
-            return \Inertia\Inertia::render('Auth/VerifyEmail');
+            return Inertia::render('Auth/VerifyEmail');
         });
 
         Fortify::twoFactorChallengeView(function () {
-            return \Inertia\Inertia::render('Auth/TwoFactorChallenge');
+            return Inertia::render('Auth/TwoFactorChallenge');
         });
 
         Fortify::confirmPasswordView(function () {
-            return \Inertia\Inertia::render('Auth/ConfirmPassword');
+            return Inertia::render('Auth/ConfirmPassword');
         });
 
         RateLimiter::for('login', function (Request $request) {

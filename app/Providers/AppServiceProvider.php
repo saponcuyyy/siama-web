@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\PesertaUjian;
+use App\Models\SesiUjian;
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,11 +27,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \Illuminate\Support\Facades\Gate::define('ikutUjian', function (\App\Models\User $user, \App\Models\SesiUjian $sesi) {
-            if (!$user->siswa) {
+        Gate::define('ikutUjian', function (User $user, SesiUjian $sesi) {
+            if (! $user->siswa) {
                 return false;
             }
-            return \App\Models\PesertaUjian::where('sesi_ujian_id', $sesi->id)
+
+            return PesertaUjian::where('sesi_ujian_id', $sesi->id)
                 ->where('siswa_id', $user->siswa->id)
                 ->exists();
         });

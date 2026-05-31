@@ -89,7 +89,7 @@ const navigation = [
         name: 'Web Management', 
         href: route('admin.web.dashboard'), 
         icon: 'Globe', 
-        permission: 'dashboard.view' 
+        permission: 'settings.manage' 
     },
     // ─── Master Akademik ─────────────────────────────
     { 
@@ -168,7 +168,7 @@ const navigation = [
                 name: 'Mata Pelajaran', 
                 href: route('admin.ujian.mata-pelajaran.index'), 
                 icon: 'BookOpen', 
-                permission: 'ujian.view' 
+                permission: 'ujian.manage' 
             },
             { 
                 name: 'Bank Soal', 
@@ -192,7 +192,7 @@ const navigation = [
                 name: 'Laporan Nilai', 
                 href: route('admin.ujian.laporan.index'), 
                 icon: 'BarChart3', 
-                permission: 'ujian.sesi.manage' 
+                permission: 'ujian.laporan.view' 
             },
         ]
     },
@@ -201,7 +201,7 @@ const navigation = [
         icon: 'Users',
         permission: 'users.view',
         group: 'users',
-        prefix: '/admin/users',
+        prefix: ['/admin/users', '/admin/roles'],
         children: [
             { 
                 name: 'Users', 
@@ -253,7 +253,8 @@ const isActive = (href) => {
 };
 
 const isGroupActive = (prefix) => {
-    return window.location.pathname.startsWith(prefix);
+    const prefixes = Array.isArray(prefix) ? prefix : [prefix];
+    return prefixes.some(p => window.location.pathname.startsWith(p));
 };
 
 // Auto-open submenu group if current page is under that prefix
@@ -344,7 +345,7 @@ navigation.forEach(item => {
                                         isActive(child.href) ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-200' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium'
                                     ]"
                                 >
-                                    <component :is="child.icon" class="w-4 h-4 flex-shrink-0" stroke-width="2" />
+                                    <component :is="icons[child.icon]" class="w-4 h-4 flex-shrink-0" stroke-width="2" />
                                     <span>{{ child.name }}</span>
                                 </Link>
                             </template>

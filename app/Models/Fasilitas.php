@@ -12,10 +12,11 @@ use Illuminate\Support\Str;
 
 class Fasilitas extends Model
 {
-    use HasHashId;
     use HasFactory, SoftDeletes;
+    use HasHashId;
 
     protected $table = 'fasilitas';
+
     protected $fillable = ['nama', 'slug', 'deskripsi', 'foto', 'urutan', 'status'];
 
     protected $appends = ['image_url'];
@@ -33,10 +34,9 @@ class Fasilitas extends Model
     protected function imageUrl(): Attribute
     {
         return Attribute::make(
-            get: fn ($value, $attributes) => 
-                isset($attributes['foto']) 
-                    ? (str_starts_with($attributes['foto'], 'http') 
-                        ? $attributes['foto'] 
+            get: fn ($value, $attributes) => isset($attributes['foto'])
+                    ? (str_starts_with($attributes['foto'], 'http')
+                        ? $attributes['foto']
                         : Storage::disk('public')->url($attributes['foto']))
                     : null,
         );

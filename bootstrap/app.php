@@ -1,8 +1,15 @@
 <?php
 
+use App\Http\Middleware\CheckSchedulerHeartbeat;
+use App\Http\Middleware\ExamAuth;
+use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\SyncUjianSessions;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -11,32 +18,33 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+        $middleware->append(SecurityHeaders::class);
         $middleware->trustProxies(at: '*');
         $middleware->web(append: [
-            \App\Http\Middleware\HandleInertiaRequests::class,
-            \App\Http\Middleware\CheckSchedulerHeartbeat::class,
+            HandleInertiaRequests::class,
+            CheckSchedulerHeartbeat::class,
         ]);
         $middleware->alias([
-            'exam.auth'        => \App\Http\Middleware\ExamAuth::class,
-            'sync.ujian'       => \App\Http\Middleware\SyncUjianSessions::class,
+            'exam.auth' => ExamAuth::class,
+            'sync.ujian' => SyncUjianSessions::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'login',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->respond(function (\Symfony\Component\HttpFoundation\Response $response) {
+        $exceptions->respond(function (Response $response) {
             if (
                 in_array($response->getStatusCode(), [404, 403, 500, 503]) &&
-                !request()->expectsJson() &&
-                !str_starts_with(request()->path(), 'api/')
+                ! request()->expectsJson() &&
+                ! str_starts_with(request()->path(), 'api/')
             ) {
-                return \Inertia\Inertia::render('Error', [
+                return Inertia::render('Error', [
                     'status' => $response->getStatusCode(),
                 ])->toResponse(request())
-                  ->setStatusCode($response->getStatusCode());
+                    ->setStatusCode($response->getStatusCode());
             }
+
             return $response;
         });
     })->create();

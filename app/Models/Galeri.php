@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\Storage;
 
 class Galeri extends Model
 {
-    use HasHashId;
     use HasFactory, SoftDeletes;
+    use HasHashId;
 
     protected $table = 'galeri';
 
@@ -24,7 +24,7 @@ class Galeri extends Model
         'kategori',
         'urutan',
         'status',
-        'created_by'
+        'created_by',
     ];
 
     protected $appends = ['image_url'];
@@ -35,8 +35,7 @@ class Galeri extends Model
     protected function imageUrl(): Attribute
     {
         return Attribute::make(
-            get: fn ($value, $attributes) =>
-                isset($attributes['file_path'])
+            get: fn ($value, $attributes) => isset($attributes['file_path'])
                     ? (str_starts_with($attributes['file_path'], 'http')
                         ? $attributes['file_path']
                         : Storage::disk('public')->url($attributes['file_path']))

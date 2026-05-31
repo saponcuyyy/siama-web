@@ -14,19 +14,19 @@ class TahunAjaranController extends Controller
         $query = TahunAjaran::latest();
 
         if ($request->search) {
-            $query->where('nama', 'like', '%' . $request->search . '%');
+            $query->where('nama', 'like', '%'.$request->search.'%');
         }
 
         return Inertia::render('Admin/Akademik/TahunAjaran/Index', [
             'tahunAjaranList' => $query->paginate(15)->withQueryString(),
-            'filters'         => $request->only('search'),
+            'filters' => $request->only('search'),
         ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama'      => 'required|string|max:50|unique:tahun_ajaran,nama',
+            'nama' => 'required|string|max:50|unique:tahun_ajaran,nama',
             'is_active' => 'boolean',
         ]);
 
@@ -42,7 +42,7 @@ class TahunAjaranController extends Controller
     public function update(Request $request, TahunAjaran $tahunAjaran)
     {
         $validated = $request->validate([
-            'nama'      => 'required|string|max:50|unique:tahun_ajaran,nama,' . $tahunAjaran->id,
+            'nama' => 'required|string|max:50|unique:tahun_ajaran,nama,'.$tahunAjaran->id,
             'is_active' => 'boolean',
         ]);
 

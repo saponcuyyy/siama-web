@@ -12,8 +12,8 @@ use Illuminate\Support\Str;
 
 class Album extends Model
 {
-    use HasHashId;
     use HasFactory, SoftDeletes;
+    use HasHashId;
 
     protected $fillable = ['nama', 'slug', 'deskripsi', 'cover', 'status'];
 
@@ -32,10 +32,9 @@ class Album extends Model
     protected function imageUrl(): Attribute
     {
         return Attribute::make(
-            get: fn ($value, $attributes) => 
-                isset($attributes['cover']) 
-                    ? (str_starts_with($attributes['cover'], 'http') 
-                        ? $attributes['cover'] 
+            get: fn ($value, $attributes) => isset($attributes['cover'])
+                    ? (str_starts_with($attributes['cover'], 'http')
+                        ? $attributes['cover']
                         : Storage::disk('public')->url($attributes['cover']))
                     : null,
         );

@@ -3,13 +3,26 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\{BankSoal, MataPelajaran, Guru, TahunAjaran};
+use App\Models\BankSoal;
+use App\Models\Guru;
+use App\Models\MataPelajaran;
+use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class BankSoalController extends Controller
 {
+    private function guruMapelIds(): array
+    {
+        $user = Auth::user();
+        if (! $user->hasRole('guru')) {
+            return [];
+        }
+
+        return $user->guru?->mataPelajarans()->pluck('mata_pelajaran.id')->toArray() ?? [];
+    }
+
     public function index(Request $request)
     {
         $query = BankSoal::with(['mataPelajaran', 'guru'])
@@ -17,16 +30,26 @@ class BankSoalController extends Controller
             ->latest();
 
         if ($request->search) {
-            $query->where('judul', 'like', '%' . $request->search . '%')
-                  ->orWhereHas('mataPelajaran', function($q) use ($request) {
-                      $q->where('nama', 'like', '%' . $request->search . '%');
-                  });
+            $query->where('judul', 'like', '%'.$request->search.'%')
+                ->orWhereHas('mataPelajaran', function ($q) use ($request) {
+                    $q->where('nama', 'like', '%'.$request->search.'%');
+                });
+        }
+
+        $guruMapelIds = $this->guruMapelIds();
+        if ($guruMapelIds) {
+            $query->whereIn('mata_pelajaran_id', $guruMapelIds);
+        }
+
+        $mapelList = MataPelajaran::select('id', 'nama', 'kode', 'tingkat', 'jurusan');
+        if ($guruMapelIds) {
+            $mapelList->whereIn('id', $guruMapelIds);
         }
 
         return Inertia::render('Admin/Ujian/BankSoal/Index', [
             'bankSoalList' => $query->paginate(15)->withQueryString(),
-            'filters'      => $request->only('search'),
-            'mapelList'    => MataPelajaran::select('id', 'nama', 'kode', 'tingkat', 'jurusan')->get(),
+            'filters' => $request->only('search'),
+            'mapelList' => $mapelList->get(),
         ]);
     }
 
@@ -39,15 +62,20 @@ class BankSoalController extends Controller
             'deskripsi' => 'nullable|string',
         ]);
 
+        $guruMapelIds = $this->guruMapelIds();
+        if ($guruMapelIds && ! in_array((int) $validated['mata_pelajaran_id'], $guruMapelIds)) {
+            return back()->withErrors(['mata_pelajaran_id' => 'Mata pelajaran tidak sesuai dengan mapel yang Anda ampu.']);
+        }
+
         $validated['tahun_ajaran_id'] = TahunAjaran::where('is_active', true)->first()?->id;
         $validated['guru_id'] = Guru::where('user_id', Auth::id())->first()?->id ?? Guru::first()?->id;
         $validated['is_active'] = true;
 
-        if (!$validated['tahun_ajaran_id']) {
+        if (! $validated['tahun_ajaran_id']) {
             return back()->with('error', 'Tidak ada tahun ajaran aktif. Harap hubungi administrator.');
         }
 
-        if (!$validated['guru_id']) {
+        if (! $validated['guru_id']) {
             return back()->with('error', 'Data Guru tidak ditemukan. Silakan tambahkan data guru di menu Master Data terlebih dahulu.');
         }
 
@@ -59,20 +87,20 @@ class BankSoalController extends Controller
     public function show(BankSoal $bankSoal)
     {
         $bankSoal->load(['mataPelajaran', 'soal.pilihanJawaban', 'soal.pasanganMenjodohkan', 'guru']);
-        
+
         return Inertia::render('Admin/Ujian/BankSoal/Show', [
-            'bankSoal' => $bankSoal
+            'bankSoal' => $bankSoal,
         ]);
     }
 
     public function update(Request $request, BankSoal $bankSoal)
     {
         $validated = $request->validate([
-            'judul'             => 'required|string|max:255',
+            'judul' => 'required|string|max:255',
             'mata_pelajaran_id' => 'required|exists:mata_pelajaran,id',
-            'tingkat'           => 'required|in:X,XI,XII',
-            'deskripsi'         => 'nullable|string',
-            'is_active'         => 'boolean',
+            'tingkat' => 'required|in:X,XI,XII',
+            'deskripsi' => 'nullable|string',
+            'is_active' => 'boolean',
         ]);
 
         $bankSoal->update($validated);

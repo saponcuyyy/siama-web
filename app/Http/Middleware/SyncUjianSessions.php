@@ -2,37 +2,42 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\PesertaStatus;
+use App\Models\PesertaUjian;
+use App\Models\SesiUjian;
+use App\Models\Siswa;
+use App\Services\Ujian\UjianService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
-use App\Services\Ujian\UjianService;
-use App\Enums\PesertaStatus;
 
 class SyncUjianSessions
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         // Metode JIT (Just-In-Time) Sinkronisasi Sesi
         // Akan tereksekusi maksimal 1 kali setiap 60 detik agar tidak membebani server
         if (Cache::add('sync_ujian_sessions_lock', true, 60)) {
-            \Illuminate\Support\Facades\Log::info('Running JIT Session Sync (Direct DB)...');
+            Log::info('Running JIT Session Sync (Direct DB)...');
             try {
                 $now = now();
 
                 // 1. Start Active Sessions
-                $sessionsToStart = \App\Models\SesiUjian::with('rombels')
+                $sessionsToStart = SesiUjian::with('rombels')
                     ->where('status', 'menunggu')
                     ->where('waktu_mulai', '<=', $now)
                     ->get();
 
                 foreach ($sessionsToStart as $session) {
-                    \Illuminate\Support\Facades\DB::transaction(function () use ($session) {
+                    DB::transaction(function () use ($session) {
                         $session->update(['status' => 'berlangsung']);
                         $rombelIds = [];
                         if ($session->rombels->isNotEmpty()) {
@@ -40,26 +45,26 @@ class SyncUjianSessions
                         } elseif ($session->rombel_id) {
                             $rombelIds = [$session->rombel_id];
                         }
-                        
-                        if (!empty($rombelIds)) {
-                            $siswaIds = \App\Models\Siswa::whereIn('rombel_id', $rombelIds)->pluck('id');
-                            $existing = \App\Models\PesertaUjian::where('sesi_ujian_id', $session->id)
+
+                        if (! empty($rombelIds)) {
+                            $siswaIds = Siswa::whereIn('rombel_id', $rombelIds)->pluck('id');
+                            $existing = PesertaUjian::where('sesi_ujian_id', $session->id)
                                 ->whereIn('siswa_id', $siswaIds)
                                 ->pluck('siswa_id');
 
                             $newIds = $siswaIds->diff($existing);
                             $now = now();
 
-                            $newPeserta = $newIds->map(fn($id) => [
+                            $newPeserta = $newIds->map(fn ($id) => [
                                 'sesi_ujian_id' => $session->id,
-                                'siswa_id'      => $id,
-                                'status'        => 'belum_mulai',
-                                'created_at'    => $now,
-                                'updated_at'    => $now,
+                                'siswa_id' => $id,
+                                'status' => 'belum_mulai',
+                                'created_at' => $now,
+                                'updated_at' => $now,
                             ])->toArray();
 
-                            if (!empty($newPeserta)) {
-                                \App\Models\PesertaUjian::insert($newPeserta);
+                            if (! empty($newPeserta)) {
+                                PesertaUjian::insert($newPeserta);
                             }
                         }
                     });
@@ -68,13 +73,14 @@ class SyncUjianSessions
                 // 2. Close Expired Sessions (dengan toleransi_menit)
                 $ujianService = app(UjianService::class);
 
-                $expiredSessions = \App\Models\SesiUjian::whereIn('status', ['menunggu', 'berlangsung'])
-                    ->with(['pesertaUjian' => fn($q) => $q->where('status', PesertaStatus::MENGERJAKAN->value)])
+                $expiredSessions = SesiUjian::whereIn('status', ['menunggu', 'berlangsung'])
+                    ->with(['pesertaUjian' => fn ($q) => $q->where('status', PesertaStatus::MENGERJAKAN->value)])
                     ->get()
                     ->filter(function ($session) use ($now) {
                         // Hitung batas waktu efektif dengan toleransi
                         $batasWaktu = $session->waktu_selesai->copy()
                             ->addMinutes($session->toleransi_menit ?? 0);
+
                         return $batasWaktu->lt($now);
                     });
 
@@ -90,8 +96,8 @@ class SyncUjianSessions
                                 'System/JIT-Sync'
                             );
                         } catch (\Throwable $e) {
-                            \Illuminate\Support\Facades\Log::error(
-                                "JIT Sync: Failed to close peserta {$peserta->id}: " . $e->getMessage()
+                            Log::error(
+                                "JIT Sync: Failed to close peserta {$peserta->id}: ".$e->getMessage()
                             );
                         }
                     }
@@ -99,9 +105,9 @@ class SyncUjianSessions
 
                 Cache::forever('cron_last_run', now()->timestamp);
 
-                \Illuminate\Support\Facades\Log::info('JIT Sync completed.');
+                Log::info('JIT Sync completed.');
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('JIT Sync failed: ' . $e->getMessage());
+                Log::error('JIT Sync failed: '.$e->getMessage());
             }
         }
 

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Rombel;
 use App\Models\Guru;
+use App\Models\Rombel;
 use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,7 +18,7 @@ class RombelController extends Controller
             ->latest();
 
         if ($request->search) {
-            $query->where('nama', 'like', '%' . $request->search . '%');
+            $query->where('nama', 'like', '%'.$request->search.'%');
         }
 
         if ($request->tahun_ajaran_id) {
@@ -26,9 +26,9 @@ class RombelController extends Controller
         }
 
         return Inertia::render('Admin/Akademik/Rombel/Index', [
-            'rombelList'      => $query->paginate(15)->withQueryString(),
-            'filters'         => $request->only(['search', 'tahun_ajaran_id']),
-            'guruList'        => Guru::select('id', 'nama', 'nip')->orderBy('nama')->get(),
+            'rombelList' => $query->paginate(15)->withQueryString(),
+            'filters' => $request->only(['search', 'tahun_ajaran_id']),
+            'guruList' => Guru::select('id', 'nama', 'nip')->orderBy('nama')->get(),
             'tahunAjaranList' => TahunAjaran::select('id', 'nama', 'is_active')->orderByDesc('is_active')->orderByDesc('id')->get(),
         ]);
     }
@@ -36,10 +36,10 @@ class RombelController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama'            => 'required|string|max:100',
-            'tingkat'         => 'required|string|max:20',
+            'nama' => 'required|string|max:100',
+            'tingkat' => 'required|string|max:20',
             'tahun_ajaran_id' => 'required|exists:tahun_ajaran,id',
-            'guru_id'         => 'nullable|exists:guru,id',
+            'guru_id' => 'nullable|exists:guru,id',
         ]);
 
         Rombel::create($validated);
@@ -50,10 +50,10 @@ class RombelController extends Controller
     public function update(Request $request, Rombel $rombel)
     {
         $validated = $request->validate([
-            'nama'            => 'required|string|max:100',
-            'tingkat'         => 'required|string|max:20',
+            'nama' => 'required|string|max:100',
+            'tingkat' => 'required|string|max:20',
             'tahun_ajaran_id' => 'required|exists:tahun_ajaran,id',
-            'guru_id'         => 'nullable|exists:guru,id',
+            'guru_id' => 'nullable|exists:guru,id',
         ]);
 
         $rombel->update($validated);
@@ -68,6 +68,7 @@ class RombelController extends Controller
         }
 
         $rombel->delete();
+
         return back()->with('success', 'Rombel berhasil dihapus.');
     }
 }

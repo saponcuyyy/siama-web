@@ -1,7 +1,17 @@
 <script setup>
-import { ref } from 'vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import { Head, useForm, router, usePage } from '@inertiajs/vue3';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Shield, Plus, Pencil, Trash2, X, Check, Lock, AlertTriangle } from 'lucide-vue-next';
+
+const page = usePage();
+const authUser = page.props.auth?.user;
+
+const can = (perm) => {
+    if (!authUser) return false;
+    if (authUser.roles?.includes('super_admin')) return true;
+    return authUser.permissions?.includes(perm);
+};
 
 const props = defineProps({
     roleList: Array,
@@ -18,6 +28,60 @@ const form = useForm({
     permissions: [],
 });
 
+const groupLabels = {
+    dashboard: 'Dashboard',
+    users: 'Manajemen User',
+    roles: 'Manajemen Role',
+    siswa: 'Siswa',
+    guru: 'Guru',
+    nilai: 'Penilaian',
+    jadwal: 'Jadwal',
+    ujian: 'Ujian',
+    perpustakaan: 'Perpustakaan',
+    settings: 'Pengaturan',
+    audit: 'Audit Trail',
+};
+
+const permLabels = {
+    'dashboard.view': 'Lihat Dashboard',
+    'users.view': 'Lihat User',
+    'users.create': 'Buat User',
+    'users.edit': 'Edit User',
+    'users.delete': 'Hapus User',
+    'roles.view': 'Lihat Role',
+    'roles.create': 'Buat Role',
+    'roles.edit': 'Edit Role',
+    'roles.delete': 'Hapus Role',
+    'siswa.view': 'Lihat Siswa',
+    'siswa.manage': 'Kelola Siswa',
+    'guru.view': 'Lihat Guru',
+    'guru.manage': 'Kelola Guru',
+    'nilai.view': 'Lihat Nilai',
+    'nilai.create': 'Input Nilai',
+    'nilai.edit': 'Edit Nilai',
+    'nilai.delete': 'Hapus Nilai',
+    'jadwal.view': 'Lihat Jadwal',
+    'jadwal.manage': 'Kelola Jadwal',
+    'ujian.view': 'Lihat Ujian',
+    'ujian.manage': 'Kelola Ujian',
+    'ujian.participate': 'Ikut Ujian',
+    'ujian.bank-soal.manage': 'Kelola Bank Soal',
+    'ujian.soal.manage': 'Kelola Soal',
+    'ujian.paket.manage': 'Kelola Paket',
+    'ujian.sesi.manage': 'Kelola Sesi',
+    'ujian.sesi.monitor': 'Monitor Sesi',
+    'ujian.penilaian.essay': 'Nilai Essay',
+    'ujian.laporan.view': 'Lihat Laporan',
+    'ujian.laporan.export': 'Ekspor Laporan',
+    'perpustakaan.view': 'Lihat Perpustakaan',
+    'perpustakaan.manage': 'Kelola Perpustakaan',
+    'settings.view': 'Lihat Pengaturan',
+    'settings.manage': 'Kelola Pengaturan',
+    'audit.view': 'Lihat Audit Trail',
+};
+
+const groupOrder = ['dashboard', 'users', 'roles', 'siswa', 'guru', 'nilai', 'jadwal', 'ujian', 'perpustakaan', 'settings', 'audit'];
+
 const groupedPermissions = computed(() => {
     const groups = {};
     props.permissions.forEach(p => {
@@ -25,7 +89,10 @@ const groupedPermissions = computed(() => {
         if (!groups[group]) groups[group] = [];
         groups[group].push(p);
     });
-    return groups;
+    const sorted = {};
+    groupOrder.forEach(g => { if (groups[g]) sorted[g] = groups[g]; });
+    Object.keys(groups).filter(g => !groupOrder.includes(g)).forEach(g => { sorted[g] = groups[g]; });
+    return sorted;
 });
 
 const openCreate = () => {
@@ -116,7 +183,7 @@ const roleBadgeColor = (role) => {
                     </h1>
                     <p class="text-slate-500 font-medium mt-1">Atur role dan izin akses untuk setiap pengguna aplikasi.</p>
                 </div>
-                <button @click="openCreate" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-indigo-200">
+                <button v-if="can('roles.create')" @click="openCreate" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-indigo-200">
                     <Plus class="w-5 h-5" /> Tambah Role
                 </button>
             </div>
@@ -155,11 +222,11 @@ const roleBadgeColor = (role) => {
                                 </div>
                             </div>
                             <div class="flex gap-1">
-                                <button v-if="role.name !== 'super_admin'" @click="openEdit(role)"
+                                <button v-if="role.name !== 'super_admin' && can('roles.edit')" @click="openEdit(role)"
                                     class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors">
                                     <Pencil class="w-4 h-4" />
                                 </button>
-                                <button v-if="role.name !== 'super_admin'" @click="confirmDelete(role)"
+                                <button v-if="role.name !== 'super_admin' && can('roles.delete')" @click="confirmDelete(role)"
                                     class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">
                                     <Trash2 class="w-4 h-4" />
                                 </button>
@@ -170,7 +237,7 @@ const roleBadgeColor = (role) => {
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Permissions</p>
                         <span v-for="perm in role.permissions" :key="perm"
                             class="inline-block px-2 py-0.5 bg-slate-50 text-slate-600 text-xs font-medium rounded-md border border-slate-200 mr-1 mb-1">
-                            {{ perm }}
+                            {{ permLabels[perm] || perm }}
                         </span>
                         <p v-if="!role.permissions.length" class="text-xs text-slate-400 italic">Tidak ada permission</p>
                     </div>
@@ -210,9 +277,9 @@ const roleBadgeColor = (role) => {
                             <div v-for="(perms, group) in groupedPermissions" :key="group"
                                 class="bg-slate-50 rounded-2xl p-4 border border-slate-200">
                                 <div class="flex items-center justify-between mb-2">
-                                    <label class="text-sm font-black text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                                    <label class="text-sm font-black text-slate-700 flex items-center gap-2">
                                         <Lock class="w-4 h-4 text-slate-400" />
-                                        {{ group }}
+                                        {{ groupLabels[group] || group }}
                                     </label>
                                     <button type="button" @click="toggleGroup(perms)"
                                         class="text-xs font-bold"
@@ -228,7 +295,7 @@ const roleBadgeColor = (role) => {
                                             @change="togglePermission(perm)" class="sr-only" />
                                         <Check v-if="form.permissions.includes(perm)" class="w-3.5 h-3.5 shrink-0" />
                                         <div v-else class="w-3.5 h-3.5 shrink-0 border-2 border-slate-300 rounded" />
-                                        <span class="text-xs font-medium">{{ perm }}</span>
+                                        <span class="text-xs font-medium">{{ permLabels[perm] || perm }}</span>
                                     </label>
                                 </div>
                             </div>

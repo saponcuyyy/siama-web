@@ -25,21 +25,21 @@ return new class extends Migration
             $table->foreign('semester_id')->references('id')->on('semester')->nullOnDelete();
 
             // Make enum columns nullable with defaults
-            $table->enum('jenis', ['uh','uts','uas','pas','try_out','lainnya'])
-                  ->nullable()->default(null)->change();
-            $table->enum('tingkat', ['X','XI','XII'])
-                  ->nullable()->default(null)->change();
+            $table->enum('jenis', ['uh', 'uts', 'uas', 'pas', 'try_out', 'lainnya'])
+                ->nullable()->default(null)->change();
+            $table->enum('tingkat', ['X', 'XI', 'XII'])
+                ->nullable()->default(null)->change();
 
             // Add dibuat_oleh that the controller uses (if not already present)
-            if (!Schema::hasColumn('paket_ujian', 'dibuat_oleh')) {
+            if (! Schema::hasColumn('paket_ujian', 'dibuat_oleh')) {
                 $table->foreignId('dibuat_oleh')
-                      ->nullable()
-                      ->constrained('users')
-                      ->nullOnDelete();
+                    ->nullable()
+                    ->constrained('users')
+                    ->nullOnDelete();
             }
 
             // Add deskripsi if not present
-            if (!Schema::hasColumn('paket_ujian', 'deskripsi')) {
+            if (! Schema::hasColumn('paket_ujian', 'deskripsi')) {
                 $table->text('deskripsi')->nullable()->after('nama');
             }
         });

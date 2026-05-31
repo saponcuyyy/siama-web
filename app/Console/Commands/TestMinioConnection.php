@@ -27,18 +27,18 @@ class TestMinioConnection extends Command
     public function handle()
     {
         try {
-            $disk  = Storage::disk('minio');
-            $test  = 'minio-test-' . time() . '.txt';
+            $disk = Storage::disk('minio');
+            $test = 'minio-test-'.time().'.txt';
 
             $disk->put($test, 'MinIO connection test OK', 'public');
-            $url   = $disk->url($test);
+            $url = $disk->url($test);
             $disk->delete($test);
 
-            $this->info("✅ Koneksi MinIO berhasil!");
-            $this->info("📦 Bucket : " . config('filesystems.disks.minio.bucket'));
-            $this->info("🔗 URL    : " . $url);
+            $this->info('✅ Koneksi MinIO berhasil!');
+            $this->info('📦 Bucket : '.config('filesystems.disks.minio.bucket'));
+            $this->info('🔗 URL    : '.$url);
         } catch (\Exception $e) {
-            $this->error("❌ Koneksi MinIO gagal: " . $e->getMessage());
+            $this->error('❌ Koneksi MinIO gagal: '.$e->getMessage());
         }
     }
 }

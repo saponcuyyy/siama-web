@@ -4,11 +4,14 @@ namespace App\Models;
 
 use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany, BelongsToMany};
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Rombel extends Model
 {
     use HasHashId;
+
     protected $table = 'rombel';
 
     protected $fillable = ['nama', 'tingkat', 'tahun_ajaran_id', 'guru_id'];

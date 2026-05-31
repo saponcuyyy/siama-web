@@ -3,14 +3,29 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\{Guru, PaketUjian, MataPelajaran, Soal, TahunAjaran, Semester};
+use App\Models\Guru;
+use App\Models\MataPelajaran;
+use App\Models\PaketUjian;
+use App\Models\Semester;
+use App\Models\Soal;
+use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class PaketUjianController extends Controller
 {
+    private function guruMapelIds(): array
+    {
+        $user = Auth::user();
+        if (! $user->hasRole('guru')) {
+            return [];
+        }
+
+        return $user->guru?->mataPelajarans()->pluck('mata_pelajaran.id')->toArray() ?? [];
+    }
+
     public function index(Request $request)
     {
         $query = PaketUjian::with(['mataPelajaran', 'dibuatOleh'])
@@ -18,14 +33,24 @@ class PaketUjianController extends Controller
             ->latest();
 
         if ($request->search) {
-            $query->where('nama', 'like', '%' . $request->search . '%')
-                  ->orWhere('kode', 'like', '%' . $request->search . '%');
+            $query->where('nama', 'like', '%'.$request->search.'%')
+                ->orWhere('kode', 'like', '%'.$request->search.'%');
+        }
+
+        $guruMapelIds = $this->guruMapelIds();
+        if ($guruMapelIds) {
+            $query->whereIn('mata_pelajaran_id', $guruMapelIds);
+        }
+
+        $mapelList = MataPelajaran::select('id', 'nama', 'kode', 'tingkat', 'jurusan');
+        if ($guruMapelIds) {
+            $mapelList->whereIn('id', $guruMapelIds);
         }
 
         return Inertia::render('Admin/Ujian/Paket/Index', [
             'paketList' => $query->paginate(15)->withQueryString(),
-            'filters'  => $request->only('search'),
-            'mapelList' => MataPelajaran::select('id', 'nama', 'kode', 'tingkat', 'jurusan')->get(),
+            'filters' => $request->only('search'),
+            'mapelList' => $mapelList->get(),
         ]);
     }
 
@@ -42,6 +67,11 @@ class PaketUjianController extends Controller
             'acak_soal' => 'boolean',
             'acak_jawaban' => 'boolean',
         ]);
+
+        $guruMapelIds = $this->guruMapelIds();
+        if ($guruMapelIds && ! in_array((int) $validated['mata_pelajaran_id'], $guruMapelIds)) {
+            return back()->withErrors(['mata_pelajaran_id' => 'Mata pelajaran tidak sesuai dengan mapel yang Anda ampu.']);
+        }
 
         $guru = Guru::where('user_id', Auth::id())->first();
         $tahunAjaran = TahunAjaran::where('is_active', true)->first();
@@ -61,11 +91,11 @@ class PaketUjianController extends Controller
     public function show(PaketUjian $paket)
     {
         $paket->load(['mataPelajaran', 'soal.pilihanJawaban', 'soal.bankSoal']);
-        
+
         // Soal yang tersedia dari mapel yang sama, yang belum ada di paket ini
         $existingSoalIds = $paket->soal->pluck('id')->toArray();
         $availableSoal = Soal::with('bankSoal')
-            ->whereHas('bankSoal', function($q) use ($paket) {
+            ->whereHas('bankSoal', function ($q) use ($paket) {
                 $q->where('mata_pelajaran_id', $paket->mata_pelajaran_id);
             })
             ->whereNotIn('id', $existingSoalIds)
@@ -73,7 +103,7 @@ class PaketUjianController extends Controller
 
         return Inertia::render('Admin/Ujian/Paket/Show', [
             'paket' => $paket,
-            'availableSoal' => $availableSoal
+            'availableSoal' => $availableSoal,
         ]);
     }
 
@@ -110,12 +140,13 @@ class PaketUjianController extends Controller
 
         $paket->soal()->syncWithoutDetaching($attachData);
 
-        return back()->with('success', count($soalIds) . ' soal berhasil ditambahkan ke paket.');
+        return back()->with('success', count($soalIds).' soal berhasil ditambahkan ke paket.');
     }
 
     public function hapusSoal(PaketUjian $paket, Soal $soal)
     {
         $paket->soal()->detach($soal->id);
+
         return back()->with('success', 'Soal berhasil dihapus dari paket.');
     }
 }

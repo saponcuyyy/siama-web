@@ -15,14 +15,14 @@ return new class extends Migration
         Schema::create('bank_soal', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mata_pelajaran_id')
-                  ->constrained('mata_pelajaran')->restrictOnDelete();
+                ->constrained('mata_pelajaran')->restrictOnDelete();
             $table->foreignId('guru_id')
-                  ->constrained('guru')->restrictOnDelete();
+                ->constrained('guru')->restrictOnDelete();
             $table->foreignId('tahun_ajaran_id')
-                  ->constrained('tahun_ajaran')->restrictOnDelete();
+                ->constrained('tahun_ajaran')->restrictOnDelete();
             $table->string('judul');
             $table->text('deskripsi')->nullable();
-            $table->enum('tingkat', ['X','XI','XII']);
+            $table->enum('tingkat', ['X', 'XI', 'XII']);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
@@ -32,11 +32,11 @@ return new class extends Migration
         Schema::create('soal', function (Blueprint $table) {
             $table->id();
             $table->foreignId('bank_soal_id')
-                  ->constrained('bank_soal')->cascadeOnDelete();
-            $table->enum('tipe', ['pg','essay','benar_salah','menjodohkan']);
+                ->constrained('bank_soal')->cascadeOnDelete();
+            $table->enum('tipe', ['pg', 'essay', 'benar_salah', 'menjodohkan']);
             $table->longText('pertanyaan');
             $table->unsignedTinyInteger('bobot')->default(1);
-            $table->enum('tingkat_kesulitan', ['mudah','sedang','sulit'])->default('sedang');
+            $table->enum('tingkat_kesulitan', ['mudah', 'sedang', 'sulit'])->default('sedang');
             $table->string('bab')->nullable();
             $table->string('indikator')->nullable();
             $table->text('kunci_jawaban')->nullable();
@@ -52,21 +52,21 @@ return new class extends Migration
         Schema::create('pilihan_jawaban', function (Blueprint $table) {
             $table->id();
             $table->foreignId('soal_id')
-                  ->constrained('soal')->cascadeOnDelete();
+                ->constrained('soal')->cascadeOnDelete();
             $table->string('kode', 1);
             $table->text('teks');
             $table->string('gambar_path')->nullable();
             $table->boolean('is_benar')->default(false);
             $table->unsignedTinyInteger('urutan')->default(0);
             $table->timestamps();
-            $table->unique(['soal_id','kode']);
+            $table->unique(['soal_id', 'kode']);
         });
 
         // 4. pasangan_menjodohkan
         Schema::create('pasangan_menjodohkan', function (Blueprint $table) {
             $table->id();
             $table->foreignId('soal_id')
-                  ->constrained('soal')->cascadeOnDelete();
+                ->constrained('soal')->cascadeOnDelete();
             $table->string('kiri');
             $table->string('kanan');
             $table->unsignedTinyInteger('urutan')->default(0);
@@ -77,17 +77,17 @@ return new class extends Migration
         Schema::create('paket_ujian', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mata_pelajaran_id')
-                  ->constrained('mata_pelajaran')->restrictOnDelete();
+                ->constrained('mata_pelajaran')->restrictOnDelete();
             $table->foreignId('guru_id')
-                  ->constrained('guru')->restrictOnDelete();
+                ->constrained('guru')->restrictOnDelete();
             $table->foreignId('tahun_ajaran_id')
-                  ->constrained('tahun_ajaran')->restrictOnDelete();
+                ->constrained('tahun_ajaran')->restrictOnDelete();
             $table->foreignId('semester_id')
-                  ->constrained('semester')->restrictOnDelete();
+                ->constrained('semester')->restrictOnDelete();
             $table->string('nama');
             $table->string('kode', 20)->unique();
-            $table->enum('jenis', ['uh','uts','uas','pas','try_out','lainnya']);
-            $table->enum('tingkat', ['X','XI','XII']);
+            $table->enum('jenis', ['uh', 'uts', 'uas', 'pas', 'try_out', 'lainnya']);
+            $table->enum('tingkat', ['X', 'XI', 'XII']);
             $table->unsignedSmallInteger('durasi_menit');
             $table->unsignedSmallInteger('jumlah_soal_pg')->default(0);
             $table->unsignedSmallInteger('jumlah_soal_bs')->default(0);
@@ -97,7 +97,7 @@ return new class extends Migration
             $table->boolean('acak_soal')->default(true);
             $table->boolean('acak_jawaban')->default(true);
             $table->text('petunjuk')->nullable();
-            $table->enum('status', ['draft','published','archived'])->default('draft');
+            $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -106,51 +106,51 @@ return new class extends Migration
         Schema::create('paket_soal', function (Blueprint $table) {
             $table->id();
             $table->foreignId('paket_ujian_id')
-                  ->constrained('paket_ujian')->cascadeOnDelete();
+                ->constrained('paket_ujian')->cascadeOnDelete();
             $table->foreignId('soal_id')
-                  ->constrained('soal')->cascadeOnDelete();
+                ->constrained('soal')->cascadeOnDelete();
             $table->unsignedTinyInteger('urutan')->default(0);
             $table->unsignedTinyInteger('bobot_override')->nullable();
             $table->timestamps();
-            $table->unique(['paket_ujian_id','soal_id']);
+            $table->unique(['paket_ujian_id', 'soal_id']);
         });
 
         // 7. sesi_ujian
         Schema::create('sesi_ujian', function (Blueprint $table) {
             $table->id();
             $table->foreignId('paket_ujian_id')
-                  ->constrained('paket_ujian')->restrictOnDelete();
+                ->constrained('paket_ujian')->restrictOnDelete();
             $table->foreignId('rombel_id')
-                  ->nullable()->constrained('rombel')->nullOnDelete();
+                ->nullable()->constrained('rombel')->nullOnDelete();
             $table->string('nama_sesi');
             $table->string('token', 8)->unique();
             $table->datetime('waktu_mulai');
             $table->datetime('waktu_selesai');
             $table->unsignedTinyInteger('toleransi_menit')->default(15);
-            $table->enum('status', ['menunggu','berlangsung','selesai','dibatalkan'])->default('menunggu');
+            $table->enum('status', ['menunggu', 'berlangsung', 'selesai', 'dibatalkan'])->default('menunggu');
             $table->unsignedTinyInteger('max_pelanggaran')->default(3);
             $table->boolean('wajib_fullscreen')->default(true);
             $table->text('catatan')->nullable();
             $table->foreignId('dibuat_oleh')
-                  ->constrained('users')->restrictOnDelete();
+                ->constrained('users')->restrictOnDelete();
             $table->timestamps();
             $table->softDeletes();
-            $table->index(['status','waktu_mulai','waktu_selesai']);
+            $table->index(['status', 'waktu_mulai', 'waktu_selesai']);
         });
 
         // 8. peserta_ujian
         Schema::create('peserta_ujian', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sesi_ujian_id')
-                  ->constrained('sesi_ujian')->cascadeOnDelete();
+                ->constrained('sesi_ujian')->cascadeOnDelete();
             $table->foreignId('siswa_id')
-                  ->constrained('siswa')->cascadeOnDelete();
+                ->constrained('siswa')->cascadeOnDelete();
             $table->enum('status', [
                 'belum_mulai',
                 'mengerjakan',
                 'selesai',
                 'tidak_hadir',
-                'didiskualifikasi'
+                'didiskualifikasi',
             ])->default('belum_mulai');
             $table->datetime('mulai_at')->nullable();
             $table->datetime('selesai_at')->nullable();
@@ -169,29 +169,29 @@ return new class extends Migration
             $table->boolean('sudah_dikoreksi')->default(false);
             $table->boolean('essay_sudah_dinilai')->default(false);
             $table->timestamps();
-            $table->unique(['sesi_ujian_id','siswa_id']);
-            $table->index(['sesi_ujian_id','status']);
+            $table->unique(['sesi_ujian_id', 'siswa_id']);
+            $table->index(['sesi_ujian_id', 'status']);
         });
 
         // 9. jawaban_siswa
         Schema::create('jawaban_siswa', function (Blueprint $table) {
             $table->id();
             $table->foreignId('peserta_ujian_id')
-                  ->constrained('peserta_ujian')->cascadeOnDelete();
+                ->constrained('peserta_ujian')->cascadeOnDelete();
             $table->foreignId('soal_id')
-                  ->constrained('soal')->cascadeOnDelete();
+                ->constrained('soal')->cascadeOnDelete();
             $table->text('jawaban')->nullable();
             $table->json('jawaban_menjodohkan')->nullable();
             $table->boolean('is_benar')->nullable();
             $table->decimal('nilai', 4, 2)->nullable();
             $table->text('catatan_guru')->nullable();
             $table->foreignId('dinilai_oleh')
-                  ->nullable()->constrained('users')->nullOnDelete();
+                ->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('dinilai_at')->nullable();
             $table->timestamp('dijawab_at')->nullable();
             $table->unsignedInteger('durasi_detik')->nullable();
             $table->timestamps();
-            $table->unique(['peserta_ujian_id','soal_id']);
+            $table->unique(['peserta_ujian_id', 'soal_id']);
             $table->index(['peserta_ujian_id']);
         });
 
@@ -199,7 +199,7 @@ return new class extends Migration
         Schema::create('log_ujian', function (Blueprint $table) {
             $table->id();
             $table->foreignId('peserta_ujian_id')
-                  ->constrained('peserta_ujian')->cascadeOnDelete();
+                ->constrained('peserta_ujian')->cascadeOnDelete();
             $table->enum('tipe_event', [
                 'mulai_ujian',
                 'submit_ujian',
@@ -218,7 +218,7 @@ return new class extends Migration
             $table->string('ip_address', 45)->nullable();
             $table->string('user_agent')->nullable();
             $table->timestamp('terjadi_at');
-            $table->index(['peserta_ujian_id','tipe_event']);
+            $table->index(['peserta_ujian_id', 'tipe_event']);
         });
     }
 

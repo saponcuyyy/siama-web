@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\SesiUjian;
-use App\Models\PesertaUjian;
 use App\Models\JawabanSiswa;
 use App\Models\LogUjian;
+use App\Models\PesertaUjian;
+use App\Models\SesiUjian;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -28,9 +28,9 @@ class CleanupExamDataSeeder extends Seeder
 
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
-        $this->command->info("Data ujian berhasil dibersihkan:");
+        $this->command->info('Data ujian berhasil dibersihkan:');
         $this->command->info("  - sesi_ujian:       {$countSesi} → 0");
-        $this->command->info("  - rombel_sesi_ujian: deleted → 0");
+        $this->command->info('  - rombel_sesi_ujian: deleted → 0');
         $this->command->info("  - peserta_ujian:    {$countPeserta} → 0");
         $this->command->info("  - jawaban_siswa:    {$countJawaban} → 0");
         $this->command->info("  - log_ujian:        {$countLog} → 0");

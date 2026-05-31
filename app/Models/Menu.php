@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Menu extends Model
 {
-    use HasHashId;
     use HasFactory;
+    use HasHashId;
 
     protected $fillable = ['label', 'url', 'target', 'parent_id', 'urutan', 'status'];
 

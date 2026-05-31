@@ -4,20 +4,23 @@ namespace App\Imports;
 
 use App\Models\Siswa;
 use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
-use Illuminate\Support\Collection;
-use Carbon\Carbon;
 
-class SiswaRombelImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
+class SiswaRombelImport implements SkipsEmptyRows, ToCollection, WithHeadingRow
 {
     protected int $rombelId;
+
     public array $createdAccounts = [];
+
     protected array $buffer = [];
+
     protected int $batchSize = 50;
 
     public function __construct(int $rombelId)
@@ -36,7 +39,7 @@ class SiswaRombelImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 $nisn = trim($row['nisn']);
                 $nama = trim($row['nama']);
                 $tgl = Carbon::parse($row['tanggal_lahir'])->format('Y-m-d');
-                $agama = !empty($row['agama']) ? trim($row['agama']) : null;
+                $agama = ! empty($row['agama']) ? trim($row['agama']) : null;
                 $password = Str::password(8);
 
                 $this->buffer[] = compact('nisn', 'nama', 'tgl', 'agama', 'password');
@@ -54,29 +57,31 @@ class SiswaRombelImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
     protected function flushBuffer(): void
     {
-        if (empty($this->buffer)) return;
+        if (empty($this->buffer)) {
+            return;
+        }
 
         DB::transaction(function () {
             foreach ($this->buffer as $data) {
                 $user = User::create([
-                    'name'     => $data['nama'],
-                    'email'    => $data['nisn'],
+                    'name' => $data['nama'],
+                    'email' => $data['nisn'],
                     'password' => Hash::make($data['password']),
                 ]);
 
                 $user->assignRole('siswa');
 
                 $siswa = Siswa::create([
-                    'user_id'       => $user->id,
-                    'rombel_id'     => $this->rombelId,
-                    'nisn'          => $data['nisn'],
-                    'nama'          => $data['nama'],
+                    'user_id' => $user->id,
+                    'rombel_id' => $this->rombelId,
+                    'nisn' => $data['nisn'],
+                    'nama' => $data['nama'],
                     'tanggal_lahir' => $data['tgl'],
-                    'agama'         => $data['agama'],
+                    'agama' => $data['agama'],
                 ]);
 
                 $this->createdAccounts[] = [
-                    'nisn'     => $data['nisn'],
+                    'nisn' => $data['nisn'],
                     'password' => $data['password'],
                 ];
             }

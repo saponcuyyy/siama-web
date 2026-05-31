@@ -17,7 +17,7 @@ class PengumumanPublikController extends Controller
                 ->where('status', 'aktif')
                 ->where(function ($q) {
                     $q->whereNull('tanggal_selesai')
-                      ->orWhere('tanggal_selesai', '>=', now());
+                        ->orWhere('tanggal_selesai', '>=', now());
                 })
                 ->latest()
                 ->paginate(10),

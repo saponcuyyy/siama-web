@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-use App\Models\Siswa;
 use App\Models\Setting;
+use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
@@ -26,10 +26,10 @@ class KelulusanController extends Controller
         ]);
 
         $siswa = Siswa::where('nisn', $request->nisn)
-                      ->where('tanggal_lahir', $request->tanggal_lahir)
-                      ->first();
+            ->where('tanggal_lahir', $request->tanggal_lahir)
+            ->first();
 
-        if (!$siswa) {
+        if (! $siswa) {
             return back()->withErrors([
                 'nisn' => 'Data siswa tidak ditemukan atau kombinasi NISN & Tanggal Lahir salah.',
             ]);
@@ -45,7 +45,7 @@ class KelulusanController extends Controller
     {
         $siswaId = session('siswa_lulus_id');
 
-        if (!$siswaId) {
+        if (! $siswaId) {
             return redirect()->route('public.kelulusan')->withErrors([
                 'nisn' => 'Sesi berakhir. Silakan login kembali.',
             ]);
@@ -53,8 +53,9 @@ class KelulusanController extends Controller
 
         $siswa = Siswa::with('rombel')->find($siswaId);
 
-        if (!$siswa) {
+        if (! $siswa) {
             session()->forget('siswa_lulus_id');
+
             return redirect()->route('public.kelulusan')->withErrors([
                 'nisn' => 'Data siswa tidak ditemukan.',
             ]);

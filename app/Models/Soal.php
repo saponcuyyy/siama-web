@@ -1,12 +1,12 @@
 <?php
+
 namespace App\Models;
 
 use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\{
-    BelongsTo, HasMany
-};
 use Illuminate\Support\Facades\Storage;
 
 class Soal extends Model
@@ -17,9 +17,9 @@ class Soal extends Model
     protected $table = 'soal';
 
     protected $fillable = [
-        'bank_soal_id','tipe','pertanyaan','bobot',
-        'tingkat_kesulitan','bab','indikator',
-        'kunci_jawaban','pembahasan','gambar_path','urutan',
+        'bank_soal_id', 'tipe', 'pertanyaan', 'bobot',
+        'tingkat_kesulitan', 'bab', 'indikator',
+        'kunci_jawaban', 'pembahasan', 'gambar_path', 'urutan',
     ];
 
     protected $hidden = [

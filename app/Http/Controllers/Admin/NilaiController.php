@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\PesertaStatus;
+use App\Exports\NilaiExport;
 use App\Http\Controllers\Controller;
 use App\Models\MataPelajaran;
 use App\Models\PesertaUjian;
@@ -10,15 +11,14 @@ use App\Models\Rombel;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\NilaiExport;
 
 class NilaiController extends Controller
 {
     protected function getData($rombelId)
     {
         $mapels = MataPelajaran::whereHas('paketUjian.sesiUjian.pesertaUjian', function ($q) {
-                $q->where('status', PesertaStatus::SELESAI->value);
-            })
+            $q->where('status', PesertaStatus::SELESAI->value);
+        })
             ->orderBy('nama')
             ->get(['id', 'nama']);
 
@@ -26,10 +26,10 @@ class NilaiController extends Controller
 
         if ($rombelId) {
             $pesertaBySiswa = PesertaUjian::with([
-                    'siswa:id,nama,nisn,rombel_id',
-                    'sesiUjian.paketUjian.mataPelajaran:id,nama',
-                ])
-                ->whereHas('siswa', fn($q) => $q->where('rombel_id', $rombelId))
+                'siswa:id,nama,nisn,rombel_id',
+                'sesiUjian.paketUjian.mataPelajaran:id,nama',
+            ])
+                ->whereHas('siswa', fn ($q) => $q->where('rombel_id', $rombelId))
                 ->where('status', PesertaStatus::SELESAI->value)
                 ->select('id', 'siswa_id', 'sesi_ujian_id', 'nilai_pg', 'nilai_bs', 'nilai_menjodohkan', 'nilai_essay', 'nilai_akhir')
                 ->get()
@@ -41,21 +41,21 @@ class NilaiController extends Controller
 
                 $perMapel = $items->groupBy(function ($p) {
                     return $p->sesiUjian?->paketUjian?->mataPelajaran?->nama ?? 'Tanpa Mapel';
-                })->map(fn($group) => $group->sortByDesc('id')->first());
+                })->map(fn ($group) => $group->sortByDesc('id')->first());
 
-                $nilai = $mapels->mapWithKeys(fn($m) => [
+                $nilai = $mapels->mapWithKeys(fn ($m) => [
                     $m->id => $perMapel->get($m->nama)?->nilai_akhir,
                 ]);
 
-                $total = $nilai->filter(fn($v) => $v !== null)->sum();
-                $count = $nilai->filter(fn($v) => $v !== null)->count();
+                $total = $nilai->filter(fn ($v) => $v !== null)->sum();
+                $count = $nilai->filter(fn ($v) => $v !== null)->count();
                 $rata = $count > 0 ? round($total / $count, 2) : null;
 
                 return [
                     'siswa_id' => $siswa?->id,
-                    'nama'     => $siswa?->nama ?? '-',
-                    'nisn'     => $siswa?->nisn ?? '-',
-                    'nilai'    => $nilai,
+                    'nama' => $siswa?->nama ?? '-',
+                    'nisn' => $siswa?->nisn ?? '-',
+                    'nilai' => $nilai,
                     'rata_rata' => $rata,
                 ];
             })->values();
@@ -74,8 +74,8 @@ class NilaiController extends Controller
 
         return Inertia::render('Admin/Ujian/Nilai/Index', [
             'rombels' => $rombels,
-            'mapels'  => $mapels,
-            'rows'    => $rows,
+            'mapels' => $mapels,
+            'rows' => $rows,
             'filters' => ['rombel_id' => $rombelId],
         ]);
     }
@@ -83,7 +83,7 @@ class NilaiController extends Controller
     public function export(Request $request)
     {
         $rombelId = $request->input('rombel_id');
-        if (!$rombelId) {
+        if (! $rombelId) {
             return back()->with('error', 'Pilih rombel terlebih dahulu.');
         }
 
@@ -91,7 +91,7 @@ class NilaiController extends Controller
 
         [$mapels, $rows] = $this->getData($rombelId);
 
-        $filename = 'Nilai_' . str_replace(' ', '_', $rombel->tingkat . '_' . $rombel->nama) . '.xlsx';
+        $filename = 'Nilai_'.str_replace(' ', '_', $rombel->tingkat.'_'.$rombel->nama).'.xlsx';
 
         return Excel::download(new NilaiExport($rombel, $mapels, $rows), $filename);
     }

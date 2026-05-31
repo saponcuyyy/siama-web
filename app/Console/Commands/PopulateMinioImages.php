@@ -5,18 +5,17 @@ namespace App\Console\Commands;
 use App\Models\Album;
 use App\Models\Fasilitas;
 use App\Models\Slider;
-use App\Models\Setting;
 use App\Services\Website\FileUploadService;
 use Illuminate\Console\Command;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class PopulateMinioImages extends Command
 {
     protected $signature = 'minio:populate-images';
+
     protected $description = 'Download theme images and upload to MinIO';
 
     public function handle(FileUploadService $uploader)
@@ -32,7 +31,7 @@ class PopulateMinioImages extends Command
 
             // 1. Sliders
             $this->info('Populating Sliders...');
-            Slider::query()->forceDelete(); 
+            Slider::query()->forceDelete();
             $sliders = [
                 [
                     'judul' => 'Selamat Datang di SMAN 2 Perbaungan',
@@ -100,7 +99,7 @@ class PopulateMinioImages extends Command
 
             $this->info('All images populated successfully!');
         } catch (\Exception $e) {
-            $this->error("Fatal Error: " . $e->getMessage());
+            $this->error('Fatal Error: '.$e->getMessage());
         }
     }
 
@@ -109,16 +108,17 @@ class PopulateMinioImages extends Command
         try {
             $this->line("Downloading: $url");
             $response = Http::withHeaders([
-                'User-Agent' => 'Mozilla/5.0'
+                'User-Agent' => 'Mozilla/5.0',
             ])->timeout(60)->get($url);
 
             if ($response->failed()) {
-                $this->error("Failed: " . $response->status());
+                $this->error('Failed: '.$response->status());
+
                 return null;
             }
 
-            $tempName = Str::random(10) . '.jpg';
-            $tempPath = storage_path('app/' . $tempName);
+            $tempName = Str::random(10).'.jpg';
+            $tempPath = storage_path('app/'.$tempName);
             file_put_contents($tempPath, $response->body());
 
             $file = new UploadedFile($tempPath, $tempName, 'image/jpeg', null, true);
@@ -127,7 +127,8 @@ class PopulateMinioImages extends Command
 
             return $result['path'];
         } catch (\Exception $e) {
-            $this->error("Error: " . $e->getMessage());
+            $this->error('Error: '.$e->getMessage());
+
             return null;
         }
     }

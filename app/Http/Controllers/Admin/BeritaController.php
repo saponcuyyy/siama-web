@@ -7,8 +7,8 @@ use App\Models\Berita;
 use App\Models\KategoriBerita;
 use App\Services\Website\FileUploadService;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class BeritaController extends Controller
 {
@@ -25,14 +25,14 @@ class BeritaController extends Controller
             'berita' => Berita::with(['kategori', 'author:id,name'])
                 ->latest()
                 ->paginate(10),
-            'kategori' => KategoriBerita::all(['id', 'nama'])
+            'kategori' => KategoriBerita::all(['id', 'nama']),
         ]);
     }
 
     public function create()
     {
         return Inertia::render('Admin/Web/Berita/Form', [
-            'kategori' => KategoriBerita::all(['id', 'nama'])
+            'kategori' => KategoriBerita::all(['id', 'nama']),
         ]);
     }
 
@@ -51,13 +51,13 @@ class BeritaController extends Controller
 
         $validated['slug'] = Str::slug($validated['judul']);
         $validated['created_by'] = auth()->id();
-        
+
         if ($request->hasFile('thumbnail')) {
             $uploaded = $this->fileUploadService->uploadImage($request->file('thumbnail'), 'berita');
             $validated['thumbnail'] = $uploaded['path'];
         }
 
-        if ($validated['status'] === 'published' && !$validated['published_at']) {
+        if ($validated['status'] === 'published' && ! $validated['published_at']) {
             $validated['published_at'] = now();
         }
 
@@ -70,7 +70,7 @@ class BeritaController extends Controller
     {
         return Inertia::render('Admin/Web/Berita/Form', [
             'berita' => $beritum,
-            'kategori' => KategoriBerita::all(['id', 'nama'])
+            'kategori' => KategoriBerita::all(['id', 'nama']),
         ]);
     }
 
@@ -95,7 +95,7 @@ class BeritaController extends Controller
             $validated['thumbnail'] = $uploaded['path'];
         }
 
-        if ($validated['status'] === 'published' && !$beritum->published_at && !$validated['published_at']) {
+        if ($validated['status'] === 'published' && ! $beritum->published_at && ! $validated['published_at']) {
             $validated['published_at'] = now();
         }
 

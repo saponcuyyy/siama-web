@@ -2,70 +2,77 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\{Soal, PilihanJawaban, PasanganMenjodohkan, BankSoal};
-use App\Imports\SoalImport;
 use App\Exports\SoalTemplateExport;
+use App\Http\Controllers\Controller;
+use App\Imports\SoalImport;
+use App\Models\BankSoal;
+use App\Models\PasanganMenjodohkan;
+use App\Models\PilihanJawaban;
+use App\Models\Soal;
+use App\Services\WordImportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
+use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\PhpWord;
 
 class SoalController extends Controller
 {
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'bank_soal_id'  => 'required|exists:bank_soal,id',
-            'tipe'          => 'required|in:pg,benar_salah,essay,menjodohkan',
-            'pertanyaan'    => 'required|string',
-            'bobot'         => 'required|numeric|min:1',
+            'bank_soal_id' => 'required|exists:bank_soal,id',
+            'tipe' => 'required|in:pg,benar_salah,essay,menjodohkan',
+            'pertanyaan' => 'required|string',
+            'bobot' => 'required|numeric|min:1',
             'kunci_jawaban' => 'nullable|string',
             // Untuk PG
-            'pilihan'               => 'nullable|array',
-            'pilihan.*.kode'        => 'required_with:pilihan|string|max:5',
-            'pilihan.*.teks'        => 'required_with:pilihan|string',
-            'pilihan.*.is_kunci'    => 'boolean',
+            'pilihan' => 'nullable|array',
+            'pilihan.*.kode' => 'required_with:pilihan|string|max:5',
+            'pilihan.*.teks' => 'required_with:pilihan|string',
+            'pilihan.*.is_kunci' => 'boolean',
             // Untuk Menjodohkan
-            'pasangan'       => 'nullable|array',
-            'pasangan.*.kiri'  => 'required_with:pasangan|string',
+            'pasangan' => 'nullable|array',
+            'pasangan.*.kiri' => 'required_with:pasangan|string',
             'pasangan.*.kanan' => 'required_with:pasangan|string',
         ]);
 
-        DB::transaction(function () use ($validated, $request) {
+        DB::transaction(function () use ($validated) {
             $urutanSoal = Soal::where('bank_soal_id', $validated['bank_soal_id'])->max('urutan') ?? 0;
 
             $soal = Soal::create([
-                'bank_soal_id'  => $validated['bank_soal_id'],
-                'tipe'          => $validated['tipe'],
-                'pertanyaan'    => $validated['pertanyaan'],
-                'bobot'         => $validated['bobot'],
+                'bank_soal_id' => $validated['bank_soal_id'],
+                'tipe' => $validated['tipe'],
+                'pertanyaan' => $validated['pertanyaan'],
+                'bobot' => $validated['bobot'],
                 'kunci_jawaban' => $validated['kunci_jawaban'],
-                'urutan'        => $urutanSoal + 1,
+                'urutan' => $urutanSoal + 1,
             ]);
 
-            if ($validated['tipe'] === 'pg' && !empty($validated['pilihan'])) {
+            if ($validated['tipe'] === 'pg' && ! empty($validated['pilihan'])) {
                 $urutanPil = 1;
                 foreach ($validated['pilihan'] as $pil) {
                     PilihanJawaban::create([
                         'soal_id' => $soal->id,
-                        'kode'    => $pil['kode'],
-                        'teks'    => $pil['teks'],
-                        'urutan'  => $urutanPil++,
+                        'kode' => $pil['kode'],
+                        'teks' => $pil['teks'],
+                        'urutan' => $urutanPil++,
                     ]);
 
-                    if (!empty($pil['is_kunci'])) {
+                    if (! empty($pil['is_kunci'])) {
                         $soal->update(['kunci_jawaban' => $pil['kode']]);
                     }
                 }
             }
 
-            if ($validated['tipe'] === 'menjodohkan' && !empty($validated['pasangan'])) {
+            if ($validated['tipe'] === 'menjodohkan' && ! empty($validated['pasangan'])) {
                 foreach ($validated['pasangan'] as $pas) {
                     PasanganMenjodohkan::create([
                         'soal_id' => $soal->id,
-                        'kiri'    => $pas['kiri'],
-                        'kanan'   => $pas['kanan'],
+                        'kiri' => $pas['kiri'],
+                        'kanan' => $pas['kanan'],
                     ]);
                 }
             }
@@ -80,7 +87,7 @@ class SoalController extends Controller
     public function downloadTemplate()
     {
         return Excel::download(
-            new SoalTemplateExport(),
+            new SoalTemplateExport,
             'template-import-soal.xlsx'
         );
     }
@@ -98,27 +105,27 @@ class SoalController extends Controller
 
         try {
             Excel::import($import, $request->file('file'));
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
-            $failures = collect($e->failures())->map(fn($f) =>
-                "Baris {$f->row()}: " . implode(', ', $f->errors())
+        } catch (ValidationException $e) {
+            $failures = collect($e->failures())->map(fn ($f) => "Baris {$f->row()}: ".implode(', ', $f->errors())
             )->toArray();
 
             return back()->with('import_errors', $failures)->with('error', 'Beberapa baris gagal divalidasi.');
         } catch (\Exception $e) {
             Log::error('Excel import failed', [
                 'message' => $e->getMessage(),
-                'file'    => $request->file('file')->getClientOriginalName(),
-                'user'    => auth()->id(),
+                'file' => $request->file('file')->getClientOriginalName(),
+                'user' => auth()->id(),
             ]);
+
             return back()->with('error', 'Gagal memproses file. Pastikan format file sesuai dengan template.');
         }
 
         $msg = "{$import->imported} soal berhasil diimpor.";
 
-        if (!empty($import->errors)) {
+        if (! empty($import->errors)) {
             return back()
                 ->with('import_errors', $import->errors)
-                ->with('warning', $msg . ' Namun ada ' . count($import->errors) . ' baris yang gagal. Periksa detail di bawah.');
+                ->with('warning', $msg.' Namun ada '.count($import->errors).' baris yang gagal. Periksa detail di bawah.');
         }
 
         return back()->with('success', $msg);
@@ -129,7 +136,7 @@ class SoalController extends Controller
      */
     public function downloadWordTemplate()
     {
-        $phpWord = new \PhpOffice\PhpWord\PhpWord();
+        $phpWord = new PhpWord;
         $section = $phpWord->addSection();
 
         $section->addText('TEMPLATE SOAL UJIAN (FORMAT WORD)', ['bold' => true, 'size' => 16, 'color' => '4F46E5']);
@@ -141,7 +148,7 @@ class SoalController extends Controller
         $section->addText('- Gunakan penanda [KUNCI] untuk menentukan kunci jawaban yang benar.');
         $section->addText('- Gunakan penanda [BOBOT] untuk menentukan bobot nilai per soal (opsional, default 1).');
         $section->addTextBreak(2);
-        
+
         $section->addText('=== CONTOH SOAL PILIHAN GANDA ===', ['bold' => true]);
         $section->addText('[TIPE] pg');
         $section->addText('[SOAL] Siapakah presiden pertama Indonesia?');
@@ -152,22 +159,22 @@ class SoalController extends Controller
         $section->addText('[E] Joko Widodo');
         $section->addText('[KUNCI] C');
         $section->addText('[BOBOT] 2');
-        
+
         $section->addTextBreak(2);
-        
+
         $section->addText('=== CONTOH SOAL BENAR / SALAH ===', ['bold' => true]);
         $section->addText('[TIPE] benar_salah');
         $section->addText('[SOAL] Ibukota negara Jepang adalah Tokyo.');
         $section->addText('[KUNCI] Benar');
-        
+
         $section->addTextBreak(2);
-        
+
         $section->addText('=== CONTOH SOAL ESSAY ===', ['bold' => true]);
         $section->addText('[TIPE] essay');
         $section->addText('[SOAL] Jelaskan proses terjadinya hujan secara singkat!');
         $section->addText('[KUNCI] Hujan terjadi karena proses evaporasi (penguapan air), kondensasi (pembentukan awan), dan presipitasi (jatuhnya air).');
 
-        $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
+        $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
         $fileName = 'template-import-soal.docx';
         $tempFile = tempnam(sys_get_temp_dir(), 'phpword');
         $objWriter->save($tempFile);
@@ -185,7 +192,7 @@ class SoalController extends Controller
         ]);
 
         $file = $request->file('file');
-        $importService = new \App\Services\WordImportService();
+        $importService = new WordImportService;
 
         try {
             $questions = $importService->importDocx($file->getRealPath());
@@ -204,7 +211,7 @@ class SoalController extends Controller
                         'kunci_jawaban' => $q['kunci_jawaban'],
                     ]);
 
-                    if ($q['tipe'] === 'pg' && !empty($q['pilihan'])) {
+                    if ($q['tipe'] === 'pg' && ! empty($q['pilihan'])) {
                         $urutan = 1;
                         foreach ($q['pilihan'] as $kode => $teks) {
                             PilihanJawaban::create([
@@ -212,7 +219,7 @@ class SoalController extends Controller
                                 'kode' => $kode,
                                 'teks' => $teks,
                                 'urutan' => $urutan++,
-                                'is_benar' => (strtoupper($q['kunci_jawaban']) === $kode)
+                                'is_benar' => (strtoupper($q['kunci_jawaban']) === $kode),
                             ]);
                         }
                     }
@@ -221,16 +228,16 @@ class SoalController extends Controller
                         $kunciNorm = strtolower($q['kunci_jawaban']);
                         foreach (['Benar', 'Salah'] as $i => $opt) {
                             PilihanJawaban::create([
-                                'soal_id'  => $soal->id,
-                                'kode'     => $opt,
-                                'teks'     => $opt,
+                                'soal_id' => $soal->id,
+                                'kode' => $opt,
+                                'teks' => $opt,
                                 'is_benar' => in_array($kunciNorm, ['benar', 'true', '1']) ? ($opt === 'Benar') : ($opt === 'Salah'),
-                                'urutan'   => $i + 1,
+                                'urutan' => $i + 1,
                             ]);
                         }
                     }
 
-                    if ($q['tipe'] === 'menjodohkan' && !empty($q['pasangan'])) {
+                    if ($q['tipe'] === 'menjodohkan' && ! empty($q['pasangan'])) {
                         foreach ($q['pasangan'] as $pas) {
                             PasanganMenjodohkan::create([
                                 'soal_id' => $soal->id,
@@ -242,14 +249,15 @@ class SoalController extends Controller
                 }
             });
 
-            return back()->with('success', count($questions) . ' soal berhasil diimpor dari file Word.');
+            return back()->with('success', count($questions).' soal berhasil diimpor dari file Word.');
 
         } catch (\Exception $e) {
             Log::error('Word import failed', [
                 'message' => $e->getMessage(),
-                'file'    => $request->file('file')->getClientOriginalName(),
-                'user'    => auth()->id(),
+                'file' => $request->file('file')->getClientOriginalName(),
+                'user' => auth()->id(),
             ]);
+
             return back()->with('error', 'Terjadi kesalahan saat memproses file. Pastikan format penanda sesuai template.');
         }
     }
@@ -257,17 +265,18 @@ class SoalController extends Controller
     public function updateBobot(Request $request, Soal $soal)
     {
         $request->validate([
-            'bobot' => 'required|numeric|min:0.1'
+            'bobot' => 'required|numeric|min:0.1',
         ]);
 
         $soal->update(['bobot' => $request->bobot]);
+
         return back()->with('success', 'Bobot soal berhasil diperbarui.');
     }
-
 
     public function destroy(Soal $soal)
     {
         $soal->delete();
+
         return back()->with('success', 'Soal berhasil dihapus.');
     }
 }

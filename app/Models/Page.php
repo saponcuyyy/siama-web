@@ -1,18 +1,27 @@
 <?php
+
 namespace App\Models;
+
 use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class Page extends Model {
+class Page extends Model
+{
     use HasHashId;
     use SoftDeletes;
-    protected $fillable = ['title','slug','content','meta_title','meta_description','status','created_by'];
 
-    protected static function boot() {
+    protected $fillable = ['title', 'slug', 'content', 'meta_title', 'meta_description', 'status', 'created_by'];
+
+    protected static function boot()
+    {
         parent::boot();
-        static::creating(fn($m) => $m->slug = $m->slug ?: Str::slug($m->title));
+        static::creating(fn ($m) => $m->slug = $m->slug ?: Str::slug($m->title));
     }
-    public function author() { return $this->belongsTo(User::class, 'created_by'); }
+
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

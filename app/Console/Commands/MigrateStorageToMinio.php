@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 class MigrateStorageToMinio extends Command
 {
     protected $signature = 'storage:migrate-minio';
+
     protected $description = 'Migrate local storage files to MinIO';
 
     public function handle()
@@ -80,7 +81,9 @@ class MigrateStorageToMinio extends Command
 
     private function copyToMinio($path)
     {
-        if (!$path || str_starts_with($path, 'http')) return;
+        if (! $path || str_starts_with($path, 'http')) {
+            return;
+        }
 
         if (Storage::disk('public')->exists($path)) {
             $content = Storage::disk('public')->get($path);

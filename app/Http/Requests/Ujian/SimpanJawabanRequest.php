@@ -16,7 +16,7 @@ class SimpanJawabanRequest extends FormRequest
         return [
             'soal_id' => 'required|exists:soal,id',
             'jawaban' => 'nullable', // Bisa string atau array tergantung tipe soal
-            'durasi'  => 'required|integer|min:0',
+            'durasi' => 'required|integer|min:0',
             'is_ragu' => 'nullable|boolean',
         ];
     }

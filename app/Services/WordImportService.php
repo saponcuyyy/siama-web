@@ -3,10 +3,10 @@
 namespace App\Services;
 
 use DOMDocument;
-use XSLTProcessor;
-use ZipArchive;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use XSLTProcessor;
+use ZipArchive;
 
 class WordImportService
 {
@@ -14,15 +14,15 @@ class WordImportService
 
     public function __construct()
     {
-        $xslDoc = new DOMDocument();
+        $xslDoc = new DOMDocument;
         $xslPath = resource_path('xslt/omml2mml.xsl');
         if (file_exists($xslPath)) {
             try {
                 // Laravel converts warnings to ErrorExceptions. We suppress warnings
                 // because libxslt (PHP's default) often does not support XSLT 2.0
                 $xslDoc->load($xslPath);
-                $processor = new XSLTProcessor();
-                
+                $processor = new XSLTProcessor;
+
                 $oldErrorLevel = error_reporting(0); // Suppress errors for this specific block
                 $success = @$processor->importStyleSheet($xslDoc);
                 error_reporting($oldErrorLevel);
@@ -40,9 +40,9 @@ class WordImportService
 
     public function importDocx($filePath)
     {
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
         if ($zip->open($filePath) !== true) {
-            throw new \Exception("Gagal membuka file Word (.docx).");
+            throw new \Exception('Gagal membuka file Word (.docx).');
         }
 
         // 1. Extract relationships for media
@@ -52,7 +52,7 @@ class WordImportService
             $relsXml = simplexml_load_string($relsContent);
             if ($relsXml) {
                 foreach ($relsXml->Relationship as $rel) {
-                    $rels[(string)$rel['Id']] = (string)$rel['Target'];
+                    $rels[(string) $rel['Id']] = (string) $rel['Target'];
                 }
             }
         }
@@ -65,11 +65,11 @@ class WordImportService
             if (str_contains($filename, 'word/media/')) {
                 $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
-                if (!in_array($extension, $allowedExtensions, true)) {
+                if (! in_array($extension, $allowedExtensions, true)) {
                     continue;
                 }
 
-                $newName = 'cbt_img_' . Str::random(12) . '.' . $extension;
+                $newName = 'cbt_img_'.Str::random(12).'.'.$extension;
 
                 $imageContent = $zip->getFromIndex($i);
 
@@ -79,15 +79,15 @@ class WordImportService
                 finfo_close($finfo);
 
                 $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-                if (!in_array($mime, $allowedMimes, true)) {
+                if (! in_array($mime, $allowedMimes, true)) {
                     continue;
                 }
 
-                Storage::disk('public')->put('ujian/' . $newName, $imageContent);
+                Storage::disk('public')->put('ujian/'.$newName, $imageContent);
 
                 // Map the original word path (e.g. media/image1.png) to public URL
                 $wordPath = str_replace('word/', '', $filename);
-                $mediaMap[$wordPath] = Storage::url('ujian/' . $newName);
+                $mediaMap[$wordPath] = Storage::url('ujian/'.$newName);
             }
         }
 
@@ -95,8 +95,8 @@ class WordImportService
         $documentXml = $zip->getFromName('word/document.xml');
         $zip->close();
 
-        if (!$documentXml) {
-            throw new \Exception("File Word tidak memiliki konten utama yang valid.");
+        if (! $documentXml) {
+            throw new \Exception('File Word tidak memiliki konten utama yang valid.');
         }
 
         return $this->parseXmlContent($documentXml, $rels, $mediaMap);
@@ -104,12 +104,12 @@ class WordImportService
 
     private function parseXmlContent($xmlContent, $rels, $mediaMap)
     {
-        $dom = new DOMDocument();
+        $dom = new DOMDocument;
         // Load XML safely
         libxml_use_internal_errors(true);
-        if (!$dom->loadXML($xmlContent)) {
+        if (! $dom->loadXML($xmlContent)) {
             libxml_clear_errors();
-            throw new \Exception("Gagal memuat XML konten dokumen Word.");
+            throw new \Exception('Gagal memuat XML konten dokumen Word.');
         }
         libxml_clear_errors();
 
@@ -150,15 +150,15 @@ class WordImportService
                 $pText = preg_replace('/^\[SOAL\]/i', '', $pText);
             }
 
-            if (!$currentQuestion) {
+            if (! $currentQuestion) {
                 continue;
             }
 
             if (preg_match('/^\[(A|B|C|D|E)\]/i', $trimmed, $matches)) {
                 $pilihanKode = strtoupper($matches[1]);
-                $currentBuffer = 'pilihan.' . $pilihanKode;
+                $currentBuffer = 'pilihan.'.$pilihanKode;
                 $currentQuestion['pilihan'][$pilihanKode] = '';
-                $pText = preg_replace('/^\[' . $pilihanKode . '\]/i', '', $pText);
+                $pText = preg_replace('/^\['.$pilihanKode.'\]/i', '', $pText);
             } elseif (preg_match('/^\[KUNCI\]/i', $trimmed)) {
                 $currentBuffer = 'kunci';
                 $pText = preg_replace('/^\[KUNCI\]/i', '', $pText);
@@ -175,7 +175,7 @@ class WordImportService
 
             // Append to appropriate buffer
             if ($currentBuffer === 'pertanyaan') {
-                $currentQuestion['pertanyaan'] .= ($currentQuestion['pertanyaan'] === '' ? '' : '<br>') . $pText;
+                $currentQuestion['pertanyaan'] .= ($currentQuestion['pertanyaan'] === '' ? '' : '<br>').$pText;
             } elseif (str_starts_with($currentBuffer, 'pilihan.')) {
                 $kode = substr($currentBuffer, 8);
                 $currentQuestion['pilihan'][$kode] .= $pText;
@@ -191,7 +191,7 @@ class WordImportService
                     $parts = explode('=', $line, 2);
                     $currentQuestion['pasangan'][] = [
                         'kiri' => trim($parts[0]),
-                        'kanan' => trim($parts[1])
+                        'kanan' => trim($parts[1]),
                     ];
                 }
             }
@@ -207,10 +207,11 @@ class WordImportService
     private function finalizeQuestion($q)
     {
         $q['tipe'] = strtolower(trim($q['tipe']));
-        if (!in_array($q['tipe'], ['pg', 'benar_salah', 'essay', 'menjodohkan'])) {
+        if (! in_array($q['tipe'], ['pg', 'benar_salah', 'essay', 'menjodohkan'])) {
             $q['tipe'] = 'pg';
         }
         $q['bobot'] = floatval($q['bobot']) ?: 1.0;
+
         return $q;
     }
 
@@ -249,7 +250,7 @@ class WordImportService
                         $target = $rels[$rId];
                         if (isset($mediaMap[$target])) {
                             $url = $mediaMap[$target];
-                            $content .= ' <img src="' . $url . '" alt="Gambar" class="inline-block max-h-48 my-2 rounded-lg" /> ';
+                            $content .= ' <img src="'.$url.'" alt="Gambar" class="inline-block max-h-48 my-2 rounded-lg" /> ';
                         }
                     }
                 } elseif ($name === 'oMath') {

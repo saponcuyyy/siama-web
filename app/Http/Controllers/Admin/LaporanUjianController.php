@@ -3,16 +3,29 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\SesiStatus;
-use App\Http\Controllers\Controller;
-use App\Models\{SesiUjian, PesertaUjian, Rombel, Semester};
 use App\Exports\RekapNilaiRombelExport;
-use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Controllers\Controller;
+use App\Models\PesertaUjian;
+use App\Models\Rombel;
+use App\Models\Semester;
+use App\Models\SesiUjian;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LaporanUjianController extends Controller
 {
+    private function guruMapelIds(): array
+    {
+        $user = Auth::user();
+        if (! $user->hasRole('guru')) {
+            return [];
+        }
+
+        return $user->guru?->mataPelajarans()->pluck('mata_pelajaran.id')->toArray() ?? [];
+    }
+
     public function index(Request $request)
     {
         $query = SesiUjian::with(['paketUjian.mataPelajaran', 'rombel'])
@@ -20,8 +33,13 @@ class LaporanUjianController extends Controller
             ->whereIn('status', [SesiStatus::SELESAI->value, SesiStatus::BERLANGSUNG->value])
             ->latest('waktu_selesai');
 
+        $guruMapelIds = $this->guruMapelIds();
+        if ($guruMapelIds) {
+            $query->whereHas('paketUjian', fn ($q) => $q->whereIn('mata_pelajaran_id', $guruMapelIds));
+        }
+
         if ($request->search) {
-            $query->where('nama_sesi', 'like', '%' . $request->search . '%');
+            $query->where('nama_sesi', 'like', '%'.$request->search.'%');
         }
 
         $rombelList = Rombel::orderBy('tingkat')->orderBy('nama')->get(['id', 'nama', 'tingkat']);
@@ -29,7 +47,7 @@ class LaporanUjianController extends Controller
 
         return Inertia::render('Admin/Ujian/Laporan/Index', [
             'sesiList' => $query->paginate(15)->withQueryString(),
-            'filters'  => $request->only('search'),
+            'filters' => $request->only('search'),
             'rombelList' => $rombelList,
             'semesterList' => $semesterList,
         ]);
@@ -38,31 +56,32 @@ class LaporanUjianController extends Controller
     public function perSesi(SesiUjian $sesi)
     {
         $sesi->load(['paketUjian.mataPelajaran', 'rombel']);
-        
+
         $peserta = PesertaUjian::with('siswa.rombel')
             ->where('sesi_ujian_id', $sesi->id)
             ->orderByDesc('nilai_akhir')
             ->get();
 
         $perRombel = $peserta
-            ->groupBy(fn($p) => $p->siswa?->rombel?->nama ?? 'Tanpa Rombel')
+            ->groupBy(fn ($p) => $p->siswa?->rombel?->nama ?? 'Tanpa Rombel')
             ->map(function ($group, $rombelName) {
                 $scores = $group->pluck('nilai_akhir');
+
                 return [
-                    'rombel'       => $rombelName,
-                    'jumlah'       => $group->count(),
-                    'rata_rata'    => round($scores->average() ?: 0, 2),
-                    'tertinggi'    => $scores->max() ?: 0,
-                    'terendah'     => $scores->min() ?: 0,
-                    'lulus'        => $scores->filter(fn($v) => $v >= 75)->count(),
-                    'tidak_lulus'  => $scores->filter(fn($v) => $v < 75)->count(),
+                    'rombel' => $rombelName,
+                    'jumlah' => $group->count(),
+                    'rata_rata' => round($scores->average() ?: 0, 2),
+                    'tertinggi' => $scores->max() ?: 0,
+                    'terendah' => $scores->min() ?: 0,
+                    'lulus' => $scores->filter(fn ($v) => $v >= 75)->count(),
+                    'tidak_lulus' => $scores->filter(fn ($v) => $v < 75)->count(),
                 ];
             })
             ->values();
 
         return Inertia::render('Admin/Ujian/Laporan/Sesi', [
-            'sesi'     => $sesi,
-            'peserta'  => $peserta,
+            'sesi' => $sesi,
+            'peserta' => $peserta,
             'perRombel' => $perRombel,
         ]);
     }
@@ -76,23 +95,25 @@ class LaporanUjianController extends Controller
             ->get();
 
         $perRombel = $peserta
-            ->groupBy(fn($p) => $p->siswa?->rombel?->nama ?? 'Tanpa Rombel')
+            ->groupBy(fn ($p) => $p->siswa?->rombel?->nama ?? 'Tanpa Rombel')
             ->map(function ($group, $rombelName) {
                 $scores = $group->pluck('nilai_akhir');
+
                 return [
-                    'rombel'       => $rombelName,
-                    'jumlah'       => $group->count(),
-                    'rata_rata'    => round($scores->average() ?: 0, 2),
-                    'tertinggi'    => $scores->max() ?: 0,
-                    'terendah'     => $scores->min() ?: 0,
-                    'lulus'        => $scores->filter(fn($v) => $v >= 75)->count(),
-                    'tidak_lulus'  => $scores->filter(fn($v) => $v < 75)->count(),
+                    'rombel' => $rombelName,
+                    'jumlah' => $group->count(),
+                    'rata_rata' => round($scores->average() ?: 0, 2),
+                    'tertinggi' => $scores->max() ?: 0,
+                    'terendah' => $scores->min() ?: 0,
+                    'lulus' => $scores->filter(fn ($v) => $v >= 75)->count(),
+                    'tidak_lulus' => $scores->filter(fn ($v) => $v < 75)->count(),
                 ];
             })
             ->values();
 
         if ($format === 'pdf') {
             $pdf = Pdf::loadView('exports.laporan-ujian', compact('sesi', 'peserta', 'perRombel'));
+
             return $pdf->download('Laporan-Ujian-'.$sesi->token.'.pdf');
         }
 
@@ -111,8 +132,8 @@ class LaporanUjianController extends Controller
         $rombel = Rombel::findOrFail($request->rombel_id);
         $semester = Semester::findOrFail($request->semester_id);
 
-        $filename = 'Rekap-Nilai-' . str_replace(' ', '-', $rombel->nama) . '-' . str_replace(' ', '-', $semester->nama) . '.xlsx';
-        
+        $filename = 'Rekap-Nilai-'.str_replace(' ', '-', $rombel->nama).'-'.str_replace(' ', '-', $semester->nama).'.xlsx';
+
         return Excel::download(new RekapNilaiRombelExport($rombel, $semester), $filename);
     }
 }

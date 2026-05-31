@@ -3,16 +3,15 @@
 namespace App\Imports;
 
 use App\Models\Siswa;
+use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\SkipsErrors;
+use Maatwebsite\Excel\Concerns\SkipsFailures;
+use Maatwebsite\Excel\Concerns\SkipsOnError;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
-use Maatwebsite\Excel\Concerns\SkipsErrors;
-use Maatwebsite\Excel\Concerns\SkipsOnError;
-use Maatwebsite\Excel\Concerns\SkipsFailures;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
-use Carbon\Carbon;
 
-class SiswaImport implements ToModel, WithHeadingRow, SkipsOnError, SkipsOnFailure
+class SiswaImport implements SkipsOnError, SkipsOnFailure, ToModel, WithHeadingRow
 {
     use SkipsErrors, SkipsFailures;
 
@@ -30,16 +29,16 @@ class SiswaImport implements ToModel, WithHeadingRow, SkipsOnError, SkipsOnFailu
         }
 
         $status = strtolower(trim($row['status_lulus'] ?? 'lulus'));
-        if (!in_array($status, ['lulus', 'tidak_lulus', 'ditunda'])) {
+        if (! in_array($status, ['lulus', 'tidak_lulus', 'ditunda'])) {
             $status = 'lulus';
         }
 
         return new Siswa([
-            'nisn'          => trim($row['nisn']),
-            'nama'          => trim($row['nama']),
+            'nisn' => trim($row['nisn']),
+            'nama' => trim($row['nama']),
             'tanggal_lahir' => $tgl,
-            'status_lulus'  => $status,
-            'keterangan'    => $row['keterangan'] ?? null,
+            'status_lulus' => $status,
+            'keterangan' => $row['keterangan'] ?? null,
         ]);
     }
 }

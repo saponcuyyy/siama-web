@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
 use App\Models\Pesan;
 use Inertia\Inertia;
@@ -18,12 +20,14 @@ class PesanController extends Controller
         if ($pesan->status === 'belum_dibaca') {
             $pesan->update(['status' => 'sudah_dibaca']);
         }
+
         return Inertia::render('Admin/Web/Pesan/Show', ['pesan' => $pesan]);
     }
 
     public function destroy(Pesan $pesan)
     {
         $pesan->delete();
+
         return redirect()->route('admin.web.pesan.index')->with('success', 'Pesan dihapus.');
     }
 }

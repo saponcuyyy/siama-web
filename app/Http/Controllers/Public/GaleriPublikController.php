@@ -26,7 +26,7 @@ class GaleriPublikController extends Controller
         abort_if($album->status !== 'aktif', 404);
 
         return Inertia::render('Public/Galeri/Show', [
-            'album'  => $album,
+            'album' => $album,
             'photos' => $album->galeri()->where('status', 'aktif')->latest()->simplePaginate(20),
             'settings' => Cache::remember('settings', 3600, fn () => Setting::pluck('value', 'key')),
         ]);

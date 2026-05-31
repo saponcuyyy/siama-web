@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, \Spatie\Permission\Traits\HasRoles, \Laravel\Fortify\TwoFactorAuthenticatable, \App\Traits\HasAuditTrail;
+    use \App\Traits\HasAuditTrail, HasFactory, \Laravel\Fortify\TwoFactorAuthenticatable, Notifiable, \Spatie\Permission\Traits\HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -57,5 +57,3 @@ class User extends Authenticatable
         return $this->hasOne(Guru::class);
     }
 }
-
-

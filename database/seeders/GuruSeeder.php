@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\Guru;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class GuruSeeder extends Seeder
@@ -36,10 +36,10 @@ class GuruSeeder extends Seeder
 
         foreach ($dataGuru as $g) {
             $user = User::where('email', $g['email'])->first();
-            if (!$user) {
+            if (! $user) {
                 $user = User::create([
-                    'name'     => $g['nama'],
-                    'email'    => $g['email'],
+                    'name' => $g['nama'],
+                    'email' => $g['email'],
                     'password' => Hash::make('guru123'),
                 ]);
                 $user->assignRole('guru');
@@ -49,8 +49,8 @@ class GuruSeeder extends Seeder
                 Guru::firstOrCreate(
                     ['nip' => $g['nip']],
                     [
-                        'user_id'       => $user->id,
-                        'nama'          => $g['nama'],
+                        'user_id' => $user->id,
+                        'nama' => $g['nama'],
                         'tanggal_lahir' => $g['tanggal_lahir'],
                     ]
                 );

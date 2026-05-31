@@ -1,10 +1,19 @@
 <script setup>
 import { ref } from 'vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
+import { Head, useForm, router, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { Users, Plus, Search, Pencil, Trash2, X, Check, Mail, Shield, CalendarDays } from 'lucide-vue-next';
 import dayjs from 'dayjs';
+
+const page = usePage();
+const authUser = page.props.auth?.user;
+
+const can = (perm) => {
+    if (!authUser) return false;
+    if (authUser.roles?.includes('super_admin')) return true;
+    return authUser.permissions?.includes(perm);
+};
 
 const props = defineProps({
     userList: Object,
@@ -97,7 +106,7 @@ const roleBadgeColor = (role) => {
                     </h1>
                     <p class="text-slate-500 font-medium mt-1">Kelola seluruh akun pengguna aplikasi dan role akses.</p>
                 </div>
-                <button @click="openCreate" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-indigo-200">
+                <button v-if="can('users.create')" @click="openCreate" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-indigo-200">
                     <Plus class="w-5 h-5" /> Tambah User
                 </button>
             </div>
@@ -180,10 +189,10 @@ const roleBadgeColor = (role) => {
                                 </td>
                                 <td class="p-4 pr-6 text-right">
                                     <div class="flex items-center justify-end gap-2">
-                                        <button @click="openEdit(user)" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors">
+                                        <button v-if="can('users.edit')" @click="openEdit(user)" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors">
                                             <Pencil class="w-4 h-4" />
                                         </button>
-                                        <button @click="hapus(user)" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">
+                                        <button v-if="can('users.delete')" @click="hapus(user)" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">
                                             <Trash2 class="w-4 h-4" />
                                         </button>
                                     </div>

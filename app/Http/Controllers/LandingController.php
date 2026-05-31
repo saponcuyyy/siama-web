@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Berita;
-use App\Models\Pengumuman;
-use App\Models\Slider;
-use App\Models\Fasilitas;
 use App\Models\Album;
-use App\Models\Setting;
+use App\Models\Berita;
+use App\Models\Fasilitas;
+use App\Models\Guru;
 use App\Models\Menu;
 use App\Models\Page;
+use App\Models\Pengumuman;
+use App\Models\Setting;
+use App\Models\Siswa;
+use App\Models\Slider;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
@@ -23,9 +25,9 @@ class LandingController extends Controller
                 'berita' => Berita::with('kategori')->where('status', 'published')->latest()->take(6)->get(),
                 'pengumuman' => Pengumuman::with('author')
                     ->where('status', 'aktif')
-                    ->where(function($q) {
+                    ->where(function ($q) {
                         $q->whereNull('tanggal_selesai')
-                          ->orWhere('tanggal_selesai', '>=', now());
+                            ->orWhere('tanggal_selesai', '>=', now());
                     })
                     ->latest()->take(5)->get(),
                 'fasilitas' => Fasilitas::where('status', 'aktif')->orderBy('urutan')->limit(10)->get(),
@@ -34,8 +36,8 @@ class LandingController extends Controller
                 'visiMisi' => Page::where('slug', 'visi-misi')->first(),
                 'menus' => Menu::with('children')->whereNull('parent_id')->where('status', 'aktif')->orderBy('urutan')->get(),
                 'settings' => Setting::pluck('value', 'key'),
-                'total_siswa' => \App\Models\Siswa::count(),
-                'total_guru' => \App\Models\Guru::count(),
+                'total_siswa' => Siswa::count(),
+                'total_guru' => Guru::count(),
                 'total_fasilitas' => Fasilitas::where('status', 'aktif')->count(),
             ];
         }));

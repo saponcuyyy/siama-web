@@ -5,15 +5,15 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\KategoriBerita;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class KategoriBeritaController extends Controller
 {
     public function index()
     {
         return Inertia::render('Admin/Web/KategoriBerita/Index', [
-            'kategori' => KategoriBerita::latest()->get()
+            'kategori' => KategoriBerita::latest()->get(),
         ]);
     }
 
@@ -34,7 +34,7 @@ class KategoriBeritaController extends Controller
     public function update(Request $request, KategoriBerita $kategoriBeritum)
     {
         $request->validate([
-            'nama' => 'required|string|max:255|unique:kategori_berita,nama,' . $kategoriBeritum->id,
+            'nama' => 'required|string|max:255|unique:kategori_berita,nama,'.$kategoriBeritum->id,
         ]);
 
         $kategoriBeritum->update([

@@ -16,15 +16,15 @@ class SiswaKelulusanController extends Controller
         $query = Siswa::with('rombel');
 
         if ($request->search) {
-            $query->where('nama', 'like', '%' . $request->search . '%')
-                  ->orWhere('nisn', 'like', '%' . $request->search . '%');
+            $query->where('nama', 'like', '%'.$request->search.'%')
+                ->orWhere('nisn', 'like', '%'.$request->search.'%');
         }
 
         if ($request->status && $request->status !== 'semua') {
             $query->where('status_lulus', $request->status);
         }
 
-        $stats = Siswa::selectRaw("COUNT(*) as total")
+        $stats = Siswa::selectRaw('COUNT(*) as total')
             ->selectRaw("COALESCE(SUM(CAST(status_lulus = 'lulus' AS UNSIGNED)), 0) as lulus")
             ->selectRaw("COALESCE(SUM(CAST(status_lulus = 'tidak_lulus' AS UNSIGNED)), 0) as tidak_lulus")
             ->selectRaw("COALESCE(SUM(CAST(status_lulus = 'ditunda' AS UNSIGNED)), 0) as ditunda")
@@ -32,9 +32,9 @@ class SiswaKelulusanController extends Controller
             ->first();
 
         return Inertia::render('Admin/Kelulusan/Index', [
-            'siswas'   => $query->latest()->paginate(20)->withQueryString(),
-            'filters'  => $request->only(['search', 'status']),
-            'stats'    => $stats,
+            'siswas' => $query->latest()->paginate(20)->withQueryString(),
+            'filters' => $request->only(['search', 'status']),
+            'stats' => $stats,
         ]);
     }
 
@@ -47,25 +47,26 @@ class SiswaKelulusanController extends Controller
 
         // Jika mode "ganti", hapus semua data siswa dulu
         if ($request->mode === 'ganti') {
-            if (!auth()->user()->hasRole('super_admin')) {
+            if (! auth()->user()->hasRole('super_admin')) {
                 return back()->with('error', 'Mode "ganti" hanya dapat dilakukan oleh Super Admin.');
             }
             Siswa::query()->forceDelete();
         }
 
-        $import = new SiswaImport();
+        $import = new SiswaImport;
         try {
             Excel::import($import, $request->file('file'));
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal mengimpor: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengimpor: '.$e->getMessage());
         }
 
         $failures = $import->failures();
-        $errors   = $import->errors();
+        $errors = $import->errors();
 
         if ($failures->count() > 0 || count($errors) > 0) {
-            $failMessages = $failures->map(fn($f) => "Baris {$f->row()}: " . implode(', ', $f->errors()))->toArray();
-            return back()->with('warning', 'Import selesai dengan ' . $failures->count() . ' baris gagal. ' . implode(' | ', $failMessages));
+            $failMessages = $failures->map(fn ($f) => "Baris {$f->row()}: ".implode(', ', $f->errors()))->toArray();
+
+            return back()->with('warning', 'Import selesai dengan '.$failures->count().' baris gagal. '.implode(' | ', $failMessages));
         }
 
         return back()->with('success', 'Data siswa berhasil diimport.');
@@ -75,25 +76,28 @@ class SiswaKelulusanController extends Controller
     {
         $validated = $request->validate([
             'status_lulus' => 'required|in:lulus,tidak_lulus,ditunda',
-            'keterangan'   => 'nullable|string|max:500',
+            'keterangan' => 'nullable|string|max:500',
         ]);
 
         $siswa->update($validated);
+
         return back()->with('success', 'Data siswa berhasil diperbarui.');
     }
 
     public function destroy(Siswa $siswa)
     {
         $siswa->delete();
+
         return back()->with('success', 'Data siswa berhasil dihapus.');
     }
 
     public function destroyAll()
     {
-        if (!auth()->user()->hasRole('super_admin')) {
+        if (! auth()->user()->hasRole('super_admin')) {
             return back()->with('error', 'Hanya Super Admin yang dapat menghapus seluruh data siswa.');
         }
         Siswa::query()->forceDelete();
+
         return back()->with('success', 'Seluruh data siswa berhasil dihapus.');
     }
 
@@ -101,7 +105,7 @@ class SiswaKelulusanController extends Controller
     {
         // Generate template CSV
         $headers = [
-            'Content-Type'        => 'text/csv',
+            'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="template_siswa.csv"',
         ];
 

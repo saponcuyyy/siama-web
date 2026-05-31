@@ -31,7 +31,7 @@ class HandleInertiaRequests extends Middleware
 
     protected function getCachedUserData($user): array
     {
-        $cacheKey = 'user_data_' . $user->id;
+        $cacheKey = 'user_data_'.$user->id;
         $ttl = 60;
 
         return Cache::remember($cacheKey, $ttl, function () use ($user) {

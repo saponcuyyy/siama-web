@@ -3,18 +3,19 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SoalTemplateExport implements FromArray, WithHeadings, WithStyles, WithColumnWidths, WithEvents
+class SoalTemplateExport implements FromArray, WithColumnWidths, WithEvents, WithHeadings, WithStyles
 {
     public function headings(): array
     {
@@ -91,18 +92,18 @@ class SoalTemplateExport implements FromArray, WithHeadings, WithStyles, WithCol
             // Header row
             1 => [
                 'font' => [
-                    'bold'  => true,
+                    'bold' => true,
                     'color' => ['rgb' => 'FFFFFF'],
-                    'size'  => 11,
+                    'size' => 11,
                 ],
                 'fill' => [
-                    'fillType'   => Fill::FILL_SOLID,
+                    'fillType' => Fill::FILL_SOLID,
                     'startColor' => ['rgb' => '4F46E5'], // Indigo
                 ],
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
-                    'vertical'   => Alignment::VERTICAL_CENTER,
-                    'wrapText'   => true,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                    'wrapText' => true,
                 ],
             ],
             // Data rows
@@ -156,7 +157,7 @@ class SoalTemplateExport implements FromArray, WithHeadings, WithStyles, WithCol
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_THIN,
-                            'color'       => ['rgb' => 'D1D5DB'],
+                            'color' => ['rgb' => 'D1D5DB'],
                         ],
                     ],
                 ]);
@@ -176,8 +177,8 @@ class SoalTemplateExport implements FromArray, WithHeadings, WithStyles, WithCol
 
                 // Dropdown validation untuk kolom tipe (A)
                 $validation = $sheet->getDataValidation('A5:A1000');
-                $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
-                $validation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION);
+                $validation->setType(DataValidation::TYPE_LIST);
+                $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
                 $validation->setAllowBlank(false);
                 $validation->setShowDropDown(false);
                 $validation->setFormula1('"pg,benar_salah,essay,menjodohkan"');
@@ -187,7 +188,7 @@ class SoalTemplateExport implements FromArray, WithHeadings, WithStyles, WithCol
 
                 // Dropdown validation untuk kolom tingkat_kesulitan (D)
                 $validationD = $sheet->getDataValidation('D5:D1000');
-                $validationD->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
+                $validationD->setType(DataValidation::TYPE_LIST);
                 $validationD->setFormula1('"mudah,sedang,sulit"');
                 $validationD->setShowDropDown(false);
 
@@ -231,15 +232,15 @@ class SoalTemplateExport implements FromArray, WithHeadings, WithStyles, WithCol
                     [$cell, $label, $desc] = $item;
                     $petunjuk->setCellValue($cell, $label);
 
-                    if (!empty($desc)) {
-                        $nextCol = 'B' . substr($cell, 1);
+                    if (! empty($desc)) {
+                        $nextCol = 'B'.substr($cell, 1);
                         $petunjuk->setCellValue($nextCol, $desc);
                     }
                 }
 
-                $petunjuk->getStyle('A9')->getFont()->setBold(true)->setColor((new Color())->setRGB('2563EB'));
-                $petunjuk->getStyle('A17')->getFont()->setBold(true)->setColor((new Color())->setRGB('16A34A'));
-                $petunjuk->getStyle('A21')->getFont()->setBold(true)->setColor((new Color())->setRGB('DC2626'));
+                $petunjuk->getStyle('A9')->getFont()->setBold(true)->setColor((new Color)->setRGB('2563EB'));
+                $petunjuk->getStyle('A17')->getFont()->setBold(true)->setColor((new Color)->setRGB('16A34A'));
+                $petunjuk->getStyle('A21')->getFont()->setBold(true)->setColor((new Color)->setRGB('DC2626'));
 
                 $petunjuk->getColumnDimension('A')->setWidth(22);
                 $petunjuk->getColumnDimension('B')->setWidth(75);

@@ -2,11 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\{PesertaStatus, SesiStatus};
-use Illuminate\Console\Command;
-use App\Models\{SesiUjian, PesertaUjian};
-use Illuminate\Support\Carbon;
+use App\Enums\PesertaStatus;
+use App\Enums\SesiStatus;
+use App\Models\SesiUjian;
 use App\Services\Ujian\UjianService;
+use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 
 class CloseExpiredSessions extends Command
 {
@@ -27,7 +28,6 @@ class CloseExpiredSessions extends Command
     /**
      * Execute the console command.
      *
-     * @param \App\Services\Ujian\UjianService $ujianService
      * @return int
      */
     public function handle(UjianService $ujianService)

@@ -18,7 +18,7 @@ class BeritaPublikController extends Controller
                 ->where('status', 'published')
                 ->latest('published_at')
                 ->paginate(9),
-            'kategori' => KategoriBerita::withCount(['berita' => fn($q) => $q->where('status', 'published')])->get(),
+            'kategori' => KategoriBerita::withCount(['berita' => fn ($q) => $q->where('status', 'published')])->get(),
             'settings' => Cache::remember('settings', 3600, fn () => Setting::pluck('value', 'key')),
         ]);
     }
@@ -39,7 +39,7 @@ class BeritaPublikController extends Controller
             ->get();
 
         return Inertia::render('Public/Berita/Show', [
-            'berita'  => $berita,
+            'berita' => $berita,
             'related' => $related,
             'settings' => Cache::remember('settings', 3600, fn () => Setting::pluck('value', 'key')),
         ]);

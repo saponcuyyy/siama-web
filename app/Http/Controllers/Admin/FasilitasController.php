@@ -21,7 +21,7 @@ class FasilitasController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Web/Fasilitas/Index', [
-            'fasilitas' => Fasilitas::orderBy('urutan')->get()
+            'fasilitas' => Fasilitas::orderBy('urutan')->get(),
         ]);
     }
 
@@ -73,6 +73,7 @@ class FasilitasController extends Controller
             $this->fileUploadService->delete($fasilita->foto);
         }
         $fasilita->delete();
+
         return back()->with('success', 'Fasilitas berhasil dihapus.');
     }
 

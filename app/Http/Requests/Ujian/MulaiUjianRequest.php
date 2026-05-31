@@ -14,7 +14,7 @@ class MulaiUjianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'token'        => 'required|string',
+            'token' => 'required|string',
             'device_token' => 'required|string',
             'browser_info' => 'nullable|string',
         ];
