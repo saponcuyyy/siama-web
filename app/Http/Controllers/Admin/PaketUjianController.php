@@ -47,9 +47,15 @@ class PaketUjianController extends Controller
         $tahunAjaran = TahunAjaran::where('is_active', true)->first();
         $semester = Semester::where('is_active', true)->first();
 
-        abort_unless($guru, 400, 'Data guru tidak ditemukan untuk pengguna ini. Pastikan akun Anda terdaftar sebagai guru.');
-        abort_unless($tahunAjaran, 400, 'Tahun ajaran aktif tidak ditemukan. Silakan atur tahun ajaran aktif terlebih dahulu.');
-        abort_unless($semester, 400, 'Semester aktif tidak ditemukan. Silakan atur semester aktif terlebih dahulu.');
+        if (!$guru) {
+            return back()->withErrors(['kode' => 'Data guru tidak ditemukan untuk pengguna ini. Pastikan akun Anda terdaftar sebagai guru.']);
+        }
+        if (!$tahunAjaran) {
+            return back()->withErrors(['kode' => 'Tahun ajaran aktif tidak ditemukan. Silakan atur tahun ajaran aktif terlebih dahulu.']);
+        }
+        if (!$semester) {
+            return back()->withErrors(['kode' => 'Semester aktif tidak ditemukan. Silakan atur semester aktif terlebih dahulu.']);
+        }
 
         $validated['guru_id'] = $guru->id;
         $validated['tahun_ajaran_id'] = $tahunAjaran->id;

@@ -1,6 +1,14 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+
+const flash = computed(() => page.props.flash);
+const showFlash = ref(true);
+
+watch(flash, () => {
+    showFlash.value = true;
+    setTimeout(() => { showFlash.value = false; }, 5000);
+}, { deep: true });
 import {
     LayoutDashboard,
     Users,
@@ -426,6 +434,18 @@ navigation.forEach(item => {
                     </div>
                 </div>
             </header>
+
+            <!-- Flash Messages -->
+            <div class="px-8 pt-6">
+                <transition-group name="list">
+                    <div v-if="flash?.success && showFlash" key="success" class="bg-green-600 text-white px-6 py-4 rounded-2xl text-sm font-bold flex items-center gap-3 shadow-lg shadow-green-200 animate-in fade-in slide-in-from-top-2">
+                        {{ flash.success }}
+                    </div>
+                    <div v-if="flash?.error && showFlash" key="error" class="bg-rose-600 text-white px-6 py-4 rounded-2xl text-sm font-bold flex items-center gap-3 shadow-lg shadow-rose-200 animate-in fade-in slide-in-from-top-2">
+                        {{ flash.error }}
+                    </div>
+                </transition-group>
+            </div>
 
             <!-- Page Content -->
             <main class="flex-1 overflow-y-auto p-8 custom-scrollbar">
