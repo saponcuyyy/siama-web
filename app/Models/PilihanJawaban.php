@@ -33,8 +33,13 @@ class PilihanJawaban extends Model
 
     public function getGambarUrlAttribute(): ?string
     {
-        return $this->gambar_path
-            ? Storage::disk('minio')->url($this->gambar_path)
-            : null;
+        if (! $this->gambar_path) {
+            return null;
+        }
+
+        // Hapus prefix 'soal-images/' agar cocok dengan route /media/soal/{path}
+        $relativePath = ltrim(str_replace('soal-images/', '', $this->gambar_path), '/');
+
+        return url('/media/soal/'.$relativePath);
     }
 }

@@ -83,8 +83,9 @@ class WordImportService
                     continue;
                 }
 
-                // Simpan ke MinIO
-                Storage::disk('minio')->put($newName, $imageContent);
+                // Simpan ke disk yang terkonfigurasi (MinIO atau default)
+                $disk = config('filesystems.disks.minio.endpoint') ? 'minio' : config('filesystems.default');
+                Storage::disk($disk)->put($newName, $imageContent);
 
                 // Gunakan proxy route Laravel agar URL bekerja di semua environment
                 // /media/soal/{filename} → bukan direct MinIO URL

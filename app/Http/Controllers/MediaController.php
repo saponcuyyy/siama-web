@@ -14,13 +14,14 @@ class MediaController extends Controller
     public function soalImage(Request $request, string $path)
     {
         $fullPath = 'soal-images/'.$path;
+        $disk = config('filesystems.disks.minio.endpoint') ? 'minio' : config('filesystems.default');
 
-        if (! Storage::disk('minio')->exists($fullPath)) {
+        if (! Storage::disk($disk)->exists($fullPath)) {
             abort(404, 'Gambar tidak ditemukan.');
         }
 
-        $file = Storage::disk('minio')->get($fullPath);
-        $mime = Storage::disk('minio')->mimeType($fullPath) ?: 'image/jpeg';
+        $file = Storage::disk($disk)->get($fullPath);
+        $mime = Storage::disk($disk)->mimeType($fullPath) ?: 'image/jpeg';
 
         return response($file, 200)
             ->header('Content-Type', $mime)

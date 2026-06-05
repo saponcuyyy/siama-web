@@ -42,10 +42,11 @@ class SoalController extends Controller
             'pasangan.*.kanan' => 'required_with:pasangan|string',
         ]);
 
-        // Upload gambar soal ke MinIO jika ada
+        // Upload gambar soal ke disk yang terkonfigurasi (MinIO atau default) jika ada
         $gambarPath = null;
         if ($request->hasFile('gambar') && $request->file('gambar')->isValid()) {
-            $gambarPath = $request->file('gambar')->store('soal-images', 'minio');
+            $disk = config('filesystems.disks.minio.endpoint') ? 'minio' : config('filesystems.default');
+            $gambarPath = $request->file('gambar')->store('soal-images', $disk);
         }
 
         DB::transaction(function () use ($validated, $gambarPath) {
@@ -285,9 +286,10 @@ class SoalController extends Controller
 
     public function destroy(Soal $soal)
     {
-        // Hapus gambar dari MinIO jika ada
+        // Hapus gambar dari disk jika ada
         if ($soal->gambar_path) {
-            Storage::disk('minio')->delete($soal->gambar_path);
+            $disk = config('filesystems.disks.minio.endpoint') ? 'minio' : config('filesystems.default');
+            Storage::disk($disk)->delete($soal->gambar_path);
         }
 
         $soal->delete();
