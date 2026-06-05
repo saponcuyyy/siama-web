@@ -25,7 +25,7 @@ class BankSoalController extends Controller
 
     public function index(Request $request)
     {
-        $query = BankSoal::with(['mataPelajaran', 'guru'])
+        $query = BankSoal::with(['mataPelajaran.gurus', 'guru'])
             ->withCount('soal')
             ->latest();
 
@@ -46,21 +46,33 @@ class BankSoalController extends Controller
             $mapelList->whereIn('id', $guruMapelIds);
         }
 
+        $guruList = Guru::with('mataPelajarans')->orderBy('nama')->get(['id', 'nama', 'nip']);
+
         return Inertia::render('Admin/Ujian/BankSoal/Index', [
             'bankSoalList' => $query->paginate(15)->withQueryString(),
             'filters' => $request->only('search'),
             'mapelList' => $mapelList->get(),
+            'guruList' => $guruList,
         ]);
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $user = Auth::user();
+        $isGuru = $user->hasRole('guru');
+
+        $rules = [
             'mata_pelajaran_id' => 'required|exists:mata_pelajaran,id',
             'judul' => 'required|string|max:255',
             'tingkat' => 'required|in:X,XI,XII',
             'deskripsi' => 'nullable|string',
-        ]);
+        ];
+
+        if (! $isGuru) {
+            $rules['guru_id'] = 'required|exists:guru,id';
+        }
+
+        $validated = $request->validate($rules);
 
         $guruMapelIds = $this->guruMapelIds();
         if ($guruMapelIds && ! in_array((int) $validated['mata_pelajaran_id'], $guruMapelIds)) {
@@ -68,7 +80,11 @@ class BankSoalController extends Controller
         }
 
         $validated['tahun_ajaran_id'] = TahunAjaran::where('is_active', true)->first()?->id;
-        $validated['guru_id'] = Guru::where('user_id', Auth::id())->first()?->id ?? Guru::first()?->id;
+
+        if ($isGuru) {
+            $validated['guru_id'] = $user->guru?->id;
+        }
+
         $validated['is_active'] = true;
 
         if (! $validated['tahun_ajaran_id']) {
@@ -86,7 +102,7 @@ class BankSoalController extends Controller
 
     public function show(BankSoal $bankSoal)
     {
-        $bankSoal->load(['mataPelajaran', 'soal.pilihanJawaban', 'soal.pasanganMenjodohkan', 'guru']);
+        $bankSoal->load(['mataPelajaran.gurus', 'soal.pilihanJawaban', 'soal.pasanganMenjodohkan', 'guru']);
 
         return Inertia::render('Admin/Ujian/BankSoal/Show', [
             'bankSoal' => $bankSoal,
@@ -101,6 +117,7 @@ class BankSoalController extends Controller
             'tingkat' => 'required|in:X,XI,XII',
             'deskripsi' => 'nullable|string',
             'is_active' => 'boolean',
+            'guru_id' => 'nullable|exists:guru,id',
         ]);
 
         $bankSoal->update($validated);

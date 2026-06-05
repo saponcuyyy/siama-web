@@ -4,7 +4,7 @@ import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { sanitize } from '@/sanitize';
 import { 
-    Database, ArrowLeft, Plus, Trash2, Check, X, FileQuestion, Hash, FileText, AlertTriangle
+    Database, ArrowLeft, Plus, Trash2, Check, X, FileQuestion, Hash, FileText, AlertTriangle, Image, XCircle
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -14,6 +14,8 @@ const props = defineProps({
 const showAddModal = ref(false);
 const showImportModal = ref(false);
 const showImportWordModal = ref(false);
+const gambarPreview = ref(null);
+const gambarInput = ref(null);
 
 const importForm = useForm({
     bank_soal_id: props.bankSoal.id,
@@ -67,6 +69,7 @@ const form = useForm({
     pertanyaan: '',
     bobot: 1,
     kunci_jawaban: '',
+    gambar: null,
     // Pilihan Ganda
     pilihan: [
         { kode: 'A', teks: '', is_kunci: false },
@@ -82,12 +85,28 @@ const form = useForm({
     ]
 });
 
+const handleGambar = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    form.gambar = file;
+    const reader = new FileReader();
+    reader.onload = (ev) => { gambarPreview.value = ev.target.result; };
+    reader.readAsDataURL(file);
+};
+
+const hapusGambarPreview = () => {
+    gambarPreview.value = null;
+    form.gambar = null;
+    if (gambarInput.value) gambarInput.value.value = '';
+};
+
 const submitSoal = () => {
     form.post(route('admin.ujian.soal.store'), {
+        forceFormData: true,
         onSuccess: () => {
             showAddModal.value = false;
-            form.reset('pertanyaan', 'kunci_jawaban', 'pilihan', 'pasangan');
-            // reset pilihan
+            gambarPreview.value = null;
+            form.reset('pertanyaan', 'kunci_jawaban', 'pilihan', 'pasangan', 'gambar');
             form.pilihan = [
                 { kode: 'A', teks: '', is_kunci: false },
                 { kode: 'B', teks: '', is_kunci: false },
@@ -99,6 +118,7 @@ const submitSoal = () => {
                 { kiri: '', kanan: '' },
                 { kiri: '', kanan: '' },
             ];
+            if (gambarInput.value) gambarInput.value.value = '';
         }
     });
 };
@@ -180,6 +200,16 @@ const saveBobot = (soal) => {
                         <p class="text-slate-500 font-medium mt-1">
                             {{ bankSoal.mata_pelajaran?.nama }} &bull; Kelas {{ bankSoal.tingkat }}
                         </p>
+                        <p class="text-xs text-slate-400 font-medium mt-1">
+                            Guru Pengampu:
+                            <template v-if="bankSoal.mata_pelajaran?.gurus?.length">
+                                <span v-for="(g, i) in bankSoal.mata_pelajaran.gurus" :key="g.id"
+                                    class="font-bold text-slate-600">
+                                    {{ g.nama }}<span v-if="i < bankSoal.mata_pelajaran.gurus.length - 1">, </span>
+                                </span>
+                            </template>
+                            <span v-else class="font-bold text-slate-400">-</span>
+                        </p>
                     </div>
                 </div>
                 
@@ -244,6 +274,11 @@ const saveBobot = (soal) => {
                             </div>
 
                             <div class="prose prose-sm max-w-none text-slate-800 font-medium mb-4" v-html="sanitize(soal.pertanyaan)"></div>
+
+                            <!-- Gambar Soal -->
+                            <div v-if="soal.gambar_url" class="mb-4 pl-10">
+                                <img :src="soal.gambar_url" class="max-h-64 rounded-xl border border-slate-200 object-contain shadow-sm" alt="Gambar soal" />
+                            </div>
 
                             <!-- Opsi PG -->
                             <div v-if="soal.tipe === 'pg'" class="space-y-2 pl-10">
@@ -315,9 +350,28 @@ const saveBobot = (soal) => {
 
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Pertanyaan</label>
-                            <!-- Note: ideally use a rich text editor like Tiptap. For simplicity here, textarea -->
                             <textarea v-model="form.pertanyaan" required rows="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-indigo-600 focus:border-indigo-600" placeholder="Tuliskan soal..."></textarea>
                             <p class="text-xs text-slate-400 mt-1">Anda bisa menggunakan format HTML dasar.</p>
+                        </div>
+
+                        <!-- Upload Gambar Soal -->
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+                                <Image class="w-4 h-4 text-indigo-500" /> Gambar Soal <span class="font-normal text-slate-400">(opsional)</span>
+                            </label>
+                            <div v-if="gambarPreview" class="relative inline-block mb-3">
+                                <img :src="gambarPreview" class="max-h-48 rounded-xl border border-slate-200 object-contain shadow-sm" alt="Preview gambar soal" />
+                                <button type="button" @click="hapusGambarPreview" class="absolute -top-2 -right-2 bg-white border border-slate-200 rounded-full p-0.5 text-rose-500 hover:text-rose-700 shadow">
+                                    <XCircle class="w-5 h-5" />
+                                </button>
+                            </div>
+                            <label v-else class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer bg-slate-50 hover:bg-indigo-50 hover:border-indigo-300 transition-colors">
+                                <Image class="w-8 h-8 text-slate-300 mb-1" />
+                                <span class="text-sm text-slate-400 font-medium">Klik atau seret gambar ke sini</span>
+                                <span class="text-xs text-slate-300 mt-0.5">JPG, PNG, GIF, WEBP — maks 5 MB</span>
+                                <input ref="gambarInput" type="file" accept="image/jpeg,image/png,image/gif,image/webp" class="hidden" @change="handleGambar" />
+                            </label>
+                            <p v-if="form.errors.gambar" class="text-xs text-rose-600 mt-1">{{ form.errors.gambar }}</p>
                         </div>
 
                         <!-- Editor Pilihan Ganda -->

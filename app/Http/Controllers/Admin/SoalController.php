@@ -13,6 +13,7 @@ use App\Services\WordImportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
 use PhpOffice\PhpWord\IOFactory;
@@ -28,6 +29,8 @@ class SoalController extends Controller
             'pertanyaan' => 'required|string',
             'bobot' => 'required|numeric|min:1',
             'kunci_jawaban' => 'nullable|string',
+            // Gambar soal (opsional)
+            'gambar' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
             // Untuk PG
             'pilihan' => 'nullable|array',
             'pilihan.*.kode' => 'required_with:pilihan|string|max:5',
@@ -39,7 +42,13 @@ class SoalController extends Controller
             'pasangan.*.kanan' => 'required_with:pasangan|string',
         ]);
 
-        DB::transaction(function () use ($validated) {
+        // Upload gambar soal ke MinIO jika ada
+        $gambarPath = null;
+        if ($request->hasFile('gambar') && $request->file('gambar')->isValid()) {
+            $gambarPath = $request->file('gambar')->store('soal-images', 'minio');
+        }
+
+        DB::transaction(function () use ($validated, $gambarPath) {
             $urutanSoal = Soal::where('bank_soal_id', $validated['bank_soal_id'])->max('urutan') ?? 0;
 
             $soal = Soal::create([
@@ -48,6 +57,7 @@ class SoalController extends Controller
                 'pertanyaan' => $validated['pertanyaan'],
                 'bobot' => $validated['bobot'],
                 'kunci_jawaban' => $validated['kunci_jawaban'],
+                'gambar_path' => $gambarPath,
                 'urutan' => $urutanSoal + 1,
             ]);
 
@@ -275,6 +285,11 @@ class SoalController extends Controller
 
     public function destroy(Soal $soal)
     {
+        // Hapus gambar dari MinIO jika ada
+        if ($soal->gambar_path) {
+            Storage::disk('minio')->delete($soal->gambar_path);
+        }
+
         $soal->delete();
 
         return back()->with('success', 'Soal berhasil dihapus.');

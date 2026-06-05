@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
-import { Head, Link, useForm, router } from '@inertiajs/vue3';
+import { Head, Link, useForm, router, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import SearchableSelect from '@/Components/SearchableSelect.vue';
 import Pagination from '@/Components/Pagination.vue';
@@ -8,11 +8,16 @@ import {
     Database, Plus, Search, Eye, FileText, Check, X, BookOpen, Trash2, AlertTriangle
 } from 'lucide-vue-next';
 
+const page = usePage();
+
 const props = defineProps({
     bankSoalList: Object,
     filters: Object,
     mapelList: Array,
+    guruList: Array,
 });
+
+const isGuru = page.props.auth?.user?.roles?.includes('guru');
 
 const mapelOptions = computed(() =>
     props.mapelList.map(m => ({
@@ -22,6 +27,15 @@ const mapelOptions = computed(() =>
     }))
 );
 
+const guruOptions = computed(() => {
+    if (!props.guruList) return [];
+    const selectedMapelId = form.mata_pelajaran_id;
+    if (!selectedMapelId) return props.guruList;
+    return props.guruList.filter(g =>
+        g.mata_pelajarans?.some(m => m.id === Number(selectedMapelId))
+    );
+});
+
 const search = ref(props.filters.search || '');
 const showModal = ref(false);
 
@@ -30,6 +44,7 @@ const form = useForm({
     tingkat: '',
     judul: '',
     deskripsi: '',
+    guru_id: '',
 });
 
 const handleSearch = () => {
@@ -137,7 +152,13 @@ const confirmDelete = () => {
                                     </span>
                                 </td>
                                 <td class="p-4 text-slate-600 font-medium">
-                                    {{ bank.guru?.nama || '-' }}
+                                    <div v-if="bank.mata_pelajaran?.gurus?.length" class="flex flex-wrap gap-1">
+                                        <span v-for="g in bank.mata_pelajaran.gurus" :key="g.id"
+                                            class="inline-flex items-center px-2 py-0.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-lg">
+                                            {{ g.nama }}
+                                        </span>
+                                    </div>
+                                    <span v-else class="text-slate-400">-</span>
                                 </td>
                                 <td class="p-4 pr-6 text-right space-x-2">
                                     <Link :href="route('admin.ujian.bank-soal.show', bank.hashid)" class="inline-flex p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors" title="Kelola Soal">
@@ -196,6 +217,18 @@ const confirmDelete = () => {
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Judul Bank Soal</label>
                             <input type="text" v-model="form.judul" required placeholder="Ex: Soal Latihan Aljabar Linear" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-indigo-600 focus:border-indigo-600 font-medium">
+                        </div>
+
+                        <div v-if="!isGuru">
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Guru Pengampu</label>
+                            <select v-model="form.guru_id" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-indigo-600 focus:border-indigo-600 font-bold">
+                                <option value="">-- Pilih Guru Pengampu --</option>
+                                <option v-for="guru in guruOptions" :key="guru.id" :value="guru.id">
+                                    {{ guru.nama }} {{ guru.nip ? '('+guru.nip+')' : '' }}
+                                </option>
+                                <option v-if="guruOptions.length === 0" value="" disabled>Tidak ada guru untuk mata pelajaran ini</option>
+                            </select>
+                            <p v-if="form.errors.guru_id" class="text-xs text-rose-500 mt-1 font-bold">{{ form.errors.guru_id }}</p>
                         </div>
 
                         <div>

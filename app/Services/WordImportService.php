@@ -69,7 +69,7 @@ class WordImportService
                     continue;
                 }
 
-                $newName = 'cbt_img_'.Str::random(12).'.'.$extension;
+                $newName = 'soal-images/'.Str::random(12).'.'.$extension;
 
                 $imageContent = $zip->getFromIndex($i);
 
@@ -83,11 +83,14 @@ class WordImportService
                     continue;
                 }
 
-                Storage::disk('public')->put('ujian/'.$newName, $imageContent);
+                // Simpan ke MinIO
+                Storage::disk('minio')->put($newName, $imageContent);
 
-                // Map the original word path (e.g. media/image1.png) to public URL
+                // Gunakan proxy route Laravel agar URL bekerja di semua environment
+                // /media/soal/{filename} → bukan direct MinIO URL
                 $wordPath = str_replace('word/', '', $filename);
-                $mediaMap[$wordPath] = Storage::url('ujian/'.$newName);
+                $filename_only = basename($newName);
+                $mediaMap[$wordPath] = url('/media/soal/'.$filename_only);
             }
         }
 

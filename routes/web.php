@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WebSettingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\Public\BeritaPublikController;
 use App\Http\Controllers\Public\GaleriPublikController;
 use App\Http\Controllers\Public\KelulusanController;
@@ -63,6 +64,12 @@ Route::post('/kontak', [App\Http\Controllers\Public\PesanController::class, 'sto
 
 // Halaman Statis Dinamis
 Route::get('/halaman/{slug}', [PagePublikController::class, 'show'])->name('public.page.show');
+
+// ─── MEDIA PROXY (gambar soal dari MinIO) ────────────────────────────────────
+// Diakses via URL relatif sehingga bekerja di semua environment
+Route::get('/media/soal/{path}', [MediaController::class, 'soalImage'])
+    ->name('media.soal')
+    ->where('path', '.*');
 
 // Dashboard akademik
 Route::get('/dashboard', DashboardController::class)
