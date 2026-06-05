@@ -33,7 +33,7 @@ defineProps({
             <!-- More Section -->
             <div class="mt-20 flex flex-wrap justify-center items-center gap-10 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
                 <div class="text-center">
-                    <p class="text-2xl font-black">24+</p>
+                    <p class="text-2xl font-black">18</p>
                     <p class="text-[10px] font-black uppercase tracking-widest">Ruang Kelas</p>
                 </div>
                 <div class="text-center">

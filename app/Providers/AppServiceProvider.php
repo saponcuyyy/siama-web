@@ -32,9 +32,21 @@ class AppServiceProvider extends ServiceProvider
                 return false;
             }
 
-            return PesertaUjian::where('sesi_ujian_id', $sesi->id)
+            // Izinkan jika sudah ada di tabel peserta
+            $isPeserta = PesertaUjian::where('sesi_ujian_id', $sesi->id)
                 ->where('siswa_id', $user->siswa->id)
                 ->exists();
+
+            if ($isPeserta) {
+                return true;
+            }
+
+            // Atau izinkan jika rombel siswa cocok dengan rombel sesi ujian
+            if ($sesi->rombel_id && $sesi->rombel_id === $user->siswa->rombel_id) {
+                return true;
+            }
+
+            return $sesi->rombels()->where('rombel.id', $user->siswa->rombel_id)->exists();
         });
     }
 }

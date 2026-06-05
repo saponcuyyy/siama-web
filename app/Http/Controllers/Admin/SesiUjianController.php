@@ -99,7 +99,7 @@ class SesiUjianController extends Controller
             'rombel_ids' => 'nullable|array',
             'rombel_ids.*' => 'exists:rombel,id',
             'nama_sesi' => 'required|string|max:255',
-            'waktu_mulai' => 'required|date|after_or_equal:now',
+            'waktu_mulai' => 'required|date',
             'waktu_selesai' => 'required|date|after:waktu_mulai',
             'toleransi_menit' => 'required|integer|min:0',
             'max_pelanggaran' => 'required|integer|min:1',

@@ -49,7 +49,7 @@ Route::get('/', [LandingController::class, 'index'])->name('home');
 
 // Halaman Pengumuman Kelulusan
 Route::get('/kelulusan', [KelulusanController::class, 'index'])->name('public.kelulusan');
-Route::post('/kelulusan', [KelulusanController::class, 'cek'])->name('public.kelulusan.cek');
+Route::post('/kelulusan', [KelulusanController::class, 'cek'])->middleware('throttle:15,1')->name('public.kelulusan.cek');
 Route::get('/kelulusan/hasil', [KelulusanController::class, 'hasil'])->name('public.kelulusan.hasil');
 
 // Halaman Publik - Connected to real controllers

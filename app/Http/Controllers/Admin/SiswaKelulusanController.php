@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Imports\SiswaImport;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -45,12 +46,21 @@ class SiswaKelulusanController extends Controller
             'mode' => 'required|in:tambah,ganti',
         ]);
 
-        // Jika mode "ganti", hapus semua data siswa dulu
+        // Jika mode "ganti", hapus semua data siswa kelulusan (tanpa rombel) beserta user terkait
         if ($request->mode === 'ganti') {
             if (! auth()->user()->hasRole('super_admin')) {
                 return back()->with('error', 'Mode "ganti" hanya dapat dilakukan oleh Super Admin.');
             }
-            Siswa::query()->forceDelete();
+            
+            DB::transaction(function () {
+                $siswas = Siswa::whereNull('rombel_id')->get();
+                $userIds = $siswas->pluck('user_id')->filter()->toArray();
+                
+                Siswa::whereNull('rombel_id')->forceDelete();
+                if (!empty($userIds)) {
+                    \App\Models\User::whereIn('id', $userIds)->delete();
+                }
+            });
         }
 
         $import = new SiswaImport;
@@ -94,11 +104,20 @@ class SiswaKelulusanController extends Controller
     public function destroyAll()
     {
         if (! auth()->user()->hasRole('super_admin')) {
-            return back()->with('error', 'Hanya Super Admin yang dapat menghapus seluruh data siswa.');
+            return back()->with('error', 'Hanya Super Admin yang dapat menghapus seluruh data siswa kelulusan.');
         }
-        Siswa::query()->forceDelete();
+        
+        DB::transaction(function () {
+            $siswas = Siswa::whereNull('rombel_id')->get();
+            $userIds = $siswas->pluck('user_id')->filter()->toArray();
+            
+            Siswa::whereNull('rombel_id')->forceDelete();
+            if (!empty($userIds)) {
+                \App\Models\User::whereIn('id', $userIds)->delete();
+            }
+        });
 
-        return back()->with('success', 'Seluruh data siswa berhasil dihapus.');
+        return back()->with('success', 'Seluruh data siswa kelulusan berhasil dihapus.');
     }
 
     public function downloadTemplate()

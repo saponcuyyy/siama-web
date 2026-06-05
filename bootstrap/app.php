@@ -29,7 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'sync.ujian' => SyncUjianSessions::class,
         ]);
         $middleware->validateCsrfTokens(except: [
-            'login',
+            //
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

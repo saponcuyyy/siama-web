@@ -6,6 +6,7 @@
         <meta name="referrer" content="no-referrer-when-downgrade">
 
         <title inertia>{{ config('app.name', 'Siama') }}</title>
+        <link rel="icon" type="image/png" href="/images/logo.png">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">

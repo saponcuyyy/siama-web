@@ -259,6 +259,7 @@ const getStatusColor = (status) => {
                                 <div>
                                     <label class="block text-sm font-bold text-slate-700 mb-1.5">Nama Sesi</label>
                                     <input type="text" v-model="form.nama_sesi" required placeholder="Ex: UTS Ganjil 2026" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all text-sm placeholder:text-slate-400">
+                                    <p v-if="form.errors.nama_sesi" class="text-xs text-rose-600 mt-1 font-bold">{{ form.errors.nama_sesi }}</p>
                                 </div>
 
                                 <div class="grid sm:grid-cols-2 gap-4">
@@ -268,6 +269,7 @@ const getStatusColor = (status) => {
                                             <option value="" disabled>Pilih paket ujian</option>
                                             <option v-for="paket in paketList" :key="paket.id" :value="paket.id">{{ paket.nama }} ({{ paket.kode }})</option>
                                         </select>
+                                        <p v-if="form.errors.paket_ujian_id" class="text-xs text-rose-600 mt-1 font-bold">{{ form.errors.paket_ujian_id }}</p>
                                     </div>
 
                                     <div>
@@ -276,6 +278,7 @@ const getStatusColor = (status) => {
                                             <input type="number" min="0" v-model="form.toleransi_menit" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all text-sm pr-16">
                                             <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">menit</span>
                                         </div>
+                                        <p v-if="form.errors.toleransi_menit" class="text-xs text-rose-600 mt-1 font-bold">{{ form.errors.toleransi_menit }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -291,10 +294,12 @@ const getStatusColor = (status) => {
                                 <div>
                                     <label class="block text-sm font-bold text-slate-700 mb-1.5">Waktu Mulai</label>
                                     <input type="datetime-local" v-model="form.waktu_mulai" required class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all text-sm">
+                                    <p v-if="form.errors.waktu_mulai" class="text-xs text-rose-600 mt-1 font-bold">{{ form.errors.waktu_mulai }}</p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-bold text-slate-700 mb-1.5">Waktu Selesai</label>
                                     <input type="datetime-local" v-model="form.waktu_selesai" required class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all text-sm">
+                                    <p v-if="form.errors.waktu_selesai" class="text-xs text-rose-600 mt-1 font-bold">{{ form.errors.waktu_selesai }}</p>
                                 </div>
                             </div>
                         </div>
@@ -343,6 +348,7 @@ const getStatusColor = (status) => {
                                         <input type="number" min="1" v-model="form.max_pelanggaran" class="w-full px-4 py-2.5 bg-white border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all text-sm pr-16">
                                         <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-rose-400">kali</span>
                                     </div>
+                                    <p v-if="form.errors.max_pelanggaran" class="text-xs text-rose-600 mt-1 font-bold">{{ form.errors.max_pelanggaran }}</p>
                                     <p class="text-[11px] text-rose-500 mt-1">Peringatan saat siswa berpindah tab</p>
                                 </div>
                                 <div class="flex items-center">

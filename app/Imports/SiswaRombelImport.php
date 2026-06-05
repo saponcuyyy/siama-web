@@ -63,26 +63,34 @@ class SiswaRombelImport implements SkipsEmptyRows, ToCollection, WithHeadingRow
 
         DB::transaction(function () {
             foreach ($this->buffer as $data) {
+                // Lewati jika user atau siswa dengan NISN ini sudah terdaftar
+                $userExists = User::where('email', $data['nisn'])->exists();
+                $siswaExists = Siswa::where('nisn', $data['nisn'])->exists();
+                
+                if ($userExists || $siswaExists) {
+                    continue;
+                }
+
                 $user = User::create([
-                    'name' => $data['nama'],
-                    'email' => $data['nisn'],
-                    'password' => Hash::make($data['password']),
+                     'name' => $data['nama'],
+                     'email' => $data['nisn'],
+                     'password' => Hash::make($data['password']),
                 ]);
 
                 $user->assignRole('siswa');
 
                 $siswa = Siswa::create([
-                    'user_id' => $user->id,
-                    'rombel_id' => $this->rombelId,
-                    'nisn' => $data['nisn'],
-                    'nama' => $data['nama'],
-                    'tanggal_lahir' => $data['tgl'],
-                    'agama' => $data['agama'],
+                     'user_id' => $user->id,
+                     'rombel_id' => $this->rombelId,
+                     'nisn' => $data['nisn'],
+                     'nama' => $data['nama'],
+                     'tanggal_lahir' => $data['tgl'],
+                     'agama' => $data['agama'],
                 ]);
 
                 $this->createdAccounts[] = [
-                    'nisn' => $data['nisn'],
-                    'password' => $data['password'],
+                     'nisn' => $data['nisn'],
+                     'password' => $data['password'],
                 ];
             }
         });

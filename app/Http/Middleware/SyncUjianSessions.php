@@ -77,7 +77,10 @@ class SyncUjianSessions
                     ->with(['pesertaUjian' => fn ($q) => $q->where('status', PesertaStatus::MENGERJAKAN->value)])
                     ->get()
                     ->filter(function ($session) use ($now) {
-                        // Hitung batas waktu efektif dengan toleransi
+                        if (! $session->waktu_selesai) {
+                            return false;
+                        }
+
                         $batasWaktu = $session->waktu_selesai->copy()
                             ->addMinutes($session->toleransi_menit ?? 0);
 

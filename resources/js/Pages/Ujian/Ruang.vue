@@ -42,7 +42,7 @@ let isSending = false;
 const STORAGE_PREFIX = 'exam_answers_';
 
 function getStorageKey() {
-    return STORAGE_PREFIX + props.sesi.hashid;
+    return STORAGE_PREFIX + props.sesi.hashid + '_' + props.peserta.id;
 }
 
 function saveAnswersToStorage() {
@@ -142,13 +142,37 @@ const triggerMathJax = () => {
     });
 };
 
-onMounted(() => {
-    const restored = restoreAnswersFromStorage();
-    if (!restored) {
-        props.soal_list.forEach(s => { answers.value[s.id] = s.jawaban_siswa; });
+// Anti-cheat event handlers
+const preventContextMenu = (e) => e.preventDefault();
+const preventCopyPaste = (e) => e.preventDefault();
+const onKeyDown = (e) => {
+    if (e.key === 'F12') {
+        e.preventDefault();
+        return false;
     }
+    if (e.ctrlKey && ['c', 'v', 'u', 'a', 'p', 's'].includes(e.key.toLowerCase())) {
+        e.preventDefault();
+        return false;
+    }
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'i') {
+        e.preventDefault();
+        return false;
+    }
+};
+
+onMounted(() => {
+    props.soal_list.forEach(s => { answers.value[s.id] = s.jawaban_siswa; });
+    restoreAnswersFromStorage();
     startTimer();
     startPeriodicBatch();
+    
+    // Anti-cheat listeners
+    document.addEventListener('contextmenu', preventContextMenu);
+    document.addEventListener('copy', preventCopyPaste);
+    document.addEventListener('cut', preventCopyPaste);
+    document.addEventListener('paste', preventCopyPaste);
+    document.addEventListener('keydown', onKeyDown);
+    
     document.addEventListener('visibilitychange', onVisibility);
     window.addEventListener('blur', onBlur);
     document.addEventListener('fullscreenchange', onFSChange);
@@ -168,6 +192,14 @@ onUnmounted(() => {
     clearInterval(periodicBatchTimer);
     clearTimeout(saveTimer);
     clearTimeout(autoSaveErrorTimer);
+    
+    // Anti-cheat cleanup
+    document.removeEventListener('contextmenu', preventContextMenu);
+    document.removeEventListener('copy', preventCopyPaste);
+    document.removeEventListener('cut', preventCopyPaste);
+    document.removeEventListener('paste', preventCopyPaste);
+    document.removeEventListener('keydown', onKeyDown);
+    
     document.removeEventListener('visibilitychange', onVisibility);
     window.removeEventListener('blur', onBlur);
     document.removeEventListener('fullscreenchange', onFSChange);
