@@ -114,6 +114,7 @@ ssh -p "$PORT" "$USER@$HOST" "cd $REMOTE_DIR && \
     composer install --no-dev --optimize-autoloader && \
     php artisan config:clear && \
     php artisan migrate --force && \
+    php artisan db:seed --class=RolePermissionSeeder && \
     php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache && \
