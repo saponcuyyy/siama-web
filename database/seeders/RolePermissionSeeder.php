@@ -34,6 +34,12 @@ class RolePermissionSeeder extends Seeder
             'ujian.laporan.view', 'ujian.laporan.export',
             'settings.view', 'settings.manage',
             'audit.view',
+            // Web Management (CMS)
+            'web.view', 'web.dashboard.view',
+            'web.menu.manage', 'web.slider.manage', 'web.halaman.manage',
+            'web.fasilitas.manage', 'web.kategori-berita.manage', 'web.berita.manage',
+            'web.pengumuman.manage', 'web.album.manage', 'web.pesan.view',
+            'web.kelulusan.manage', 'web.setting.manage',
         ];
 
         foreach ($permissions as $permission) {

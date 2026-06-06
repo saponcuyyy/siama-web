@@ -89,7 +89,7 @@ const navigation = [
         name: 'Web Management', 
         href: route('admin.web.dashboard'), 
         icon: 'Globe', 
-        permission: 'settings.manage' 
+        permission: 'web.view' 
     },
     // ─── Master Akademik ─────────────────────────────
     { 
@@ -130,7 +130,7 @@ const navigation = [
     },
     { 
         name: 'Jadwal', 
-        href: '#', 
+        href: route('admin.jadwal.index'), 
         icon: 'Calendar', 
         permission: 'jadwal.view' 
     },

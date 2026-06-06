@@ -82,40 +82,53 @@ Route::prefix('admin/web')
     ->middleware(['auth', 'sync.ujian'])
     ->group(function () {
 
-        // ── CMS (only settings.manage) ───────────────────────────────────────
-        Route::middleware('can:settings.manage')->group(function () {
+        // ── CMS ──────────────────────────────────────────────────────────────
+        Route::middleware('can:web.view')->group(function () {
             Route::get('/', [DashboardWebController::class, 'index'])->name('dashboard');
 
-            Route::get('pengaturan', [WebSettingController::class, 'index'])->name('setting');
-            Route::put('pengaturan', [WebSettingController::class, 'update'])->name('setting.update');
+            Route::get('pengaturan', [WebSettingController::class, 'index'])->name('setting')->middleware('can:web.setting.manage');
+            Route::put('pengaturan', [WebSettingController::class, 'update'])->name('setting.update')->middleware('can:web.setting.manage');
 
-            Route::get('menu', [MenuController::class, 'index'])->name('menu.index');
-            Route::post('menu', [MenuController::class, 'store'])->name('menu.store');
-            Route::put('menu/{menu}', [MenuController::class, 'update'])->name('menu.update');
-            Route::delete('menu/{menu}', [MenuController::class, 'destroy'])->name('menu.destroy');
-            Route::post('menu/order', [MenuController::class, 'updateOrder'])->name('menu.order');
+            Route::middleware('can:web.menu.manage')->group(function () {
+                Route::get('menu', [MenuController::class, 'index'])->name('menu.index');
+                Route::post('menu', [MenuController::class, 'store'])->name('menu.store');
+                Route::put('menu/{menu}', [MenuController::class, 'update'])->name('menu.update');
+                Route::delete('menu/{menu}', [MenuController::class, 'destroy'])->name('menu.destroy');
+                Route::post('menu/order', [MenuController::class, 'updateOrder'])->name('menu.order');
+            });
 
-            Route::resource('slider', SliderController::class)->except(['show']);
-            Route::resource('halaman', PageController::class)->except(['show']);
-            Route::resource('kategori-berita', KategoriBeritaController::class)->except(['show', 'create', 'edit']);
-            Route::resource('berita', BeritaController::class)->except(['show']);
-            Route::resource('pengumuman', PengumumanController::class)->except(['show']);
-            Route::resource('album', AlbumController::class);
-            Route::post('album/{album}/photos', [AlbumController::class, 'uploadPhotos'])->name('album.photos.upload');
-            Route::resource('galeri', GaleriController::class)->only(['destroy', 'update']);
-            Route::resource('fasilitas', FasilitasController::class)->except(['show']);
-            Route::post('fasilitas/order', [FasilitasController::class, 'updateOrder'])->name('fasilitas.order');
+            Route::resource('slider', SliderController::class)->except(['show'])->middleware('can:web.slider.manage');
+            Route::resource('halaman', PageController::class)->except(['show'])->middleware('can:web.halaman.manage');
+            Route::resource('fasilitas', FasilitasController::class)->except(['show'])->middleware('can:web.fasilitas.manage');
+            Route::post('fasilitas/order', [FasilitasController::class, 'updateOrder'])->name('fasilitas.order')->middleware('can:web.fasilitas.manage');
 
-            Route::get('pesan', [PesanController::class, 'index'])->name('pesan.index');
-            Route::get('pesan/{pesan}', [PesanController::class, 'show'])->name('pesan.show');
-            Route::delete('pesan/{pesan}', [PesanController::class, 'destroy'])->name('pesan.destroy');
+            Route::middleware('can:web.kategori-berita.manage')->group(function () {
+                Route::resource('kategori-berita', KategoriBeritaController::class)->except(['show', 'create', 'edit']);
+            });
 
-            Route::get('kelulusan', [SiswaKelulusanController::class, 'index'])->name('kelulusan.index');
-            Route::post('kelulusan/import', [SiswaKelulusanController::class, 'import'])->name('kelulusan.import');
-            Route::put('kelulusan/{siswa}', [SiswaKelulusanController::class, 'update'])->name('kelulusan.update');
-            Route::delete('kelulusan/all', [SiswaKelulusanController::class, 'destroyAll'])->name('kelulusan.destroyAll');
-            Route::delete('kelulusan/{siswa}', [SiswaKelulusanController::class, 'destroy'])->name('kelulusan.destroy');
-            Route::get('kelulusan/template', [SiswaKelulusanController::class, 'downloadTemplate'])->name('kelulusan.template');
+            Route::resource('berita', BeritaController::class)->except(['show'])->middleware('can:web.berita.manage');
+            Route::resource('pengumuman', PengumumanController::class)->except(['show'])->middleware('can:web.pengumuman.manage');
+
+            Route::middleware('can:web.album.manage')->group(function () {
+                Route::resource('album', AlbumController::class);
+                Route::post('album/{album}/photos', [AlbumController::class, 'uploadPhotos'])->name('album.photos.upload');
+                Route::resource('galeri', GaleriController::class)->only(['destroy', 'update']);
+            });
+
+            Route::middleware('can:web.pesan.view')->group(function () {
+                Route::get('pesan', [PesanController::class, 'index'])->name('pesan.index');
+                Route::get('pesan/{pesan}', [PesanController::class, 'show'])->name('pesan.show');
+                Route::delete('pesan/{pesan}', [PesanController::class, 'destroy'])->name('pesan.destroy');
+            });
+
+            Route::middleware('can:web.kelulusan.manage')->group(function () {
+                Route::get('kelulusan', [SiswaKelulusanController::class, 'index'])->name('kelulusan.index');
+                Route::post('kelulusan/import', [SiswaKelulusanController::class, 'import'])->name('kelulusan.import');
+                Route::put('kelulusan/{siswa}', [SiswaKelulusanController::class, 'update'])->name('kelulusan.update');
+                Route::delete('kelulusan/all', [SiswaKelulusanController::class, 'destroyAll'])->name('kelulusan.destroyAll');
+                Route::delete('kelulusan/{siswa}', [SiswaKelulusanController::class, 'destroy'])->name('kelulusan.destroy');
+                Route::get('kelulusan/template', [SiswaKelulusanController::class, 'downloadTemplate'])->name('kelulusan.template');
+            });
         });
 
         // ── Master Akademik ──────────────────────────────────────────────────
@@ -140,6 +153,11 @@ Route::prefix('admin/web')
         Route::post('siswa/import', [SiswaController::class, 'import'])->name('siswa.import')->middleware('can:siswa.manage');
         Route::get('siswa/template', [SiswaController::class, 'downloadTemplate'])->name('siswa.template')->middleware('can:siswa.view');
     });
+
+// ─── JADWAL ─────────────────────────────────────────────────────────────────
+Route::get('admin/jadwal', [\App\Http\Controllers\Admin\Akademik\JadwalController::class, 'index'])
+    ->name('admin.jadwal.index')
+    ->middleware(['auth', 'can:jadwal.view']);
 
 // ─── UJIAN ONLINE (CBT) - ADMIN / GURU ─────────────────────────────────────
 Route::prefix('admin/ujian')

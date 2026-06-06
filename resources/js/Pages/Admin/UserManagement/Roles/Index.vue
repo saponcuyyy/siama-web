@@ -38,6 +38,7 @@ const groupLabels = {
     jadwal: 'Jadwal',
     ujian: 'Ujian',
     perpustakaan: 'Perpustakaan',
+    web: 'Web Management',
     settings: 'Pengaturan',
     audit: 'Audit Trail',
 };
@@ -77,10 +78,23 @@ const permLabels = {
     'perpustakaan.manage': 'Kelola Perpustakaan',
     'settings.view': 'Lihat Pengaturan',
     'settings.manage': 'Kelola Pengaturan',
+    'web.view': 'Akses Web Management',
+    'web.dashboard.view': 'Lihat Dashboard CMS',
+    'web.menu.manage': 'Kelola Menu Navigasi',
+    'web.slider.manage': 'Kelola Slider / Hero',
+    'web.halaman.manage': 'Kelola Halaman Statis',
+    'web.fasilitas.manage': 'Kelola Fasilitas Sekolah',
+    'web.kategori-berita.manage': 'Kelola Kategori Berita',
+    'web.berita.manage': 'Kelola Berita & Artikel',
+    'web.pengumuman.manage': 'Kelola Pengumuman',
+    'web.album.manage': 'Kelola Galeri & Album',
+    'web.pesan.view': 'Lihat Pesan Masuk',
+    'web.kelulusan.manage': 'Kelola Data Kelulusan',
+    'web.setting.manage': 'Kelola Pengaturan Web',
     'audit.view': 'Lihat Audit Trail',
 };
 
-const groupOrder = ['dashboard', 'users', 'roles', 'siswa', 'guru', 'nilai', 'jadwal', 'ujian', 'perpustakaan', 'settings', 'audit'];
+const groupOrder = ['dashboard', 'users', 'roles', 'siswa', 'guru', 'nilai', 'jadwal', 'ujian', 'perpustakaan', 'web', 'settings', 'audit'];
 
 const groupedPermissions = computed(() => {
     const groups = {};
