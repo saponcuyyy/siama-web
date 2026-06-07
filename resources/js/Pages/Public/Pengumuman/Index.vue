@@ -1,6 +1,6 @@
 <script setup>
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { sanitize } from '@/sanitize';
 
 defineProps({
@@ -44,6 +44,22 @@ defineProps({
                                     <span>{{ new Date(item.created_at).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) }}</span>
                                     <span v-if="item.tanggal_selesai">· Berlaku s.d. {{ new Date(item.tanggal_selesai).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) }}</span>
                                 </div>
+                                <!-- Halaman Web Pengumuman -->
+                                <div v-if="item.lampiran" class="mt-3 pt-3 border-t border-slate-100">
+                                    <Link
+                                        :href="route('public.pengumuman.baca', item.hashid)"
+                                        class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-xs font-bold transition-all group"
+                                    >
+                                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                                        </svg>
+                                        Baca Pengumuman Selengkapnya
+                                        <svg class="w-3.5 h-3.5 shrink-0 opacity-60 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </Link>
+                                </div>
+
                             </div>
                         </div>
                     </div>

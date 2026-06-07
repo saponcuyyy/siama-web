@@ -37,6 +37,7 @@ use App\Http\Controllers\Public\GaleriPublikController;
 use App\Http\Controllers\Public\KelulusanController;
 use App\Http\Controllers\Public\KontakController;
 use App\Http\Controllers\Public\PagePublikController;
+use App\Http\Controllers\Public\PengumumanLampiranController;
 use App\Http\Controllers\Public\PengumumanPublikController;
 use App\Http\Controllers\Sys\CronController;
 use App\Http\Controllers\Ujian\RuangUjianController;
@@ -57,6 +58,11 @@ Route::get('/kelulusan/hasil', [KelulusanController::class, 'hasil'])->name('pub
 Route::get('/berita', [BeritaPublikController::class, 'index'])->name('public.berita.index');
 Route::get('/berita/{slug}', [BeritaPublikController::class, 'show'])->name('public.berita.show');
 Route::get('/pengumuman', [PengumumanPublikController::class, 'index'])->name('public.pengumuman.index');
+Route::get('/pengumuman/{pengumuman}/baca', [PengumumanPublikController::class, 'baca'])->name('public.pengumuman.baca');
+Route::get('/pengumuman/{pengumuman}/embed', [PengumumanPublikController::class, 'embed'])->name('public.pengumuman.embed');
+Route::get('/pengumuman/{pengumuman}/pdf', [PengumumanPublikController::class, 'pdf'])->name('public.pengumuman.pdf');
+// Lampiran PDF pengumuman — diproxy aman, tidak expose URL storage
+Route::get('/pengumuman/{pengumuman}/lampiran', PengumumanLampiranController::class)->name('public.pengumuman.lampiran');
 Route::get('/galeri', [GaleriPublikController::class, 'index'])->name('public.galeri.index');
 Route::get('/galeri/{album}', [GaleriPublikController::class, 'show'])->name('public.galeri.show');
 Route::get('/kontak', [KontakController::class, 'index'])->name('public.kontak');
@@ -108,6 +114,10 @@ Route::prefix('admin/web')
 
             Route::resource('berita', BeritaController::class)->except(['show'])->middleware('can:web.berita.manage');
             Route::resource('pengumuman', PengumumanController::class)->except(['show'])->middleware('can:web.pengumuman.manage');
+            // Preview PDF lampiran di area admin (auth required)
+            Route::get('pengumuman/{pengumuman}/lampiran', [PengumumanController::class, 'serveAdminLampiran'])
+                ->name('pengumuman.lampiran')
+                ->middleware('can:web.pengumuman.manage');
 
             Route::middleware('can:web.album.manage')->group(function () {
                 Route::resource('album', AlbumController::class);

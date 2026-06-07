@@ -1,13 +1,29 @@
 <script setup>
 import AdminWebLayout from '@/Layouts/AdminWebLayout.vue';
+import ConfirmDialog from '@/Components/ConfirmDialog.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const props = defineProps({ pengumuman: Object });
 
-const confirmDelete = (id) => {
-    if (confirm('Yakin hapus pengumuman ini?')) {
-        router.delete(route('admin.web.pengumuman.destroy', id));
-    }
+const showDeleteModal = ref(false);
+const deleteTarget = ref(null);
+const isDeleting = ref(false);
+
+const confirmDelete = (p) => {
+    deleteTarget.value = p;
+    showDeleteModal.value = true;
+};
+
+const executeDelete = () => {
+    isDeleting.value = true;
+    router.delete(route('admin.web.pengumuman.destroy', deleteTarget.value.hashid), {
+        onFinish: () => {
+            showDeleteModal.value = false;
+            deleteTarget.value = null;
+            isDeleting.value = false;
+        },
+    });
 };
 </script>
 
@@ -36,6 +52,7 @@ const confirmDelete = (id) => {
                             <th class="text-left px-5 py-3 font-semibold text-slate-600 hidden md:table-cell">Prioritas</th>
                             <th class="text-left px-5 py-3 font-semibold text-slate-600 hidden lg:table-cell">Masa Aktif</th>
                             <th class="text-left px-5 py-3 font-semibold text-slate-600">Status</th>
+                            <th class="text-left px-5 py-3 font-semibold text-slate-600 hidden md:table-cell">Halaman Web</th>
                             <th class="px-5 py-3"></th>
                         </tr>
                     </thead>
@@ -58,10 +75,24 @@ const confirmDelete = (id) => {
                                     {{ p.status === 'aktif' ? 'Aktif' : 'Nonaktif' }}
                                 </span>
                             </td>
+                            <!-- Halaman Web -->
+                            <td class="px-5 py-3 hidden md:table-cell">
+                                <a v-if="p.lampiran"
+                                    :href="route('admin.web.pengumuman.lampiran', p.hashid)"
+                                    target="_blank"
+                                    title="Buka halaman HTML"
+                                    class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-.778.099-1.533.284-2.253" />
+                                    </svg>
+                                    LIHAT
+                                </a>
+                                <span v-else class="text-xs text-slate-300">—</span>
+                            </td>
                             <td class="px-5 py-3 text-right">
                                 <div class="flex items-center justify-end gap-2">
                                     <Link :href="route('admin.web.pengumuman.edit', p.hashid)" class="text-xs text-blue-600 hover:underline font-medium">Edit</Link>
-                                    <button @click="confirmDelete(p.id)" class="text-xs text-red-500 hover:underline font-medium">Hapus</button>
+                                    <button @click="confirmDelete(p)" class="text-xs text-red-500 hover:underline font-medium">Hapus</button>
                                 </div>
                             </td>
                         </tr>
@@ -80,5 +111,15 @@ const confirmDelete = (id) => {
                 </div>
             </div>
         </div>
+
+        <ConfirmDialog
+            :show="showDeleteModal"
+            title="Hapus Pengumuman?"
+            :description="`Yakin ingin menghapus pengumuman &quot;${deleteTarget?.judul || ''}&quot;? Tindakan ini tidak dapat dibatalkan.`"
+            :loading="isDeleting"
+            @confirm="executeDelete"
+            @cancel="showDeleteModal = false; deleteTarget = null"
+            @update:show="showDeleteModal = $event"
+        />
     </AdminWebLayout>
 </template>
