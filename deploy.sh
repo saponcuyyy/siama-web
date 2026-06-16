@@ -77,11 +77,7 @@ rsync -avz --delete -e "ssh -p $PORT" \
   --exclude='public/hot' \
   --exclude='public/build' \
   --exclude='public/images' \
-  --exclude='storage/logs/*' \
-  --exclude='storage/framework/cache/*' \
-  --exclude='storage/framework/sessions/*' \
-  --exclude='storage/framework/views/*' \
-  --exclude='storage/app/public' \
+  --exclude='storage' \
   --exclude='deploy-config.sh' \
   ./ "$USER@$HOST:$REMOTE_DIR"
 
