@@ -169,6 +169,16 @@ Route::get('admin/jadwal', [\App\Http\Controllers\Admin\Akademik\JadwalControlle
     ->name('admin.jadwal.index')
     ->middleware(['auth', 'can:jadwal.view']);
 
+// ─── PERPUSTAKAAN ───────────────────────────────────────────────────────────
+Route::get('admin/perpustakaan', [\App\Http\Controllers\Admin\Akademik\PerpustakaanController::class, 'index'])
+    ->name('admin.perpustakaan.index')
+    ->middleware(['auth', 'can:perpustakaan.view']);
+
+// ─── AUDIT TRAIL ────────────────────────────────────────────────────────────
+Route::get('admin/audit-trail', [\App\Http\Controllers\Admin\AuditTrailController::class, 'index'])
+    ->name('admin.audit-trail.index')
+    ->middleware(['auth', 'can:audit.view']);
+
 // ─── UJIAN ONLINE (CBT) - ADMIN / GURU ─────────────────────────────────────
 Route::prefix('admin/ujian')
     ->name('admin.ujian.')
@@ -263,6 +273,38 @@ Route::prefix('admin')
         Route::resource('users', UserController::class)->except(['create', 'edit', 'show'])->middleware('can:users.view');
         Route::resource('roles', RoleController::class)->except(['create', 'edit', 'show'])->middleware('can:roles.view');
     });
+
+// ─── UJIAN ONLINE (CBT) - SISWA LOGIN ──────────────────────────────────────
+Route::get('/ujian/login.php', function () {
+    if (auth()->check()) {
+        if (auth()->user()->hasRole('siswa')) {
+            return redirect()->route('ujian.index');
+        }
+        return redirect()->route('dashboard');
+    }
+    return \Inertia\Inertia::render('Auth/LoginUjian');
+})->name('ujian.login');
+
+Route::post('/ujian/login.php', function (\Illuminate\Http\Request $request) {
+    $credentials = $request->validate([
+        'email' => ['required', 'string'],
+        'password' => ['required', 'string'],
+    ]);
+
+    if (auth()->attempt($credentials, $request->boolean('remember'))) {
+        $request->session()->regenerate();
+
+        if (auth()->user()->hasRole('siswa')) {
+            return redirect()->intended(route('ujian.index'));
+        }
+
+        return redirect()->intended(route('dashboard'));
+    }
+
+    throw \Illuminate\Validation\ValidationException::withMessages([
+        'email' => __('auth.failed'),
+    ]);
+});
 
 // ─── UJIAN ONLINE (CBT) - SISWA ────────────────────────────────────────────
 Route::prefix('ujian')

@@ -34,7 +34,7 @@ class RuangUjianController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::route('login', ['context' => 'ujian']);
+        return Redirect::route('ujian.login');
     }
 
     // GET /ujian — daftar ujian aktif untuk siswa

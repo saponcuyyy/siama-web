@@ -11,7 +11,7 @@ const form = useForm({
 const showPassword = ref(false);
 
 const submit = () => {
-    form.post(route('login', { context: 'ujian' }), {
+    form.post(route('ujian.login'), {
         onFinish: () => form.reset('password'),
     });
 };

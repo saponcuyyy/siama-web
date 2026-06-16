@@ -201,7 +201,7 @@ const submitImport = () => {
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            <tr class="bg-slate-50/50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
                                 <th class="p-4 pl-6">Siswa</th>
                                 <th class="p-4">NISN</th>
                                 <th class="p-4">Tanggal Lahir</th>

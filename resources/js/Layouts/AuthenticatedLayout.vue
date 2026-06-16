@@ -142,7 +142,7 @@ const navigation = [
             },
     { 
         name: 'Perpustakaan', 
-        href: '#', 
+        href: route('admin.perpustakaan.index'), 
         icon: 'Library', 
         permission: 'perpustakaan.view' 
     },
@@ -220,7 +220,7 @@ const navigation = [
     // ─── Lainnya ─────────────────────────────────────
     { 
         name: 'Audit Trail', 
-        href: '#', 
+        href: route('admin.audit-trail.index'), 
         icon: 'History', 
         permission: 'audit.view' 
     },
@@ -462,7 +462,7 @@ navigation.forEach(item => {
             </div>
 
             <!-- Page Content -->
-            <main class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            <main class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
                 <slot />
             </main>
         </div>

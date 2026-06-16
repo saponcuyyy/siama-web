@@ -13,7 +13,7 @@ class ExamAuth
         if (! auth()->check()) {
             session()->put('url.intended', $request->fullUrl());
 
-            return redirect()->guest(route('login', ['context' => 'ujian']));
+            return redirect()->guest(route('ujian.login'));
         }
 
         return $next($request);

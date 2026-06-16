@@ -35,10 +35,6 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
         Fortify::loginView(function () {
-            if (request()->query('context') === 'ujian') {
-                return Inertia::render('Auth/LoginUjian');
-            }
-
             return Inertia::render('Auth/Login');
         });
 
