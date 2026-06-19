@@ -15,7 +15,7 @@ class MataPelajaran extends Model
 
     protected $table = 'mata_pelajaran';
 
-    protected $fillable = ['nama', 'kode', 'tingkat', 'jurusan'];
+    protected $fillable = ['nama', 'kode', 'tingkat', 'jurusan', 'jam_per_minggu'];
 
     public function bankSoal(): HasMany
     {
@@ -31,5 +31,10 @@ class MataPelajaran extends Model
     {
         return $this->belongsToMany(Guru::class, 'guru_mata_pelajaran')
             ->withTimestamps();
+    }
+
+    public function jadwal(): HasMany
+    {
+        return $this->hasMany(Jadwal::class);
     }
 }

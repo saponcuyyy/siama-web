@@ -13,6 +13,10 @@ class MediaController extends Controller
      */
     public function soalImage(Request $request, string $path)
     {
+        if (str_contains($path, '..')) {
+            abort(400, 'Path tidak valid.');
+        }
+
         $fullPath = 'soal-images/'.$path;
         $disk = config('filesystems.disks.minio.endpoint') ? 'minio' : config('filesystems.default');
 

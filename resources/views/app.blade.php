@@ -6,7 +6,9 @@
         <meta name="referrer" content="no-referrer-when-downgrade">
 
         <title inertia>{{ config('app.name', 'Siama') }}</title>
-        <link rel="icon" type="image/png" href="/images/logo.png">
+        <link rel="icon" type="image/png" href="/favicon.png" sizes="64x64">
+        <link rel="shortcut icon" href="/favicon.png" type="image/png">
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,7 +28,7 @@
                 }
             };
         </script>
-        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" integrity="sha384-Wuix6BuhrWbjDBs24bXrjf4ZQ5aFeFWBuKkFekO2t8xFU0iNaLQfp2K6/1Nxveei" crossorigin="anonymous" defer></script>
 
         <!-- Scripts -->
         @routes

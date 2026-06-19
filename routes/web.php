@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\PengumumanController;
 use App\Http\Controllers\Admin\PenilaianEssayController;
 use App\Http\Controllers\Admin\PesanController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\Akademik\MataPelajaranController as AkademikMataPelajaranController;
 use App\Http\Controllers\Admin\RombelController;
 use App\Http\Controllers\Admin\SesiUjianController;
 use App\Http\Controllers\Admin\SiswaController;
@@ -28,6 +29,7 @@ use App\Http\Controllers\Admin\SiswaKelulusanController;
 use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\SoalController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\PengaturanController;
 use App\Http\Controllers\Admin\WebSettingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingController;
@@ -52,7 +54,7 @@ Route::get('/', [LandingController::class, 'index'])->name('home');
 // Halaman Pengumuman Kelulusan
 Route::get('/kelulusan', [KelulusanController::class, 'index'])->name('public.kelulusan');
 Route::post('/kelulusan', [KelulusanController::class, 'cek'])->middleware('throttle:15,1')->name('public.kelulusan.cek');
-Route::get('/kelulusan/hasil', [KelulusanController::class, 'hasil'])->name('public.kelulusan.hasil');
+Route::get('/kelulusan/hasil', [KelulusanController::class, 'hasil'])->middleware('throttle:30,1')->name('public.kelulusan.hasil');
 
 // Halaman Publik - Connected to real controllers
 Route::get('/berita', [BeritaPublikController::class, 'index'])->name('public.berita.index');
@@ -162,12 +164,34 @@ Route::prefix('admin/web')
         Route::resource('siswa', SiswaController::class)->except(['create', 'edit', 'show'])->middleware('can:siswa.view');
         Route::post('siswa/import', [SiswaController::class, 'import'])->name('siswa.import')->middleware('can:siswa.manage');
         Route::get('siswa/template', [SiswaController::class, 'downloadTemplate'])->name('siswa.template')->middleware('can:siswa.view');
+
+        // ── Mata Pelajaran (Akademik) ──────────────────────────────────────────
+        Route::resource('mata-pelajaran', AkademikMataPelajaranController::class)
+            ->except(['create', 'edit', 'show'])
+            ->middleware('can:dashboard.view');
     });
 
 // ─── JADWAL ─────────────────────────────────────────────────────────────────
-Route::get('admin/jadwal', [\App\Http\Controllers\Admin\Akademik\JadwalController::class, 'index'])
-    ->name('admin.jadwal.index')
-    ->middleware(['auth', 'can:jadwal.view']);
+Route::prefix('admin/jadwal')
+    ->name('admin.jadwal.')
+    ->middleware(['auth'])
+    ->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\Akademik\JadwalController::class, 'index'])
+            ->name('index')
+            ->middleware('can:jadwal.view');
+        Route::post('/', [\App\Http\Controllers\Admin\Akademik\JadwalController::class, 'store'])
+            ->name('store')
+            ->middleware('can:jadwal.manage');
+        Route::put('/{jadwal}', [\App\Http\Controllers\Admin\Akademik\JadwalController::class, 'update'])
+            ->name('update')
+            ->middleware('can:jadwal.manage');
+        Route::delete('/{jadwal}', [\App\Http\Controllers\Admin\Akademik\JadwalController::class, 'destroy'])
+            ->name('destroy')
+            ->middleware('can:jadwal.manage');
+        Route::post('/generate', [\App\Http\Controllers\Admin\Akademik\JadwalController::class, 'generate'])
+            ->name('generate')
+            ->middleware('can:jadwal.manage');
+    });
 
 // ─── PERPUSTAKAAN ───────────────────────────────────────────────────────────
 Route::get('admin/perpustakaan', [\App\Http\Controllers\Admin\Akademik\PerpustakaanController::class, 'index'])
@@ -178,6 +202,16 @@ Route::get('admin/perpustakaan', [\App\Http\Controllers\Admin\Akademik\Perpustak
 Route::get('admin/audit-trail', [\App\Http\Controllers\Admin\AuditTrailController::class, 'index'])
     ->name('admin.audit-trail.index')
     ->middleware(['auth', 'can:audit.view']);
+
+// ─── PENGATURAN AKUN ────────────────────────────────────────────────────────
+Route::prefix('admin/pengaturan')
+    ->name('admin.pengaturan.')
+    ->middleware(['auth'])
+    ->group(function () {
+        Route::get('/', [PengaturanController::class, 'index'])->name('index');
+        Route::put('/profil', [PengaturanController::class, 'updateProfile'])->name('profil.update');
+        Route::put('/password', [PengaturanController::class, 'updatePassword'])->name('password.update');
+    });
 
 // ─── UJIAN ONLINE (CBT) - ADMIN / GURU ─────────────────────────────────────
 Route::prefix('admin/ujian')

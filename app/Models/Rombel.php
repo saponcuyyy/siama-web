@@ -14,7 +14,7 @@ class Rombel extends Model
 
     protected $table = 'rombel';
 
-    protected $fillable = ['nama', 'tingkat', 'tahun_ajaran_id', 'guru_id'];
+    protected $fillable = ['nama', 'tingkat', 'jurusan', 'tahun_ajaran_id', 'guru_id'];
 
     public function tahunAjaran(): BelongsTo
     {

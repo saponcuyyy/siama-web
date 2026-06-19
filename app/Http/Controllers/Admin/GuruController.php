@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
@@ -134,7 +135,9 @@ class GuruController extends Controller
         try {
             Excel::import($import, $request->file('file'));
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal mengimpor: '.$e->getMessage());
+            Log::error('Import guru gagal: '.$e->getMessage());
+
+            return back()->with('error', 'Gagal mengimpor file. Pastikan format file sudah benar.');
         }
 
         $total = count($import->createdAccounts);

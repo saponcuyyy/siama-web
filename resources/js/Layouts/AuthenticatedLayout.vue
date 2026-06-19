@@ -128,6 +128,12 @@ const navigation = [
         icon: 'UserSquare', 
         permission: 'guru.view' 
     },
+    {
+        name: 'Mata Pelajaran',
+        href: route('admin.web.mata-pelajaran.index'),
+        icon: 'BookOpen',
+        permission: 'dashboard.view'
+    },
     { 
         name: 'Jadwal', 
         href: route('admin.jadwal.index'), 
@@ -165,7 +171,7 @@ const navigation = [
         prefix: '/admin/ujian',
         children: [
             { 
-                name: 'Mata Pelajaran', 
+                name: 'Mapel Ujian', 
                 href: route('admin.ujian.mata-pelajaran.index'), 
                 icon: 'BookOpen', 
                 permission: 'ujian.manage' 
@@ -226,7 +232,7 @@ const navigation = [
     },
     { 
         name: 'Pengaturan', 
-        href: '#', 
+        href: route('admin.pengaturan.index'), 
         icon: 'Settings', 
         permission: 'settings.view' 
     },

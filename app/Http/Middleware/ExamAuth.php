@@ -16,6 +16,10 @@ class ExamAuth
             return redirect()->guest(route('ujian.login'));
         }
 
+        if (! auth()->user()->hasRole('siswa')) {
+            abort(403, 'Hanya siswa yang dapat mengakses halaman ujian.');
+        }
+
         return $next($request);
     }
 }

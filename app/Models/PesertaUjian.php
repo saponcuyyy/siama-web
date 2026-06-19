@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use App\Enums\PesertaStatus;
+use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PesertaUjian extends Model
 {
+    use HasHashId;
+
     protected $table = 'peserta_ujian';
 
     protected $fillable = [
