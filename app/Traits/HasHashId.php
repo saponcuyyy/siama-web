@@ -38,8 +38,8 @@ trait HasHashId
         return parent::resolveChildRouteBinding($childType, $value, $field);
     }
 
-    public function getHashidAttribute(): string
+    public function getHashidAttribute(): ?string
     {
-        return HashId::encode($this->getKey());
+        return $this->getKey() ? HashId::encode($this->getKey()) : null;
     }
 }

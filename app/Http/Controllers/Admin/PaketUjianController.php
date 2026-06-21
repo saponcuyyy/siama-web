@@ -88,6 +88,30 @@ class PaketUjianController extends Controller
         return back()->with('success', 'Paket ujian berhasil ditambahkan.');
     }
 
+    public function update(Request $request, PaketUjian $paket)
+    {
+        $validated = $request->validate([
+            'mata_pelajaran_id' => 'required|exists:mata_pelajaran,id',
+            'kode' => 'required|string|max:50|unique:paket_ujian,kode,'.$paket->id,
+            'nama' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'durasi_menit' => 'required|integer|min:1',
+            'jenis' => 'required|in:uh,uts,uas,pas,try_out,lainnya',
+            'tingkat' => 'required|in:X,XI,XII',
+            'acak_soal' => 'boolean',
+            'acak_jawaban' => 'boolean',
+        ]);
+
+        $guruMapelIds = $this->guruMapelIds();
+        if ($guruMapelIds && ! in_array((int) $validated['mata_pelajaran_id'], $guruMapelIds)) {
+            return back()->withErrors(['mata_pelajaran_id' => 'Mata pelajaran tidak sesuai dengan mapel yang Anda ampu.']);
+        }
+
+        $paket->update($validated);
+
+        return back()->with('success', 'Paket ujian berhasil diperbarui.');
+    }
+
     public function show(PaketUjian $paket)
     {
         $paket->load(['mataPelajaran', 'soal.pilihanJawaban', 'soal.bankSoal']);

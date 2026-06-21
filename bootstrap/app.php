@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\InvalidHashIdException;
 use App\Http\Middleware\CheckSchedulerHeartbeat;
 use App\Http\Middleware\ExamAuth;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -33,6 +34,12 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->render(function (InvalidHashIdException $e) {
+            return Inertia::render('Error', ['status' => 404])
+                ->toResponse(request())
+                ->setStatusCode(404);
+        });
+
         $exceptions->respond(function (Response $response) {
             if (
                 in_array($response->getStatusCode(), [404, 403, 500, 503]) &&

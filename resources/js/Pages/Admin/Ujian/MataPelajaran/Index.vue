@@ -167,13 +167,13 @@ const hasActiveFilters = computed(() => search.value || filterTingkat.value || f
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                <th class="p-4 pl-6 w-8">#</th>
+                                <th class="p-4 pl-6 w-8 hidden lg:table-cell">#</th>
                                 <th class="p-4">Kode</th>
                                 <th class="p-4">Nama Mata Pelajaran</th>
-                                <th class="p-4 text-center">Kelas</th>
-                                <th class="p-4 text-center">Jurusan</th>
-                                <th class="p-4 text-center">Bank Soal</th>
-                                <th class="p-4 text-center">Paket Ujian</th>
+                                <th class="p-4 text-center hidden md:table-cell">Kelas</th>
+                                <th class="p-4 text-center hidden md:table-cell">Jurusan</th>
+                                <th class="p-4 text-center hidden lg:table-cell">Bank Soal</th>
+                                <th class="p-4 text-center hidden lg:table-cell">Paket Ujian</th>
                                 <th class="p-4 pr-6 text-right">Aksi</th>
                             </tr>
                         </thead>
@@ -183,23 +183,26 @@ const hasActiveFilters = computed(() => search.value || filterTingkat.value || f
                                 :key="mapel.id"
                                 class="hover:bg-slate-50/60 transition-colors"
                             >
-                                <td class="p-4 pl-6 text-slate-400 font-bold text-xs">
+                                <td class="p-4 pl-6 text-slate-400 font-bold text-xs hidden lg:table-cell">
                                     {{ (mapelList.current_page - 1) * mapelList.per_page + i + 1 }}
                                 </td>
                                 <td class="p-4">
-                                    <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 font-black text-xs rounded-lg border border-indigo-100 uppercase tracking-wider">
-                                        {{ mapel.kode }}
-                                    </span>
-                                </td>
-                                <td class="p-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                                            <BookMarked class="w-4 h-4 text-slate-500" />
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-sm shadow-indigo-200 flex-shrink-0">
+                                            <span class="text-white font-black text-[11px] tracking-wider">{{ mapel.kode.slice(0, 3) }}</span>
                                         </div>
-                                        <span class="font-bold text-slate-900">{{ mapel.nama }}</span>
+                                        <span class="text-[11px] font-bold text-indigo-600 tracking-wider uppercase">{{ mapel.kode }}</span>
                                     </div>
                                 </td>
-                                <td class="p-4 text-center">
+                                <td class="p-4">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                            <BookMarked class="w-4 h-4 text-slate-500" />
+                                        </div>
+                                        <span class="font-bold text-slate-900 text-sm sm:text-[13px]">{{ mapel.nama }}</span>
+                                    </div>
+                                </td>
+                                <td class="p-4 text-center hidden md:table-cell">
                                     <span v-if="mapel.tingkat" class="px-2.5 py-1 text-xs font-black rounded-lg border"
                                         :class="{
                                             'bg-purple-50 text-purple-700 border-purple-100': mapel.tingkat === 'X',
@@ -211,7 +214,7 @@ const hasActiveFilters = computed(() => search.value || filterTingkat.value || f
                                     </span>
                                     <span v-else class="text-slate-400 text-xs">-</span>
                                 </td>
-                                <td class="p-4 text-center">
+                                <td class="p-4 text-center hidden md:table-cell">
                                     <span v-if="mapel.jurusan" class="px-2.5 py-1 bg-amber-50 text-amber-700 font-black text-xs rounded-lg border border-amber-100">
                                         {{ mapel.jurusan }}
                                     </span>
@@ -219,31 +222,31 @@ const hasActiveFilters = computed(() => search.value || filterTingkat.value || f
                                         Umum
                                     </span>
                                 </td>
-                                <td class="p-4 text-center">
+                                <td class="p-4 text-center hidden lg:table-cell">
                                     <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-black text-xs rounded-lg border border-emerald-100">
                                         {{ mapel.bank_soal_count }}
                                     </span>
                                 </td>
-                                <td class="p-4 text-center">
+                                <td class="p-4 text-center hidden lg:table-cell">
                                     <span class="px-2.5 py-1 bg-sky-50 text-sky-700 font-black text-xs rounded-lg border border-sky-100">
                                         {{ mapel.paket_ujian_count }}
                                     </span>
                                 </td>
                                 <td class="p-4 pr-6 text-right">
-                                    <div class="flex items-center justify-end gap-2">
+                                    <div class="flex items-center justify-end gap-1.5 sm:gap-2">
                                         <button
                                             @click="openEdit(mapel)"
-                                            class="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
+                                            class="p-1.5 sm:p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
                                             title="Edit"
                                         >
-                                            <Pencil class="w-4 h-4" />
+                                            <Pencil class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                         </button>
                                         <button
                                             @click="openDelete(mapel)"
-                                            class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors"
+                                            class="p-1.5 sm:p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors"
                                             title="Hapus"
                                         >
-                                            <Trash2 class="w-4 h-4" />
+                                            <Trash2 class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                         </button>
                                     </div>
                                 </td>

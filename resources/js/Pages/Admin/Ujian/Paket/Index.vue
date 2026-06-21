@@ -24,10 +24,14 @@ const mapelOptions = computed(() =>
 
 const search = ref(props.filters.search || '');
 const showModal = ref(false);
+const editingPaket = ref(null);
 
 const selectedMapel = computed(() =>
     props.mapelList.find(m => m.id == form.mata_pelajaran_id)
 );
+
+const isEdit = computed(() => !!editingPaket.value);
+const modalTitle = computed(() => isEdit.value ? 'Edit Paket Ujian' : 'Buat Paket Baru');
 
 const form = useForm({
     mata_pelajaran_id: '',
@@ -41,22 +45,54 @@ const form = useForm({
     acak_jawaban: true,
 });
 
+const openEdit = (paket) => {
+    editingPaket.value = paket;
+    form.mata_pelajaran_id = paket.mata_pelajaran_id;
+    form.kode = paket.kode;
+    form.nama = paket.nama;
+    form.deskripsi = paket.deskripsi || '';
+    form.durasi_menit = paket.durasi_menit;
+    form.jenis = paket.jenis;
+    form.tingkat = paket.tingkat;
+    form.acak_soal = paket.acak_soal;
+    form.acak_jawaban = paket.acak_jawaban;
+    showModal.value = true;
+};
+
+const createNew = () => {
+    editingPaket.value = null;
+    form.reset();
+    showModal.value = true;
+};
+
 const handleSearch = () => {
     router.get(route('admin.ujian.paket.index'), { search: search.value }, { preserveState: true, replace: true });
 };
 
 watch(() => form.mata_pelajaran_id, (val) => {
-    const mapel = props.mapelList.find(m => m.id == val);
-    if (mapel) form.tingkat = mapel.tingkat;
+    if (!isEdit.value) {
+        const mapel = props.mapelList.find(m => m.id == val);
+        if (mapel) form.tingkat = mapel.tingkat;
+    }
 });
 
 const submitForm = () => {
-    form.post(route('admin.ujian.paket.store'), {
-        onSuccess: () => {
-            showModal.value = false;
-            form.reset();
-        }
-    });
+    if (isEdit.value) {
+        form.put(route('admin.ujian.paket.update', editingPaket.value.hashid), {
+            onSuccess: () => {
+                showModal.value = false;
+                editingPaket.value = null;
+                form.reset();
+            }
+        });
+    } else {
+        form.post(route('admin.ujian.paket.store'), {
+            onSuccess: () => {
+                showModal.value = false;
+                form.reset();
+            }
+        });
+    }
 };
 </script>
 
@@ -74,7 +110,7 @@ const submitForm = () => {
                     </h1>
                     <p class="text-slate-500 font-medium mt-1">Kelola dan rangkai soal ke dalam paket ujian.</p>
                 </div>
-                <button @click="showModal = true" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-indigo-200">
+                <button @click="createNew" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-indigo-200">
                     <Plus class="w-5 h-5" /> Buat Paket
                 </button>
             </div>
@@ -100,8 +136,8 @@ const submitForm = () => {
                         <thead>
                             <tr class="bg-slate-50/50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
                                 <th class="p-4 pl-6">Kode & Nama</th>
-                                <th class="p-4">Mata Pelajaran</th>
-                                <th class="p-4 text-center">Durasi</th>
+                                <th class="p-4 hidden md:table-cell">Mata Pelajaran</th>
+                                <th class="p-4 text-center hidden sm:table-cell">Durasi</th>
                                 <th class="p-4 text-center">Jml Soal</th>
                                 <th class="p-4 pr-6 text-right">Aksi</th>
                             </tr>
@@ -110,38 +146,41 @@ const submitForm = () => {
                             <tr v-for="paket in paketList.data" :key="paket.id" class="hover:bg-slate-50/50 transition-colors">
                                 <td class="p-4 pl-6">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center font-bold text-xs">
-                                            {{ paket.kode }}
-                                        </div>
                                         <div>
-                                            <p class="font-bold text-slate-900">{{ paket.nama }}</p>
-                                            <div class="flex gap-2 mt-1">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-sm shadow-indigo-200 flex-shrink-0">
+                                                    <span class="text-white font-black text-[10px] tracking-wider">{{ paket.kode.slice(0, 3) }}</span>
+                                                </div>
+                                                <span class="text-[11px] font-bold text-indigo-600 tracking-wider uppercase">{{ paket.kode }}</span>
+                                                <p class="font-bold text-slate-900 text-sm sm:text-[13px]">{{ paket.nama }}</p>
+                                            </div>
+                                            <div class="flex gap-1.5 mt-1.5 flex-wrap">
                                                 <span v-if="paket.acak_soal" class="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">Acak Soal</span>
                                                 <span v-if="paket.acak_jawaban" class="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">Acak Opsi</span>
                                             </div>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="p-4">
+                                <td class="p-4 hidden md:table-cell">
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 text-slate-700 font-bold rounded-lg text-xs border border-slate-200">
                                         <BookOpen class="w-3.5 h-3.5 text-indigo-500" />
                                         {{ paket.mata_pelajaran?.nama }}
                                     </span>
                                 </td>
-                                <td class="p-4 text-center font-bold text-slate-700">
+                                <td class="p-4 text-center font-bold text-slate-700 hidden sm:table-cell">
                                     {{ paket.durasi_menit }}'
                                 </td>
                                 <td class="p-4 text-center">
-                                    <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-black rounded-lg border border-emerald-200">
+                                    <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-black rounded-lg border border-emerald-200 text-xs sm:text-[13px]">
                                         {{ paket.soal_count }}
                                     </span>
                                 </td>
-                                <td class="p-4 pr-6 text-right space-x-2">
-                                    <Link :href="route('admin.ujian.paket.show', paket.hashid)" class="inline-flex p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors" title="Lihat & Kelola Soal">
-                                        <Eye class="w-4 h-4" />
+                                <td class="p-4 pr-6 text-right space-x-1.5 sm:space-x-2">
+                                    <Link :href="route('admin.ujian.paket.show', paket.hashid)" class="inline-flex p-1.5 sm:p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors" title="Lihat & Kelola Soal">
+                                        <Eye class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                     </Link>
-                                    <button class="p-2 text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors" title="Pengaturan">
-                                        <Settings class="w-4 h-4" />
+                                    <button @click="openEdit(paket)" class="p-1.5 sm:p-2 text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors" title="Pengaturan">
+                                        <Settings class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                     </button>
                                 </td>
                             </tr>
@@ -158,12 +197,12 @@ const submitForm = () => {
             </div>
         </div>
 
-        <!-- Modal Create Paket -->
+        <!-- Modal Create/Edit Paket -->
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
             <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                 <div class="flex items-center justify-between p-6 border-b border-slate-100">
-                    <h2 class="text-xl font-black text-slate-900">Buat Paket Baru</h2>
-                    <button @click="showModal = false" class="p-2 text-slate-400 hover:text-slate-600 bg-slate-50 rounded-xl transition-colors">
+                    <h2 class="text-xl font-black text-slate-900">{{ modalTitle }}</h2>
+                    <button @click="showModal = false; editingPaket = null; form.reset()" class="p-2 text-slate-400 hover:text-slate-600 bg-slate-50 rounded-xl transition-colors">
                         <X class="w-5 h-5" />
                     </button>
                 </div>
@@ -235,11 +274,11 @@ const submitForm = () => {
                     </div>
 
                     <div class="mt-8 flex justify-end gap-3">
-                        <button type="button" @click="showModal = false" class="px-5 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
+                        <button type="button" @click="showModal = false; editingPaket = null; form.reset()" class="px-5 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
                             Batal
                         </button>
                         <button type="submit" :disabled="form.processing" class="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors flex items-center gap-2">
-                            <Check class="w-4 h-4" /> {{ form.processing ? 'Menyimpan...' : 'Simpan Paket' }}
+                            <Check class="w-4 h-4" /> {{ form.processing ? 'Menyimpan...' : (isEdit ? 'Perbarui Paket' : 'Simpan Paket') }}
                         </button>
                     </div>
                 </form>

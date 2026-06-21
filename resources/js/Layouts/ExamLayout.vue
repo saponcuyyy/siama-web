@@ -4,6 +4,8 @@ import { ref, onMounted, onUnmounted } from 'vue';
 
 const page = usePage();
 const user = page.props.auth.user;
+const settings = page.props.settings || {};
+const namaSekolah = settings.nama_sekolah || 'SMA Negeri 2 Perbaungan';
 const isLogoutOpen = ref(false);
 
 function avatarUrl(name) {
@@ -25,7 +27,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick));
         <header class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 flex-shrink-0">
             <div class="flex items-center gap-3">
                 <img src="/images/logo.png" alt="Logo" class="w-8 h-8 object-contain" />
-                <span class="font-bold text-slate-800 text-sm tracking-tight">SIAMA — Ujian Online</span>
+                <span class="font-bold text-slate-800 text-sm tracking-tight">{{ namaSekolah }} — Ujian Online</span>
             </div>
 
             <div class="flex items-center gap-3">

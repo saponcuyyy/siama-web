@@ -17,6 +17,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -256,7 +257,9 @@ class SesiUjianController extends Controller
 
         $peserta = PesertaUjian::with('siswa')
             ->withCount(['jawabanSiswa as jawaban_terisi' => function ($q) {
-                $q->whereNotNull('jawaban')->orWhereNotNull('jawaban_menjodohkan');
+                $q->where(function ($q) {
+                    $q->whereNotNull('jawaban')->orWhereNotNull('jawaban_menjodohkan');
+                });
             }])
             ->where('sesi_ujian_id', $sesi->id)
             ->paginate($perPage)
@@ -273,11 +276,12 @@ class SesiUjianController extends Controller
             return $sesi->paketUjian->soal()->sum('bobot') ?: 100;
         });
 
-        $stats = PesertaUjian::where('sesi_ujian_id', $sesi->id)
+        $stats = DB::table('peserta_ujian')
+            ->where('sesi_ujian_id', $sesi->id)
             ->selectRaw('COUNT(*) as total')
-            ->selectRaw('SUM(CAST(status = ? AS UNSIGNED)) as mengerjakan', [PesertaStatus::MENGERJAKAN->value])
-            ->selectRaw('SUM(CAST(status = ? AS UNSIGNED)) as selesai', [PesertaStatus::SELESAI->value])
-            ->selectRaw('SUM(CAST(status = ? AS UNSIGNED)) as didiskualifikasi', [PesertaStatus::DIDISKUALIFIKASI->value])
+            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as mengerjakan', [PesertaStatus::MENGERJAKAN->value])
+            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as selesai', [PesertaStatus::SELESAI->value])
+            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as didiskualifikasi', [PesertaStatus::DIDISKUALIFIKASI->value])
             ->selectRaw('ROUND(AVG(CASE WHEN status = ? AND nilai_akhir IS NOT NULL THEN nilai_akhir END), 2) as rata_nilai', [PesertaStatus::SELESAI->value])
             ->first();
 

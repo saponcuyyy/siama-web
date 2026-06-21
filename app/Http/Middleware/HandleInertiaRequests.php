@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
@@ -26,6 +27,10 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            'notifications' => [
+                'unread_count' => fn () => $request->user()?->unreadNotifications()->count() ?? 0,
+            ],
+            'settings' => Cache::remember('settings', 3600, fn () => Setting::pluck('value', 'key')),
         ];
     }
 

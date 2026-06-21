@@ -306,6 +306,11 @@ Route::prefix('admin')
     ->group(function () {
         Route::resource('users', UserController::class)->except(['create', 'edit', 'show'])->middleware('can:users.view');
         Route::resource('roles', RoleController::class)->except(['create', 'edit', 'show'])->middleware('can:roles.view');
+
+        Route::get('notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('notifications/fetch', [\App\Http\Controllers\Admin\NotificationController::class, 'fetch'])->name('notifications.fetch');
+        Route::post('notifications/{notification}/read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::post('notifications/read-all', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllRead'])->name('notifications.read-all');
     });
 
 // ─── UJIAN ONLINE (CBT) - SISWA LOGIN ──────────────────────────────────────

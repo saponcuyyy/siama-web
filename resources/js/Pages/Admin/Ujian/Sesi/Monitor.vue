@@ -271,7 +271,7 @@ const confirmDiskualifikasi = () => {
                                 </td>
                                 <td class="p-4 pr-6 text-right">
                                     <div class="flex items-center justify-end gap-2">
-                                        <Link :href="route('admin.ujian.sesi.peserta.detail', [sesi.hashid, p.id])"
+                                        <Link :href="route('admin.ujian.sesi.peserta.detail', [sesi.hashid, p.hashid])"
                                             class="px-3 py-1.5 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold transition-colors">
                                             Detail
                                         </Link>
