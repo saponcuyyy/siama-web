@@ -52,7 +52,10 @@ const initials = computed(() => {
         .split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase();
 });
 
-const roleLabel = computed(() => props.user?.roles?.[0] ?? 'pengguna');
+const roleLabel = computed(() => {
+    const roles = page.props.auth.user?.roles;
+    return roles?.[0] || 'pengguna';
+});
 </script>
 
 <template>
@@ -101,7 +104,7 @@ const roleLabel = computed(() => props.user?.roles?.[0] ?? 'pengguna');
                     >
                         <div :class="['w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors',
                             activeTab === tab.id ? 'bg-white/20' : 'bg-slate-100 group-hover:bg-indigo-50']">
-                            <component :is="tab.icon" :class="['w-4.5 h-4.5', activeTab === tab.id ? 'text-white' : 'text-slate-500 group-hover:text-indigo-600']" stroke-width="2.5" />
+                            <component :is="tab.icon" :class="['w-5 h-5', activeTab === tab.id ? 'text-white' : 'text-slate-500 group-hover:text-indigo-600']" stroke-width="2.5" />
                         </div>
                         <div class="min-w-0">
                             <p :class="['text-sm font-bold leading-tight', activeTab === tab.id ? 'text-white' : 'text-slate-800']">{{ tab.label }}</p>
@@ -170,7 +173,7 @@ const roleLabel = computed(() => props.user?.roles?.[0] ?? 'pengguna');
 
                             <!-- Info Card -->
                             <div class="flex items-start gap-3 p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
-                                <CheckCircle class="w-4.5 h-4.5 text-indigo-500 mt-0.5 flex-shrink-0" />
+                                <CheckCircle class="w-5 h-5 text-indigo-500 mt-0.5 flex-shrink-0" />
                                 <p class="text-xs text-indigo-700 font-semibold leading-relaxed">
                                     Email digunakan untuk login. Pastikan email yang dimasukkan aktif dan dapat diakses.
                                 </p>

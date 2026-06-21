@@ -116,10 +116,10 @@ class GuruController extends Controller
     public function destroy(Guru $guru)
     {
         DB::transaction(function () use ($guru) {
+            $guru->delete();
             if ($guru->user_id) {
                 $guru->user?->delete();
             }
-            $guru->delete();
         });
 
         return back()->with('success', 'Data guru berhasil dihapus.');

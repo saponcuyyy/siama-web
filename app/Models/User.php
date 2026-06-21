@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use \App\Traits\HasAuditTrail, HasFactory, \Laravel\Fortify\TwoFactorAuthenticatable, Notifiable, \Spatie\Permission\Traits\HasRoles;
+    use \App\Traits\HasAuditTrail, HasFactory, \Illuminate\Database\Eloquent\SoftDeletes, \Laravel\Fortify\TwoFactorAuthenticatable, Notifiable, \Spatie\Permission\Traits\HasRoles;
 
     /**
      * The attributes that are mass assignable.

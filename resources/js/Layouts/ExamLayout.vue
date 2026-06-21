@@ -27,7 +27,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick));
         <header class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 flex-shrink-0">
             <div class="flex items-center gap-3">
                 <img src="/images/logo.png" alt="Logo" class="w-8 h-8 object-contain" />
-                <span class="font-bold text-slate-800 text-sm tracking-tight">{{ namaSekolah }} — Ujian Online</span>
+                <span class="font-bold text-slate-800 text-sm tracking-tight">CBT - {{ namaSekolah }}</span>
             </div>
 
             <div class="flex items-center gap-3">
@@ -47,10 +47,6 @@ onUnmounted(() => document.removeEventListener('click', onDocClick));
                             <p class="text-xs font-bold text-slate-500">{{ user.name }}</p>
                             <p class="text-[10px] text-indigo-600 font-semibold uppercase">{{ user.roles[0] }}</p>
                         </div>
-                        <Link :href="route('ujian.index')" class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            Daftar Ujian
-                        </Link>
                         <div class="border-t border-slate-100 my-1"></div>
                         <Link :href="route('ujian.logout')" method="post" as="button" class="w-full flex items-center gap-2 px-4 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>

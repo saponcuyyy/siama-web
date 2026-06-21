@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import NotificationDropdown from '@/Components/NotificationDropdown.vue';
 import {
@@ -54,6 +54,12 @@ watch(flash, () => {
 const isSidebarOpen = ref(true);
 const isUserMenuOpen = ref(false);
 const isMobileMenuOpen = ref(false);
+
+function onDocClick(e) {
+    if (isUserMenuOpen.value) isUserMenuOpen.value = false;
+}
+onMounted(() => document.addEventListener('click', onDocClick));
+onUnmounted(() => document.removeEventListener('click', onDocClick));
 
 function avatarUrl(name) {
     const initials = name.split(' ').slice(0, 2).map(s => s[0]).join('').toUpperCase() || 'U';
@@ -417,7 +423,7 @@ navigation.forEach(item => {
 
                     <div class="relative">
                         <button 
-                            @click="isUserMenuOpen = !isUserMenuOpen"
+                            @click.stop="isUserMenuOpen = !isUserMenuOpen"
                             class="flex items-center gap-3 p-1 rounded-full hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
                         >
                             <div class="w-8 h-8 bg-indigo-100 rounded-full overflow-hidden border border-indigo-200">

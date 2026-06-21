@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
-import { UserSquare, Plus, Search, Pencil, Trash2, X, Check, Users, Info, Mail, Briefcase, Upload, FileSpreadsheet, Download } from 'lucide-vue-next';
+import { UserSquare, Plus, Search, Pencil, Trash2, AlertTriangle, X, Check, Users, Info, Mail, Briefcase, Upload, FileSpreadsheet, Download } from 'lucide-vue-next';
 import dayjs from 'dayjs';
 
 const props = defineProps({
@@ -47,6 +47,9 @@ const getBadgeClass = (jabatan) => JABATAN_BADGE[jabatan] ?? 'bg-slate-100 text-
 const search   = ref(props.filters.search || '');
 const showModal = ref(false);
 const showImportModal = ref(false);
+const showDeleteModal = ref(false);
+const deleteTarget = ref(null);
+const isDeleting = ref(false);
 const editTarget = ref(null);
 
 const form = useForm({
@@ -155,10 +158,21 @@ const formatDate = (date) => {
     return dayjs(date).format('DD MMM YYYY');
 };
 
-const hapus = (guru) => {
-    if (confirm(`Hapus data guru "${guru.nama}"? Akun login guru ini juga akan dihapus secara permanen.`)) {
-        router.delete(route('admin.web.guru.destroy', guru.hashid));
-    }
+const openDelete = (guru) => {
+    deleteTarget.value = guru;
+    showDeleteModal.value = true;
+};
+
+const confirmDelete = () => {
+    if (!deleteTarget.value) return;
+    isDeleting.value = true;
+    router.delete(route('admin.web.guru.destroy', deleteTarget.value.hashid), {
+        onSuccess: () => {
+            showDeleteModal.value = false;
+            deleteTarget.value = null;
+        },
+        onFinish: () => { isDeleting.value = false; },
+    });
 };
 
 const getInitials = (name) => {
@@ -302,7 +316,7 @@ const mapelLabel = (mapel) => {
                                         <button @click="openEdit(guru)" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors">
                                             <Pencil class="w-4 h-4" />
                                         </button>
-                                        <button @click="hapus(guru)" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">
+                                        <button @click="openDelete(guru)" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">
                                             <Trash2 class="w-4 h-4" />
                                         </button>
                                     </div>
@@ -501,6 +515,36 @@ const mapelLabel = (mapel) => {
                         >
                             <Check class="w-4 h-4" /> 
                             {{ importForm.processing ? 'Memproses...' : 'Mulai Import' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Konfirmasi Hapus Guru -->
+        <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+            <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden text-center">
+                <div class="p-8">
+                    <div class="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                        <AlertTriangle class="w-8 h-8" />
+                    </div>
+                    <h3 class="text-xl font-black text-slate-900 mb-2">Hapus Data Guru</h3>
+                    <p class="text-slate-500 text-sm font-medium leading-relaxed mb-2">
+                        Yakin ingin menghapus guru <span class="font-bold text-slate-900">{{ deleteTarget?.nama }}</span>?
+                    </p>
+                    <div class="bg-rose-50 border border-rose-100 rounded-xl px-4 py-3 mb-6">
+                        <p class="font-bold text-rose-700 text-sm">Akun login guru ini juga akan dihapus.</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button @click="showDeleteModal = false; deleteTarget = null" :disabled="isDeleting"
+                            class="flex-1 py-3 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
+                            Batal
+                        </button>
+                        <button @click="confirmDelete" :disabled="isDeleting"
+                            class="flex-1 py-3 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors flex items-center justify-center gap-2">
+                            <span v-if="isDeleting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <Trash2 v-else class="w-4 h-4" />
+                            {{ isDeleting ? 'Menghapus...' : 'Ya, Hapus' }}
                         </button>
                     </div>
                 </div>

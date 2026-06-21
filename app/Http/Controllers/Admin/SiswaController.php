@@ -167,11 +167,10 @@ class SiswaController extends Controller
     public function destroy(Siswa $siswa)
     {
         DB::transaction(function () use ($siswa) {
-            // Hapus user terkait jika ada
+            $siswa->delete();
             if ($siswa->user_id) {
                 $siswa->user?->delete();
             }
-            $siswa->delete();
         });
 
         return back()->with('success', 'Data siswa berhasil dihapus.');

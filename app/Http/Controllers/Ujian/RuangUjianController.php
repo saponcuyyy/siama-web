@@ -94,7 +94,7 @@ class RuangUjianController extends Controller
             ->where('siswa_id', $siswa->id)
             ->whereIn('status', [PesertaStatus::SELESAI->value, PesertaStatus::DIDISKUALIFIKASI->value])
             ->latest()
-            ->get();
+            ->paginate(10);
 
         // Map status peserta siswa untuk setiap sesi aktif
         $sesiIds = $sesiAktif->pluck('id');
