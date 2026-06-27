@@ -259,8 +259,9 @@ class FileUploadService
             throw new \InvalidArgumentException("File PDF input tidak ditemukan.");
         }
 
-        $pdfRealPath = $disk->path($pdfPath);
-        $htmlRealPath = $disk->path($htmlPath);
+        $pdfRealPath = $this->resolveInputPath($disk, $pdfPath);
+        $htmlRealPath = $this->resolveOutputPath($disk, $htmlPath);
+        $isTempOutput = !$this->isLocalDisk($disk);
 
         // Pastikan folder tujuan ada
         $dirPath = dirname($htmlRealPath);
@@ -287,6 +288,11 @@ class FileUploadService
                     "Gagal mengonversi PDF ke HTML: " . $process->errorOutput()
                 );
             }
+
+            // Upload hasil konversi ke disk (untuk S3/minio)
+            if ($isTempOutput && file_exists($htmlRealPath)) {
+                $disk->put($htmlPath, file_get_contents($htmlRealPath), 'public');
+            }
         } catch (\Exception $e) {
             // Log warning bahwa pdftohtml gagal/tidak ada, dan buat HTML fallback
             \Illuminate\Support\Facades\Log::warning(
@@ -297,7 +303,89 @@ class FileUploadService
             $disk->put($htmlPath, $fallbackHtml, 'public');
         }
 
+        $this->cleanupTempFile($pdfRealPath, $pdfPath);
+        $this->cleanupTempFile($htmlRealPath, $htmlPath);
+
         return true;
+    }
+
+    protected function isLocalDisk($disk): bool
+    {
+        try {
+            $disk->path('test');
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Resolve real filesystem path for input file (must exist).
+     * Handles both local and S3/minio disks by downloading to temp if needed.
+     */
+    protected function resolveInputPath($disk, string $path): string
+    {
+        try {
+            $realPath = $disk->path($path);
+            if ($realPath && file_exists($realPath)) {
+                return $realPath;
+            }
+        } catch (\Exception $e) {
+            // Disk doesn't support path() — download to temp
+        }
+
+        $tempDir = sys_get_temp_dir() . '/pdf-convert-' . uniqid();
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        $tempPath = $tempDir . '/' . basename($path);
+        file_put_contents($tempPath, $disk->get($path));
+
+        return $tempPath;
+    }
+
+    /**
+     * Resolve real filesystem path for output file (may not exist yet).
+     * For local disks returns the real path; for remote disks returns temp path.
+     */
+    protected function resolveOutputPath($disk, string $path): string
+    {
+        try {
+            $realPath = $disk->path($path);
+            if ($realPath) {
+                return $realPath;
+            }
+        } catch (\Exception $e) {
+            // Disk doesn't support path()
+        }
+
+        $tempDir = sys_get_temp_dir() . '/pdf-convert-' . uniqid();
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        return $tempDir . '/' . basename($path);
+    }
+
+    /**
+     * Clean up temp file if it was downloaded for non-local disk.
+     */
+    protected function cleanupTempFile(string $realPath, string $originalPath): void
+    {
+        $disk = Storage::disk($this->disk);
+        try {
+            $storagePath = $disk->path($originalPath);
+        } catch (\Exception $e) {
+            $storagePath = null;
+        }
+        if ($realPath !== $storagePath && file_exists($realPath)) {
+            @unlink($realPath);
+            $dir = dirname($realPath);
+            if (is_dir($dir) && str_starts_with($dir, sys_get_temp_dir())) {
+                @rmdir($dir);
+            }
+        }
     }
 
     /**

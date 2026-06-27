@@ -3,6 +3,7 @@
 namespace App\Services\Website;
 
 use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Facades\Storage;
 
 class PdfTableExtractor
 {
@@ -12,7 +13,8 @@ class PdfTableExtractor
     public const MIN_CONTENT_THRESHOLD = 0.3;
 
     /**
-     * Extract tables from a PDF file using pdftotext layout analysis.
+     * Extract tables from a PDF file.
+     * Tries pdftotext CLI first, falls back to smalot/pdfparser.
      */
     public function extract(string $pdfPath): array
     {
@@ -22,28 +24,275 @@ class PdfTableExtractor
 
     protected function getPdfText(string $pdfPath): string
     {
-        $disk = \Illuminate\Support\Facades\Storage::disk('public');
+        $disk = Storage::disk('public');
         if (!$disk->exists($pdfPath)) {
             throw new \InvalidArgumentException("PDF file not found: {$pdfPath}");
         }
 
-        $realPath = $disk->path($pdfPath);
+        $realPath = $this->resolveRealPath($disk, $pdfPath);
 
-        $result = Process::run([
-            'pdftotext',
-            '-layout',
-            '-nopgbrk',
-            $realPath,
-            '-',
-        ]);
+        // Coba pdftotext CLI terlebih dahulu
+        try {
+            $result = Process::run([
+                'pdftotext',
+                '-layout',
+                '-nopgbrk',
+                $realPath,
+                '-',
+            ]);
 
-        if (!$result->successful()) {
-            throw new \RuntimeException(
-                "Failed to extract text from PDF: " . $result->errorOutput()
+            if ($result->successful()) {
+                $this->cleanupTempFile($realPath, $pdfPath);
+                return $result->output();
+            }
+
+            throw new \RuntimeException("pdftotext failed: " . $result->errorOutput());
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::info(
+                'PdfTableExtractor: pdftotext tidak tersedia, menggunakan smalot/pdfparser. ' . $e->getMessage()
             );
         }
 
-        return $result->output();
+        // Fallback ke smalot/pdfparser (pure PHP)
+        $text = $this->extractTextWithSmalot($realPath);
+        $this->cleanupTempFile($realPath, $pdfPath);
+        return $text;
+    }
+
+    /**
+     * Resolve real filesystem path from storage disk.
+     * Handles both local and S3/minio disks by downloading to temp if needed.
+     */
+    protected function resolveRealPath($disk, string $pdfPath): string
+    {
+        try {
+            $realPath = $disk->path($pdfPath);
+            if ($realPath && file_exists($realPath)) {
+                return $realPath;
+            }
+        } catch (\Exception $e) {
+            // Disk doesn't support path() (e.g. S3/minio) — download to temp
+        }
+
+        $tempDir = sys_get_temp_dir() . '/pdf-tables-' . uniqid();
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        $tempPath = $tempDir . '/' . basename($pdfPath);
+        file_put_contents($tempPath, $disk->get($pdfPath));
+
+        return $tempPath;
+    }
+
+    /**
+     * Clean up temp file if it was downloaded for non-local disk.
+     */
+    protected function cleanupTempFile(string $realPath, string $originalPath): void
+    {
+        try {
+            $storagePath = Storage::disk('public')->path($originalPath);
+        } catch (\Exception $e) {
+            $storagePath = null;
+        }
+        if ($realPath !== $storagePath && file_exists($realPath)) {
+            @unlink($realPath);
+            $dir = dirname($realPath);
+            if (is_dir($dir) && str_starts_with($dir, sys_get_temp_dir())) {
+                @rmdir($dir);
+            }
+        }
+    }
+
+    /**
+     * Ekstrak teks dengan layout menggunakan smalot/pdfparser.
+     * Merekonstruksi posisi kolom dari koordinat X/Y setiap elemen teks,
+     * sehingga menghasilkan output yang mirip dengan pdftotext -layout.
+     */
+    protected function extractTextWithSmalot(string $realPath): string
+    {
+        if (!class_exists(\Smalot\PdfParser\Parser::class)) {
+            throw new \RuntimeException(
+                'smalot/pdfparser tidak terinstall. Jalankan: composer require smalot/pdfparser'
+            );
+        }
+
+        $config = new \Smalot\PdfParser\Config();
+        $config->setDataTmFontInfoHasToBeIncluded(true);
+
+        $parser = new \Smalot\PdfParser\Parser([], $config);
+        $pdf    = $parser->parseFile($realPath);
+        $pages  = $pdf->getPages();
+
+        $outputLines = [];
+
+        foreach ($pages as $page) {
+            // Dapatkan semua elemen teks beserta matriks posisi
+            try {
+                $dataTm = $page->getDataTm();
+            } catch (\Exception $e) {
+                // Halaman tidak punya data posisi, skip
+                continue;
+            }
+
+            if (empty($dataTm)) {
+                $outputLines[] = $this->getFallbackTextFromPage($page);
+                continue;
+            }
+
+            // Kelompokkan elemen teks per baris berdasarkan koordinat Y
+            // Gunakan toleransi ±2 unit agar teks satu baris yang sedikit berbeda Y-nya
+            // tetap dianggap satu baris
+            $rows = [];
+            foreach ($dataTm as $element) {
+                // $element[0] = [a, b, c, d, x, y] — transformation matrix
+                // $element[1] = teks
+                if (!isset($element[0][5], $element[1])) {
+                    continue;
+                }
+
+                $x    = (float) $element[0][4];
+                $y    = (float) $element[0][5];
+                $text = (string) $element[1];
+
+                if (trim($text) === '') {
+                    continue;
+                }
+
+                // Cari baris yang Y-nya dalam toleransi ±2
+                $matchedRow = null;
+                foreach ($rows as $rowY => $rowItems) {
+                    if (abs((float)$rowY - $y) <= 2) {
+                        $matchedRow = $rowY;
+                        break;
+                    }
+                }
+
+                if ($matchedRow !== null) {
+                    $rows[$matchedRow][] = ['x' => $x, 'text' => $text];
+                } else {
+                    // Use string key to avoid float-to-int implicit conversion
+                    $key = number_format($y, 4, '.', '');
+                    $rows[$key][] = ['x' => $x, 'text' => $text];
+                }
+            }
+
+            if (empty($rows)) {
+                continue;
+            }
+
+            // Sort baris dari Y besar ke kecil (PDF Y = 0 di bawah)
+            krsort($rows);
+
+            // Hitung lebar karakter rata-rata untuk memetakan X → kolom karakter
+            // Coba kalkulasi dari selisih X antar teks berurutan dalam baris yang sama
+            $charWidth = $this->calculateCharWidth($rows);
+
+            foreach ($rows as $rowItems) {
+                // Sort elemen dalam baris dari kiri ke kanan (X kecil ke besar)
+                usort($rowItems, fn($a, $b) => $a['x'] <=> $b['x']);
+
+                if (empty($rowItems)) {
+                    continue;
+                }
+
+                // Gabungkan blok teks yang sangat dekat (kerning/tracking) atau terpisah 1 spasi
+                $mergedItems = [];
+                foreach ($rowItems as $item) {
+                    if (empty($mergedItems)) {
+                        $mergedItems[] = $item;
+                    } else {
+                        $lastIdx = count($mergedItems) - 1;
+                        $lastItem = &$mergedItems[$lastIdx];
+
+                        $lastWidth = strlen($lastItem['text']) * $charWidth;
+                        $lastEnd   = $lastItem['x'] + $lastWidth;
+                        $charGap   = ($item['x'] - $lastEnd) / $charWidth;
+
+                        if ($charGap < 1.0) {
+                            // Gabungkan tanpa spasi jika gap sangat kecil
+                            $lastItem['text'] .= $item['text'];
+                        } elseif ($charGap < 2.0) {
+                            // Gabungkan dengan 1 spasi jika gap setara 1 karakter
+                            $lastItem['text'] .= ' ' . $item['text'];
+                        } else {
+                            $mergedItems[] = $item;
+                        }
+                    }
+                }
+                $rowItems = $mergedItems;
+
+                // Hitung offset X minimum agar baris dimulai dari kolom 0
+                $minX   = $rowItems[0]['x'];
+                $maxCol = 0;
+
+                // Bangun array of (col, text)
+                $colTexts = [];
+                foreach ($rowItems as $item) {
+                    $col        = (int) round(($item['x'] - $minX) / $charWidth);
+                    $colTexts[] = ['col' => $col, 'text' => $item['text']];
+                    $maxCol     = max($maxCol, $col + strlen($item['text']));
+                }
+
+                // Buat string baris dengan spasi sesuai posisi kolom
+                $lineBuffer = str_repeat(' ', $maxCol + 10);
+
+                foreach ($colTexts as $ct) {
+                    $col  = $ct['col'];
+                    $text = $ct['text'];
+                    $len  = strlen($text);
+
+                    if ($col + $len <= strlen($lineBuffer)) {
+                        $lineBuffer = substr_replace($lineBuffer, $text, $col, $len);
+                    } else {
+                        $lineBuffer .= ' ' . $text;
+                    }
+                }
+
+                $outputLines[] = rtrim($lineBuffer);
+            }
+
+            // Tambahkan pemisah antar halaman
+            $outputLines[] = '';
+        }
+
+        return implode("\n", $outputLines);
+    }
+
+    /**
+     * Fallback when getDataTm() returns empty: gunakan getText() biasa.
+     */
+    protected function getFallbackTextFromPage($page): string
+    {
+        try {
+            $text = $page->getText();
+        } catch (\Exception $e) {
+            return '';
+        }
+        return trim($text);
+    }
+
+    /**
+     * Hitung lebar karakter rata-rata dari data baris yang ada,
+     * agar mapping X → kolom karakter lebih akurat untuk berbagai PDF.
+     * Jika tidak bisa dihitung, gunakan default 6.0.
+     */
+    protected function calculateCharWidth(array $rows): float
+    {
+        $deltas = [];
+        foreach ($rows as $rowItems) {
+            $items = array_values($rowItems);
+            for ($i = 1; $i < count($items); $i++) {
+                $delta = abs($items[$i]['x'] - $items[$i - 1]['x']);
+                $textLen = max(strlen($items[$i - 1]['text']), 1);
+                $deltas[] = $delta / $textLen;
+            }
+        }
+        $deltas = array_filter($deltas, fn($d) => $d > 1 && $d < 20);
+        if (count($deltas) < 3) {
+            return 6.0;
+        }
+        return array_sum($deltas) / count($deltas);
     }
 
     /**
@@ -106,6 +355,15 @@ class PdfTableExtractor
         if (preg_match('/^[\s\-\_\=\.]+$/', $trimmed)) return false;
 
         $columns = $this->splitByDensity($line);
+
+        // Filter out key-value metadata lines (e.g. "NAMA SEKOLAH : SMAN 2")
+        foreach ($columns as $col) {
+            $colTrimmed = trim($col);
+            if (str_starts_with($colTrimmed, ':') || str_ends_with($colTrimmed, ':')) {
+                return false;
+            }
+        }
+
         $count = count($columns);
         return $count >= self::MIN_COLUMNS && $count <= self::MAX_COLUMNS;
     }

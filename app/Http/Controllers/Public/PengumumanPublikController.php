@@ -82,9 +82,12 @@ class PengumumanPublikController extends Controller
 
     public function embed(Pengumuman $pengumuman)
     {
-        abort_unless($pengumuman->status === 'aktif', 404);
-        if ($pengumuman->tanggal_selesai && $pengumuman->tanggal_selesai->isPast()) {
-            abort(404);
+        $isAdmin = auth()->check() && auth()->user()->can('web.pengumuman.manage');
+        if (!$isAdmin) {
+            abort_unless($pengumuman->status === 'aktif', 404);
+            if ($pengumuman->tanggal_selesai && $pengumuman->tanggal_selesai->isPast()) {
+                abort(404);
+            }
         }
 
         abort_unless($pengumuman->lampiran, 404, 'File pengumuman tidak ditemukan.');
@@ -93,6 +96,20 @@ class PengumumanPublikController extends Controller
         abort_unless(Storage::disk($disk)->exists($pengumuman->lampiran), 404, 'File tidak ditemukan.');
 
         $content = Storage::disk($disk)->get($pengumuman->lampiran);
+
+        // Jika ini adalah HTML fallback yang meng-embed PDF, kembalikan response PDF secara langsung
+        // untuk menghindari pemblokiran oleh Brave Shields akibat nested iframe & CSP.
+        if (str_contains($content, '[PDF_URL]')) {
+            $pdfPath = (string) Str::of($pengumuman->lampiran)->replace('.html', '.pdf');
+            if (Storage::disk($disk)->exists($pdfPath)) {
+                return Storage::disk($disk)->response($pdfPath, null, [
+                    'Content-Type' => 'application/pdf',
+                    'X-Content-Type-Options' => 'nosniff',
+                    'X-Frame-Options' => 'SAMEORIGIN',
+                    'Cache-Control' => 'private, max-age=3600',
+                ]);
+            }
+        }
 
         // Ganti placeholder dengan URL PDF dinamis jika ada
         $pdfUrl = route('public.pengumuman.pdf', $pengumuman->hashid);

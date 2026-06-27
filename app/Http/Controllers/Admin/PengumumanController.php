@@ -141,6 +141,20 @@ class PengumumanController extends Controller
 
         $content = Storage::disk($disk)->get($pengumuman->lampiran);
 
+        // Jika ini adalah HTML fallback yang meng-embed PDF, kembalikan response PDF secara langsung
+        // untuk menghindari pemblokiran oleh Brave Shields akibat nested iframe & CSP.
+        if (str_contains($content, '[PDF_URL]')) {
+            $pdfPath = (string) \Illuminate\Support\Str::of($pengumuman->lampiran)->replace('.html', '.pdf');
+            if (Storage::disk($disk)->exists($pdfPath)) {
+                return Storage::disk($disk)->response($pdfPath, null, [
+                    'Content-Type' => 'application/pdf',
+                    'X-Content-Type-Options' => 'nosniff',
+                    'X-Frame-Options' => 'SAMEORIGIN',
+                    'Cache-Control' => 'private, max-age=3600',
+                ]);
+            }
+        }
+
         // Ganti placeholder dengan URL PDF dinamis jika ada
         $pdfUrl = route('public.pengumuman.pdf', $pengumuman->hashid);
         $content = str_replace('[PDF_URL]', $pdfUrl, $content);
