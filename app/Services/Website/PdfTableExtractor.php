@@ -297,16 +297,14 @@ class PdfTableExtractor
 
     /**
      * Detect tables by scanning lines for column-aligned content.
+     * Splits into a new table whenever a repeated header signature is detected.
      */
     protected function detectTables(string $text): array
     {
-        // Strip PDF formatting tags (pdftotext outputs <b>, <i>, <u> etc.
-        // for bold/italic text, which break column alignment detection and
-        // appear as literal text in extracted cells).
+        // Strip PDF formatting tags (pdftotext outputs <b>, <i>, <u> etc.)
         $text = strip_tags($text);
         $lines = preg_split('/\r\n|\r|\n/', $text);
         $lines = array_map('rtrim', $lines);
-        // Remove leading layout padding; internal spacing is preserved.
         $lines = array_map(fn($l) => ltrim($l), $lines);
         $tables = [];
         $i = 0;
@@ -315,12 +313,34 @@ class PdfTableExtractor
             $line = $lines[$i];
 
             if ($this->isProbablyTableRow($line)) {
+                // Collect the first "header candidate" line signature
+                $headerSignature = $this->getRowSignature($line);
                 $tableLines = [$line];
                 $i++;
 
                 while ($i < count($lines)) {
                     $nextLine = $lines[$i];
+
                     if ($this->isProbablyTableRow($nextLine)) {
+                        // If we see the same header signature again after at least
+                        // MIN_CONSECUTIVE_ROWS rows, it's a new section/sub-table.
+                        $sig = $this->getRowSignature($nextLine);
+                        if (
+                            $sig === $headerSignature
+                            && count($tableLines) >= self::MIN_CONSECUTIVE_ROWS + 1
+                        ) {
+                            // Flush current table, start a new one with this header row
+                            if (count($tableLines) >= self::MIN_CONSECUTIVE_ROWS) {
+                                $table = $this->parseTable($tableLines);
+                                if ($table !== null) {
+                                    $tables[] = $table;
+                                }
+                            }
+                            $tableLines = [$nextLine];
+                            $i++;
+                            continue;
+                        }
+
                         $tableLines[] = $nextLine;
                         $i++;
                     } elseif (trim($nextLine) === '') {
@@ -342,6 +362,18 @@ class PdfTableExtractor
         }
 
         return $tables;
+    }
+
+    /**
+     * Get a normalized "signature" for a row: a lowercased, sorted list
+     * of trimmed cell values, used to detect repeated header rows.
+     */
+    protected function getRowSignature(string $line): string
+    {
+        $cells = $this->splitByDensity($line);
+        $normalized = array_map(fn($c) => strtolower(trim($c)), $cells);
+        sort($normalized);
+        return implode('|', $normalized);
     }
 
     /**

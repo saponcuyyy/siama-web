@@ -79,23 +79,36 @@ const hasTables = computed(() => props.tables && props.tables.length > 0);
                 </div>
 
                 <!-- Tables -->
-                <div v-if="hasTables" class="space-y-6">
+                <div v-if="hasTables" class="space-y-5">
                     <div
                         v-for="(table, ti) in tables"
                         :key="ti"
                         class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
                     >
-                        <div class="flex items-center gap-2 px-6 py-4 bg-slate-50/80 border-b border-slate-200">
-                            <Table2 class="w-5 h-5 text-slate-500" />
-                            <h2 class="font-bold text-slate-700 text-sm uppercase tracking-wider">
-                                {{ tables.length > 1 ? `Tabel ${ti + 1}` : 'Data' }}
-                            </h2>
+                        <!-- Table Card Header -->
+                        <div class="flex items-center gap-3 px-5 py-3.5 bg-slate-50 border-b border-slate-200">
+                            <div class="flex-shrink-0 w-7 h-7 rounded-lg bg-blue-600 text-white text-xs font-black flex items-center justify-center shadow-sm shadow-blue-200">
+                                {{ ti + 1 }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-black text-slate-700 uppercase tracking-wider">
+                                    {{ tables.length > 1 ? `Tabel ${ti + 1}` : 'Data Pengumuman' }}
+                                </p>
+                                <p class="text-[10px] text-slate-400 font-medium truncate mt-0.5">
+                                    {{ table.columns.filter(c => c).join(' · ') }}
+                                </p>
+                            </div>
+                            <span class="flex-shrink-0 text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                                {{ table.rows.length }} baris
+                            </span>
                         </div>
-                        <div class="p-4 sm:p-6">
+
+                        <!-- DataTable Component -->
+                        <div class="p-4 sm:p-5">
                             <DataTable
                                 :columns="table.columns"
                                 :rows="table.rows"
-                                :title="tables.length > 1 ? `Tabel ${ti + 1}` : ''"
+                                :searchable="table.rows.length > 5"
                             />
                         </div>
                     </div>
