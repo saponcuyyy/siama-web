@@ -141,6 +141,10 @@ class PengumumanController extends Controller
 
         $content = Storage::disk($disk)->get($pengumuman->lampiran);
 
+        // Ganti placeholder dengan URL PDF dinamis jika ada
+        $pdfUrl = route('public.pengumuman.pdf', $pengumuman->hashid);
+        $content = str_replace('[PDF_URL]', $pdfUrl, $content);
+
         return response($content, 200)
             ->header('Content-Type', 'text/html')
             ->header('X-Content-Type-Options', 'nosniff')

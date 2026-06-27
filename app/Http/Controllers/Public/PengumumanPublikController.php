@@ -57,9 +57,13 @@ class PengumumanPublikController extends Controller
 
     public function pdf(Pengumuman $pengumuman)
     {
-        abort_unless($pengumuman->status === 'aktif', 404);
-        if ($pengumuman->tanggal_selesai && $pengumuman->tanggal_selesai->isPast()) {
-            abort(404);
+        $isAdmin = auth()->check() && auth()->user()->can('web.pengumuman.manage');
+
+        if (!$isAdmin) {
+            abort_unless($pengumuman->status === 'aktif', 404);
+            if ($pengumuman->tanggal_selesai && $pengumuman->tanggal_selesai->isPast()) {
+                abort(404);
+            }
         }
 
         abort_unless($pengumuman->lampiran, 404, 'File pengumuman tidak ditemukan.');
@@ -89,6 +93,10 @@ class PengumumanPublikController extends Controller
         abort_unless(Storage::disk($disk)->exists($pengumuman->lampiran), 404, 'File tidak ditemukan.');
 
         $content = Storage::disk($disk)->get($pengumuman->lampiran);
+
+        // Ganti placeholder dengan URL PDF dinamis jika ada
+        $pdfUrl = route('public.pengumuman.pdf', $pengumuman->hashid);
+        $content = str_replace('[PDF_URL]', $pdfUrl, $content);
 
         return response($content, 200)
             ->header('Content-Type', 'text/html')

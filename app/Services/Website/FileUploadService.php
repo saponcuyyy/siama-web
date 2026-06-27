@@ -272,22 +272,71 @@ class FileUploadService
         // -s: single HTML file
         // -noframes: no HTML frames
         // -dataurls: embed images as base64 data URIs
-        $process = \Illuminate\Support\Facades\Process::run([
-            'pdftohtml',
-            '-s',
-            '-noframes',
-            '-dataurls',
-            $pdfRealPath,
-            $htmlRealPath
-        ]);
+        try {
+            $process = \Illuminate\Support\Facades\Process::run([
+                'pdftohtml',
+                '-s',
+                '-noframes',
+                '-dataurls',
+                $pdfRealPath,
+                $htmlRealPath
+            ]);
 
-        if (!$process->successful()) {
-            throw new \RuntimeException(
-                "Gagal mengonversi PDF ke HTML: " . $process->errorOutput()
+            if (!$process->successful()) {
+                throw new \RuntimeException(
+                    "Gagal mengonversi PDF ke HTML: " . $process->errorOutput()
+                );
+            }
+        } catch (\Exception $e) {
+            // Log warning bahwa pdftohtml gagal/tidak ada, dan buat HTML fallback
+            \Illuminate\Support\Facades\Log::warning(
+                "pdftohtml gagal dijalankan, menggunakan fallback: " . $e->getMessage()
             );
+
+            $fallbackHtml = $this->getFallbackHtmlTemplate();
+            $disk->put($htmlPath, $fallbackHtml, 'public');
         }
 
         return true;
+    }
+
+    /**
+     * Template HTML fallback yang meng-embed PDF menggunakan tag iframe.
+     * Placeholder [PDF_URL] akan di-replace saat dirender di controller.
+     */
+    protected function getFallbackHtmlTemplate(): string
+    {
+        return <<<'HTML'
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Dokumen Lampiran</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #525659;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <iframe src="[PDF_URL]" type="application/pdf"></iframe>
+</body>
+</html>
+HTML;
     }
 
     /**
