@@ -119,12 +119,32 @@ const hasTables = computed(() => props.tables && props.tables.length > 0);
                             Unduh PDF
                         </a>
                     </div>
+                    <!-- Peninjau PDF untuk Desktop -->
                     <iframe
                         :src="route('public.pengumuman.embed', pengumuman.hashid)"
-                        class="w-full"
+                        class="hidden md:block w-full"
                         style="height: 70vh; min-height: 400px;"
                         frameborder="0"
                     ></iframe>
+
+                    <!-- Kartu Fallback untuk Mobile (karena browser mobile tidak mendukung inline PDF) -->
+                    <div class="block md:hidden p-8 text-center bg-slate-50 border-t border-slate-100">
+                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 mb-4 ring-4 ring-blue-50/50">
+                            <FileText class="w-6 h-6" />
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-sm mb-1.5">Peninjau PDF Tidak Didukung</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed max-w-xs mx-auto mb-5">
+                            Browser perangkat mobile tidak mendukung peninjauan dokumen PDF secara langsung di halaman ini. Silakan buka atau unduh file di bawah.
+                        </p>
+                        <a
+                            :href="route('public.pengumuman.pdf', pengumuman.hashid)"
+                            target="_blank"
+                            class="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-100 transition-all active:scale-[0.98]"
+                        >
+                            <FileDown class="w-4 h-4" />
+                            Buka / Unduh Lampiran PDF
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Back link -->
