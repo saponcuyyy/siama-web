@@ -12,6 +12,7 @@ use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class JadwalController extends Controller
 {
@@ -289,6 +290,82 @@ class JadwalController extends Controller
         }
 
         return back()->with('success', $message);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $tahunAjaranAktif = TahunAjaran::where('is_active', true)->first();
+        $tahunAjaranId = $request->tahun_ajaran_id ?? $tahunAjaranAktif?->id;
+        $tahunAjaran = TahunAjaran::find($tahunAjaranId);
+        $rombelId = $request->rombel_id;
+
+        $jadwalQuery = Jadwal::with(['rombel', 'mataPelajaran', 'guru', 'tahunAjaran'])
+            ->where('tahun_ajaran_id', $tahunAjaranId);
+
+        if ($rombelId) {
+            $jadwalQuery->where('rombel_id', $rombelId);
+        }
+
+        $jadwal = $jadwalQuery->orderBy('hari')->orderBy('jam_ke')->get();
+
+        $grouped = [];
+        $hariUrutan = $this->getHariAktif();
+        $maxJam = $jadwal->max('jam_ke') ?? 10;
+
+        if ($rombelId) {
+            $rombel = Rombel::find($rombelId);
+            if ($rombel) {
+                $grid = [];
+                foreach ($hariUrutan as $hari) {
+                    $grid[$hari] = [];
+                    for ($j = 1; $j <= $maxJam; $j++) {
+                        $entry = $jadwal->firstWhere(fn($item) => $item->hari === $hari && $item->jam_ke === $j);
+                        $grid[$hari][$j] = $entry;
+                    }
+                }
+                $grouped[] = [
+                    'rombel' => $rombel,
+                    'grid' => $grid,
+                    'max_jam' => $maxJam,
+                ];
+            }
+        } else {
+            $rombels = Rombel::where('tahun_ajaran_id', $tahunAjaranId)
+                ->orderBy('tingkat')->orderBy('nama')->get();
+
+            foreach ($rombels as $rombel) {
+                $jadwalRombel = $jadwal->where('rombel_id', $rombel->id);
+                $grid = [];
+                foreach ($hariUrutan as $hari) {
+                    $grid[$hari] = [];
+                    for ($j = 1; $j <= $maxJam; $j++) {
+                        $entry = $jadwalRombel->firstWhere(fn($item) => $item->hari === $hari && $item->jam_ke === $j);
+                        $grid[$hari][$j] = $entry;
+                    }
+                }
+                $grouped[] = [
+                    'rombel' => $rombel,
+                    'grid' => $grid,
+                    'max_jam' => $maxJam,
+                ];
+            }
+        }
+
+        $namaSekolah = Setting::get('nama_sekolah', 'SIAMA SCHOOL');
+
+        $pdf = Pdf::loadView('exports.jadwal-pelajaran', [
+            'jadwalGrouped' => $grouped,
+            'tahunAjaran' => $tahunAjaran,
+            'hariList' => $hariUrutan,
+            'maxJam' => $maxJam,
+            'namaSekolah' => $namaSekolah,
+            'selectedRombel' => $rombelId ? Rombel::find($rombelId) : null,
+        ])->setPaper('a4', 'landscape');
+
+        $rombelNama = $rombelId ? (Rombel::find($rombelId)?->nama ?? 'Rombel') : 'Semua_Kelas';
+        $filename = 'Jadwal_Pelajaran_' . str_replace(['/', ' '], '_', $rombelNama) . '_' . str_replace(['/', ' '], '_', $tahunAjaran?->nama ?? 'Aktif') . '.pdf';
+
+        return $pdf->download($filename);
     }
 }
 

@@ -19,6 +19,7 @@ import {
     Zap,
     Settings,
     Loader2,
+    Printer,
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -211,6 +212,14 @@ const submitGenerate = () => {
     });
 };
 
+const exportPdf = () => {
+    const url = route('admin.jadwal.export-pdf', {
+        rombel_id: filterRombel.value || '',
+        tahun_ajaran_id: filterTahun.value || '',
+    });
+    window.open(url, '_blank');
+};
+
 // Lock body scroll when modal is open
 watch(showGenerateModal, (v) => {
     document.body.style.overflow = v ? 'hidden' : '';
@@ -238,6 +247,14 @@ watch(showHariAktifModal, (v) => {
                     </p>
                 </div>
                 <div class="flex flex-wrap gap-3">
+                    <button
+                        @click="exportPdf"
+                        class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-rose-200"
+                        title="Cetak PDF Jadwal Pelajaran"
+                    >
+                        <Printer class="w-5 h-5 text-rose-100" />
+                        <span>Cetak PDF</span>
+                    </button>
                     <button
                         @click="openHariAktifModal"
                         class="px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-slate-200"

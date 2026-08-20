@@ -194,6 +194,9 @@ Route::prefix('admin/jadwal')
         Route::post('/hari-aktif', [\App\Http\Controllers\Admin\Akademik\JadwalController::class, 'updateHariAktif'])
             ->name('update-hari-aktif')
             ->middleware('can:jadwal.manage');
+        Route::get('/export-pdf', [\App\Http\Controllers\Admin\Akademik\JadwalController::class, 'exportPdf'])
+            ->name('export-pdf')
+            ->middleware('can:jadwal.view');
     });
 
 // ─── PERPUSTAKAAN ───────────────────────────────────────────────────────────
