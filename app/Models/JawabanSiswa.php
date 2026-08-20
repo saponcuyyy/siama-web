@@ -6,9 +6,11 @@ use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class JawabanSiswa extends Model
 {
-    use HasHashId;
+    use HasFactory, HasHashId;
 
     protected $table = 'jawaban_siswa';
 

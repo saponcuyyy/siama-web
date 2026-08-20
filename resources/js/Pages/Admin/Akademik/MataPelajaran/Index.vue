@@ -18,7 +18,7 @@ const tingkatList = ['X', 'XI', 'XII'];
 const jurusanList = ['IPA', 'IPS'];
 
 const showCreateModal = ref(false);
-const createForm = useForm({ nama: '', kode: '', tingkat: 'X', jurusan: '' });
+const createForm = useForm({ nama: '', kode: '', tingkat: 'X', jurusan: '', jam_per_minggu: 4 });
 
 const submitCreate = () => {
     createForm.post(route('admin.web.mata-pelajaran.store'), {
@@ -27,13 +27,14 @@ const submitCreate = () => {
             createForm.reset();
             createForm.tingkat = 'X';
             createForm.jurusan = '';
+            createForm.jam_per_minggu = 4;
         },
     });
 };
 
 const showEditModal = ref(false);
 const editTarget = ref(null);
-const editForm = useForm({ nama: '', kode: '', tingkat: '', jurusan: '' });
+const editForm = useForm({ nama: '', kode: '', tingkat: '', jurusan: '', jam_per_minggu: 4 });
 
 const openEdit = (mapel) => {
     editTarget.value = mapel;
@@ -41,6 +42,7 @@ const openEdit = (mapel) => {
     editForm.kode = mapel.kode;
     editForm.tingkat = mapel.tingkat;
     editForm.jurusan = mapel.jurusan || '';
+    editForm.jam_per_minggu = mapel.jam_per_minggu ?? 4;
     showEditModal.value = true;
 };
 
@@ -94,6 +96,11 @@ const teacherList = (mapel) => {
     if (!mapel.gurus || mapel.gurus.length === 0) return '-';
     return mapel.gurus.map(g => g.nama).join(', ');
 };
+
+const totalJamMingguan = computed(() => {
+    if (!props.mapelList?.data) return 0;
+    return props.mapelList.data.reduce((acc, curr) => acc + (Number(curr.jam_per_minggu) || 4), 0);
+});
 </script>
 
 <template>
@@ -117,6 +124,39 @@ const teacherList = (mapel) => {
                 >
                     <Plus class="w-5 h-5" /> Tambah Mata Pelajaran
                 </button>
+            </div>
+
+            <!-- Stats Summary Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4 hover:border-slate-300 transition-colors">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                        <BookOpen class="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p class="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Total Mapel</p>
+                        <p class="text-2xl font-black text-slate-900 tracking-tight">{{ mapelList.total ?? mapelList.data.length }}</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4 hover:border-slate-300 transition-colors">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0">
+                        <Clock class="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p class="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Total Jam Halaman Ini</p>
+                        <p class="text-2xl font-black text-slate-900 tracking-tight">{{ totalJamMingguan }} <span class="text-sm font-bold text-slate-400">JP/Mgg</span></p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4 hover:border-slate-300 transition-colors">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                        <Users class="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p class="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Rata-rata Jam / Mapel</p>
+                        <p class="text-2xl font-black text-slate-900 tracking-tight">{{ mapelList.data.length > 0 ? (totalJamMingguan / mapelList.data.length).toFixed(1) : 0 }} <span class="text-sm font-bold text-slate-400">JP</span></p>
+                    </div>
+                </div>
             </div>
 
             <!-- Search & Filter -->
@@ -211,14 +251,15 @@ const teacherList = (mapel) => {
                                     <span v-else class="text-slate-400 text-xs">-</span>
                                 </td>
                                 <td class="p-4 text-center">
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 font-black text-xs rounded-lg border"
-                                        :class="mapel.jumlah_jam > 0
-                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                                            : 'bg-slate-50 text-slate-400 border-slate-200'"
-                                    >
-                                        <Clock class="w-3 h-3" />
-                                        {{ mapel.jumlah_jam || 0 }}
-                                    </span>
+                                    <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-indigo-50/90 via-slate-50 to-purple-50/90 rounded-xl border border-indigo-100/80 shadow-xs group hover:shadow-indigo-100/50 hover:border-indigo-300 transition-all cursor-default">
+                                        <div class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                                            <Clock class="w-3.5 h-3.5" />
+                                        </div>
+                                        <div class="flex items-baseline gap-1 text-left">
+                                            <span class="font-black text-sm text-slate-900 tracking-tight leading-none">{{ mapel.jam_per_minggu || 4 }}</span>
+                                            <span class="text-[10px] font-black uppercase tracking-wider text-indigo-600">JP/Mgg</span>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td class="p-4 text-center">
                                     <span v-if="mapel.tingkat" class="px-2.5 py-1 text-xs font-black rounded-lg border"
@@ -354,6 +395,26 @@ const teacherList = (mapel) => {
                         </div>
                     </div>
 
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
+                            Jumlah Jam per Minggu <span class="text-rose-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <input
+                                type="number"
+                                v-model="createForm.jam_per_minggu"
+                                required
+                                min="1"
+                                max="40"
+                                placeholder="4"
+                                class="w-full px-4 py-2.5 bg-slate-50 border rounded-xl focus:ring-indigo-600 focus:border-indigo-600 font-medium transition-colors"
+                                :class="createForm.errors.jam_per_minggu ? 'border-rose-400 bg-rose-50' : 'border-slate-200'"
+                            >
+                            <span class="absolute right-3.5 top-2.5 text-xs font-bold text-slate-400">Jam / Minggu</span>
+                        </div>
+                        <p v-if="createForm.errors.jam_per_minggu" class="text-rose-600 text-xs font-bold mt-1.5">{{ createForm.errors.jam_per_minggu }}</p>
+                    </div>
+
                     <div class="flex gap-3 pt-2">
                         <button
                             type="button"
@@ -457,6 +518,26 @@ const teacherList = (mapel) => {
                             </select>
                             <p v-if="editForm.errors.jurusan" class="text-rose-600 text-xs font-bold mt-1.5">{{ editForm.errors.jurusan }}</p>
                         </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
+                            Jumlah Jam per Minggu <span class="text-rose-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <input
+                                type="number"
+                                v-model="editForm.jam_per_minggu"
+                                required
+                                min="1"
+                                max="40"
+                                placeholder="4"
+                                class="w-full px-4 py-2.5 bg-slate-50 border rounded-xl focus:ring-indigo-600 focus:border-indigo-600 font-medium transition-colors"
+                                :class="editForm.errors.jam_per_minggu ? 'border-rose-400 bg-rose-50' : 'border-slate-200'"
+                            >
+                            <span class="absolute right-3.5 top-2.5 text-xs font-bold text-slate-400">Jam / Minggu</span>
+                        </div>
+                        <p v-if="editForm.errors.jam_per_minggu" class="text-rose-600 text-xs font-bold mt-1.5">{{ editForm.errors.jam_per_minggu }}</p>
                     </div>
 
                     <div class="flex gap-3 pt-2">

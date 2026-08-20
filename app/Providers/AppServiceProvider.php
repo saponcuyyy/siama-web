@@ -5,7 +5,9 @@ namespace App\Providers;
 use App\Models\PesertaUjian;
 use App\Models\SesiUjian;
 use App\Models\User;
+use App\Support\Hashing\CustomBcryptHasher;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -27,6 +29,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Hash::extend('bcrypt', function ($app) {
+            return new CustomBcryptHasher($app['config']['hashing.bcrypt'] ?? []);
+        });
+
         Gate::define('ikutUjian', function (User $user, SesiUjian $sesi) {
             if (! $user->siswa) {
                 return false;

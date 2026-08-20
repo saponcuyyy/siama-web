@@ -4,6 +4,7 @@ import { Head, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import {
     Calendar,
+    CalendarDays,
     Plus,
     Pencil,
     Trash2,
@@ -29,6 +30,10 @@ const props = defineProps({
     filters: Object,
     selectedRombelId: [String, Number],
     hariList: Array,
+    semuaHariList: {
+        type: Array,
+        default: () => ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+    },
     maxJam: Number,
 });
 
@@ -96,6 +101,72 @@ const hapus = (entry) => {
 
 const isGroupMode = computed(() => !filterRombel.value);
 
+// ─── Hari Aktif Modal ──────────────────────────
+const showHariAktifModal = ref(false);
+const hariAktifForm = useForm({
+    hari: [...(props.hariList || [])],
+});
+
+const openHariAktifModal = () => {
+    hariAktifForm.hari = [...(props.hariList || [])];
+    showHariAktifModal.value = true;
+};
+
+const toggleHariAktif = (hari) => {
+    const idx = hariAktifForm.hari.indexOf(hari);
+    if (idx === -1) {
+        hariAktifForm.hari.push(hari);
+    } else {
+        if (hariAktifForm.hari.length > 1) {
+            hariAktifForm.hari.splice(idx, 1);
+        }
+    }
+};
+
+const setPresetHari = (preset) => {
+    if (preset === '5-hari') {
+        hariAktifForm.hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+    } else if (preset === '6-hari') {
+        hariAktifForm.hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    } else if (preset === '7-hari') {
+        hariAktifForm.hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+    }
+};
+
+const submitHariAktif = () => {
+    hariAktifForm.post(route('admin.jadwal.update-hari-aktif'), {
+        onSuccess: () => {
+            showHariAktifModal.value = false;
+        },
+    });
+};
+
+const getDayTextColor = (hari) => {
+    const map = {
+        Senin: 'text-blue-700',
+        Selasa: 'text-emerald-700',
+        Rabu: 'text-violet-700',
+        Kamis: 'text-rose-700',
+        Jumat: 'text-amber-700',
+        Sabtu: 'text-cyan-700',
+        Minggu: 'text-pink-700',
+    };
+    return map[hari] || 'text-slate-700';
+};
+
+const getDayBgColor = (hari) => {
+    const map = {
+        Senin: 'bg-blue-500',
+        Selasa: 'bg-emerald-500',
+        Rabu: 'bg-violet-500',
+        Kamis: 'bg-rose-500',
+        Jumat: 'bg-amber-500',
+        Sabtu: 'bg-cyan-500',
+        Minggu: 'bg-pink-500',
+    };
+    return map[hari] || 'bg-slate-500';
+};
+
 // ─── Generate Modal ──────────────────────────
 const showGenerateModal = ref(false);
 const isGenerating = ref(false);
@@ -144,6 +215,9 @@ const submitGenerate = () => {
 watch(showGenerateModal, (v) => {
     document.body.style.overflow = v ? 'hidden' : '';
 });
+watch(showHariAktifModal, (v) => {
+    document.body.style.overflow = v ? 'hidden' : '';
+});
 </script>
 
 <template>
@@ -163,7 +237,14 @@ watch(showGenerateModal, (v) => {
                         Kelola jadwal mata pelajaran untuk semua rombongan belajar.
                     </p>
                 </div>
-                <div class="flex gap-3">
+                <div class="flex flex-wrap gap-3">
+                    <button
+                        @click="openHariAktifModal"
+                        class="px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-slate-200"
+                    >
+                        <CalendarDays class="w-5 h-5 text-indigo-400" />
+                        <span>Hari Aktif ({{ hariList.length }} Hari)</span>
+                    </button>
                     <button
                         @click="openGenerate"
                         class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-emerald-200"
@@ -267,26 +348,12 @@ watch(showGenerateModal, (v) => {
                                     <tr v-for="hari in hariList" :key="hari" class="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
                                         <td
                                             class="px-4 py-3 font-black text-sm"
-                                            :class="{
-                                                'text-blue-700': hari === 'Senin',
-                                                'text-emerald-700': hari === 'Selasa',
-                                                'text-violet-700': hari === 'Rabu',
-                                                'text-rose-700': hari === 'Kamis',
-                                                'text-amber-700': hari === 'Jumat',
-                                                'text-cyan-700': hari === 'Sabtu',
-                                            }"
+                                            :class="getDayTextColor(hari)"
                                         >
                                             <div class="flex items-center gap-2">
                                                 <span
                                                     class="w-2 h-2 rounded-full shrink-0"
-                                                    :class="{
-                                                        'bg-blue-500': hari === 'Senin',
-                                                        'bg-emerald-500': hari === 'Selasa',
-                                                        'bg-violet-500': hari === 'Rabu',
-                                                        'bg-rose-500': hari === 'Kamis',
-                                                        'bg-amber-500': hari === 'Jumat',
-                                                        'bg-cyan-500': hari === 'Sabtu',
-                                                    }"
+                                                    :class="getDayBgColor(hari)"
                                                 />
                                                 {{ hari }}
                                             </div>
@@ -370,25 +437,11 @@ watch(showGenerateModal, (v) => {
                                 <tbody>
                                     <tr v-for="hari in hariList" :key="hari" class="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
                                         <td class="px-4 py-3 font-black text-sm"
-                                            :class="{
-                                                'text-blue-700': hari === 'Senin',
-                                                'text-emerald-700': hari === 'Selasa',
-                                                'text-violet-700': hari === 'Rabu',
-                                                'text-rose-700': hari === 'Kamis',
-                                                'text-amber-700': hari === 'Jumat',
-                                                'text-cyan-700': hari === 'Sabtu',
-                                            }"
+                                            :class="getDayTextColor(hari)"
                                         >
                                             <div class="flex items-center gap-2">
                                                 <span class="w-2 h-2 rounded-full shrink-0"
-                                                    :class="{
-                                                        'bg-blue-500': hari === 'Senin',
-                                                        'bg-emerald-500': hari === 'Selasa',
-                                                        'bg-violet-500': hari === 'Rabu',
-                                                        'bg-rose-500': hari === 'Kamis',
-                                                        'bg-amber-500': hari === 'Jumat',
-                                                        'bg-cyan-500': hari === 'Sabtu',
-                                                    }"
+                                                    :class="getDayBgColor(hari)"
                                                 />
                                                 {{ hari }}
                                             </div>
@@ -593,11 +646,11 @@ watch(showGenerateModal, (v) => {
                                                 <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Rombel</p>
                                             </div>
                                             <div class="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2.5 text-center border border-emerald-100">
-                                                <p class="text-lg font-black text-emerald-700">{{ generateForm.max_jam * 6 }}</p>
+                                                <p class="text-lg font-black text-emerald-700">{{ generateForm.max_jam * hariList.length }}</p>
                                                 <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Slot/Rombel</p>
                                             </div>
                                             <div class="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2.5 text-center border border-emerald-100">
-                                                <p class="text-lg font-black text-emerald-700">{{ (generateForm.rombel_ids.length * generateForm.max_jam * 6).toLocaleString() }}</p>
+                                                <p class="text-lg font-black text-emerald-700">{{ (generateForm.rombel_ids.length * generateForm.max_jam * hariList.length).toLocaleString() }}</p>
                                                 <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Total Slot</p>
                                             </div>
                                             <div class="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2.5 text-center border border-emerald-100">
@@ -659,6 +712,142 @@ watch(showGenerateModal, (v) => {
                                         {{ isGenerating || generateForm.processing ? 'Memproses...' : 'Generate' }}
                                     </button>
                                 </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+
+        <!-- Modal Hari Aktif Sekolah -->
+        <Transition name="modal">
+            <div
+                v-if="showHariAktifModal"
+                class="fixed inset-0 z-50 overflow-y-auto"
+                @click.self="showHariAktifModal = false"
+            >
+                <div class="flex min-h-screen items-start justify-center px-4 pt-10 pb-20 sm:pt-16 sm:pb-24">
+                    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showHariAktifModal = false" />
+
+                    <div class="modal-card relative bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden">
+                        <!-- Header -->
+                        <div class="relative bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-6 py-5">
+                            <div class="relative flex items-center gap-4">
+                                <div class="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center ring-1 ring-white/20 shrink-0">
+                                    <CalendarDays class="w-6 h-6 text-indigo-400" />
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h2 class="text-lg font-black text-white tracking-tight">Kelola Hari Aktif Sekolah</h2>
+                                    <p class="text-sm text-slate-300 font-medium truncate">Pilih hari belajar mengajar aktif di sekolah</p>
+                                </div>
+                                <button type="button" @click="showHariAktifModal = false"
+                                    class="p-2 text-white/60 hover:text-white bg-white/10 hover:bg-white/20 rounded-xl transition-all shrink-0"
+                                >
+                                    <X class="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <form @submit.prevent="submitHariAktif">
+                            <div class="p-6 space-y-6">
+                                <!-- Presets -->
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Preset Pilihan Cepat</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <button
+                                            type="button"
+                                            @click="setPresetHari('5-hari')"
+                                            class="px-3 py-2 text-xs font-bold rounded-xl border transition-all text-center"
+                                            :class="hariAktifForm.hari.length === 5 && !hariAktifForm.hari.includes('Sabtu')
+                                                ? 'bg-indigo-50 border-indigo-300 text-indigo-700 ring-2 ring-indigo-500/20'
+                                                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'"
+                                        >
+                                            5 Hari (Sen-Jum)
+                                        </button>
+                                        <button
+                                            type="button"
+                                            @click="setPresetHari('6-hari')"
+                                            class="px-3 py-2 text-xs font-bold rounded-xl border transition-all text-center"
+                                            :class="hariAktifForm.hari.length === 6 && hariAktifForm.hari.includes('Sabtu')
+                                                ? 'bg-indigo-50 border-indigo-300 text-indigo-700 ring-2 ring-indigo-500/20'
+                                                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'"
+                                        >
+                                            6 Hari (Sen-Sab)
+                                        </button>
+                                        <button
+                                            type="button"
+                                            @click="setPresetHari('7-hari')"
+                                            class="px-3 py-2 text-xs font-bold rounded-xl border transition-all text-center"
+                                            :class="hariAktifForm.hari.length === 7
+                                                ? 'bg-indigo-50 border-indigo-300 text-indigo-700 ring-2 ring-indigo-500/20'
+                                                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'"
+                                        >
+                                            7 Hari (Penuh)
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Checkbox List Hari -->
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Daftar Hari Aktif</label>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                        <div
+                                            v-for="hari in (semuaHariList || ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'])"
+                                            :key="hari"
+                                            @click="toggleHariAktif(hari)"
+                                            class="flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all select-none"
+                                            :class="hariAktifForm.hari.includes(hari)
+                                                ? 'bg-gradient-to-r from-indigo-50/80 to-purple-50/80 border-indigo-200 shadow-sm'
+                                                : 'bg-slate-50/50 border-slate-200 opacity-60 hover:opacity-100'"
+                                        >
+                                            <div class="flex items-center gap-3">
+                                                <span class="w-3 h-3 rounded-full shrink-0" :class="getDayBgColor(hari)" />
+                                                <span class="text-sm font-bold" :class="getDayTextColor(hari)">
+                                                    {{ hari }}
+                                                </span>
+                                            </div>
+                                            <div
+                                                class="w-6 h-6 rounded-lg flex items-center justify-center transition-all"
+                                                :class="hariAktifForm.hari.includes(hari)
+                                                    ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-200'
+                                                    : 'border border-slate-300 bg-white'"
+                                            >
+                                                <Check v-if="hariAktifForm.hari.includes(hari)" class="w-4 h-4" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p v-if="hariAktifForm.errors.hari" class="text-rose-600 text-xs font-bold mt-2">
+                                        {{ hariAktifForm.errors.hari }}
+                                    </p>
+                                </div>
+
+                                <!-- Info Note -->
+                                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+                                    <AlertCircle class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                                    <div class="text-xs text-amber-800 space-y-1">
+                                        <p class="font-bold">Informasi Hari Aktif:</p>
+                                        <p>Hari yang dinonaktifkan tidak akan muncul pada tabel jadwal pelajaran dan pilihan hari pada form penambahan jam pelajaran. Fitur generate otomatis juga hanya akan mengisi slot pada hari aktif.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+                                <button
+                                    type="button"
+                                    @click="showHariAktifModal = false"
+                                    class="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    type="submit"
+                                    :disabled="hariAktifForm.processing"
+                                    class="px-6 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-200 disabled:opacity-60 transition-all"
+                                >
+                                    <Check class="w-4 h-4" />
+                                    {{ hariAktifForm.processing ? 'Menyimpan...' : 'Simpan Hari Aktif' }}
+                                </button>
                             </div>
                         </form>
                     </div>

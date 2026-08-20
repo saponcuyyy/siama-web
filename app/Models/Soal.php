@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class Soal extends Model
 {
-    use HasHashId;
-    use SoftDeletes;
+    use HasFactory, HasHashId, SoftDeletes;
 
     protected $table = 'soal';
 

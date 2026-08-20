@@ -54,9 +54,9 @@ onMounted(() => {
     // Fix Leaflet marker icon issue
     delete L.Icon.Default.prototype._getIconUrl;
     L.Icon.Default.mergeOptions({
-        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+        iconUrl: '/images/leaflet/marker-icon.png',
+        iconRetinaUrl: '/images/leaflet/marker-icon-2x.png',
+        shadowUrl: '/images/leaflet/marker-shadow.png',
     });
 
     nextTick(() => {

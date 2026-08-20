@@ -14,15 +14,9 @@ class PdfTableExtractor
 
     /**
      * Extract tables from a PDF file.
-     * Tries pdftotext CLI first, falls back to smalot/pdfparser.
+     * Tries pdftotext CLI first; falls back to direct coordinate-based smalot extraction.
      */
     public function extract(string $pdfPath): array
-    {
-        $text = $this->getPdfText($pdfPath);
-        return $this->detectTables($text);
-    }
-
-    protected function getPdfText(string $pdfPath): string
     {
         $disk = Storage::disk('public');
         if (!$disk->exists($pdfPath)) {
@@ -31,32 +25,185 @@ class PdfTableExtractor
 
         $realPath = $this->resolveRealPath($disk, $pdfPath);
 
-        // Coba pdftotext CLI terlebih dahulu
+        // Try pdftotext CLI first (most accurate layout)
         try {
-            $result = Process::run([
-                'pdftotext',
-                '-layout',
-                '-nopgbrk',
-                $realPath,
-                '-',
-            ]);
-
+            $result = Process::run(['pdftotext', '-layout', '-nopgbrk', $realPath, '-']);
             if ($result->successful()) {
                 $this->cleanupTempFile($realPath, $pdfPath);
-                return $result->output();
+                return $this->detectTables($result->output());
             }
-
             throw new \RuntimeException("pdftotext failed: " . $result->errorOutput());
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::info(
-                'PdfTableExtractor: pdftotext tidak tersedia, menggunakan smalot/pdfparser. ' . $e->getMessage()
+                'PdfTableExtractor: pdftotext tidak tersedia, menggunakan smalot coordinate extraction. ' . $e->getMessage()
             );
         }
 
-        // Fallback ke smalot/pdfparser (pure PHP)
-        $text = $this->extractTextWithSmalot($realPath);
+        // Fallback: direct coordinate-based table extraction (bypasses character-grid)
+        $tables = $this->extractTablesWithCoordinates($realPath);
         $this->cleanupTempFile($realPath, $pdfPath);
-        return $text;
+        return $tables;
+    }
+
+    /**
+     * Direct coordinate-based table extraction using smalot/pdfparser.
+     * Groups text by Y (rows), clusters X positions into columns,
+     * then builds structured table rows — no character grid needed.
+     */
+    protected function extractTablesWithCoordinates(string $realPath): array
+    {
+        if (!class_exists(\Smalot\PdfParser\Parser::class)) {
+            throw new \RuntimeException('smalot/pdfparser not installed.');
+        }
+
+        $config = new \Smalot\PdfParser\Config();
+        $config->setDataTmFontInfoHasToBeIncluded(true);
+        $parser = new \Smalot\PdfParser\Parser([], $config);
+        $pdf    = $parser->parseFile($realPath);
+
+        $allTables = [];
+
+        foreach ($pdf->getPages() as $page) {
+            try { $dataTm = $page->getDataTm(); } catch (\Exception $e) { continue; }
+            if (empty($dataTm)) continue;
+
+            // 1. Group elements into rows by Y coordinate (tolerance ±3 units)
+            $rowMap = [];
+            foreach ($dataTm as $el) {
+                if (!isset($el[0][4], $el[0][5], $el[1])) continue;
+                $x    = (float) $el[0][4];
+                $y    = (float) $el[0][5];
+                $text = trim((string) $el[1]);
+                if ($text === '') continue;
+
+                $matched = null;
+                foreach ($rowMap as $ky => $items) {
+                    if (abs((float)$ky - $y) <= 3) { $matched = $ky; break; }
+                }
+                $key = $matched ?? number_format($y, 4, '.', '');
+                $rowMap[$key][] = ['x' => $x, 'text' => $text];
+            }
+            if (count($rowMap) < self::MIN_CONSECUTIVE_ROWS) continue;
+
+            // 2. Sort rows top-to-bottom (Y descending in PDF space)
+            krsort($rowMap);
+            $sortedRows = array_values($rowMap);
+
+            // 3. Collect all X start positions → cluster into column boundaries
+            $allX = [];
+            foreach ($sortedRows as $items) {
+                foreach ($items as $item) { $allX[] = $item['x']; }
+            }
+            sort($allX);
+
+            // Gap threshold: 1% of X range, minimum 8 units
+            $xRange      = empty($allX) ? 500 : (max($allX) - min($allX));
+            $gapThreshold = max(8.0, $xRange * 0.01);
+
+            $colCenters = [];
+            $cluster    = [$allX[0]];
+            for ($i = 1; $i < count($allX); $i++) {
+                if ($allX[$i] - end($cluster) > $gapThreshold) {
+                    $colCenters[] = array_sum($cluster) / count($cluster);
+                    $cluster = [];
+                }
+                $cluster[] = $allX[$i];
+            }
+            $colCenters[] = array_sum($cluster) / count($cluster);
+
+            if (count($colCenters) < self::MIN_COLUMNS) continue;
+
+            // 4. Build structured rows: assign each text item to nearest column
+            $structuredRows = [];
+            foreach ($sortedRows as $items) {
+                usort($items, fn($a, $b) => $a['x'] <=> $b['x']);
+
+                $cells = array_fill(0, count($colCenters), '');
+                foreach ($items as $item) {
+                    // Find nearest column center
+                    $best = 0;
+                    $bestDist = PHP_FLOAT_MAX;
+                    foreach ($colCenters as $ci => $cx) {
+                        $d = abs($item['x'] - $cx);
+                        if ($d < $bestDist) { $bestDist = $d; $best = $ci; }
+                    }
+                    $cells[$best] = $cells[$best] !== ''
+                        ? $cells[$best] . ' ' . $item['text']
+                        : $item['text'];
+                }
+                $structuredRows[] = $cells;
+            }
+
+            // 5. Detect table groups (consecutive rows where most cells are non-empty)
+            $pageTables = $this->detectStructuredTableGroups($structuredRows);
+            foreach ($pageTables as $t) { $allTables[] = $t; }
+        }
+
+        return $allTables;
+    }
+
+    /**
+     * Detect table groups from pre-structured rows (cells already assigned to columns).
+     * Splits into a new table when the header row signature repeats.
+     */
+    protected function detectStructuredTableGroups(array $structuredRows): array
+    {
+        $tables    = [];
+        $n         = count($structuredRows);
+        $i         = 0;
+
+        while ($i < $n) {
+            $row      = $structuredRows[$i];
+            $nonEmpty = count(array_filter($row, fn($c) => trim($c) !== ''));
+
+            if ($nonEmpty < self::MIN_COLUMNS) { $i++; continue; }
+
+            $headerSig  = $this->cellSignature($row);
+            $tableRows  = [$row];
+            $i++;
+
+            while ($i < $n) {
+                $next        = $structuredRows[$i];
+                $nextNonEmpty = count(array_filter($next, fn($c) => trim($c) !== ''));
+
+                // Repeated header → flush current, start new table
+                if (
+                    $this->cellSignature($next) === $headerSig
+                    && count($tableRows) > self::MIN_CONSECUTIVE_ROWS
+                ) {
+                    $tables[] = ['columns' => $tableRows[0], 'rows' => array_slice($tableRows, 1)];
+                    $tableRows = [$next];
+                    $i++;
+                    continue;
+                }
+
+                if ($nextNonEmpty >= 1) {
+                    $tableRows[] = $next;
+                    $i++;
+                } else {
+                    $i++;
+                    // Allow one blank row inside a table
+                    if ($i < $n && count(array_filter($structuredRows[$i], fn($c) => trim($c) !== '')) >= 1) {
+                        continue;
+                    }
+                    break;
+                }
+            }
+
+            if (count($tableRows) >= self::MIN_CONSECUTIVE_ROWS + 1) {
+                $tables[] = ['columns' => $tableRows[0], 'rows' => array_slice($tableRows, 1)];
+            }
+        }
+
+        return $tables;
+    }
+
+    /** Normalized signature for a cells array (used for repeated-header detection). */
+    protected function cellSignature(array $cells): string
+    {
+        $n = array_map(fn($c) => strtolower(trim((string)$c)), $cells);
+        sort($n);
+        return implode('|', $n);
     }
 
     /**

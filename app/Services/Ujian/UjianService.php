@@ -284,6 +284,7 @@ class UjianService
         }
 
         $nilaiAkhir = $nilaiPg + $nilaiBs + $nilaiMenjodohkan;
+        $adaEssayBelumDiperiksa = false;
 
         if ($adaEssay) {
             $jumlahNilaiEssay = $jawabanSiswa
@@ -293,6 +294,13 @@ class UjianService
             if ($jumlahNilaiEssay > 0) {
                 $nilaiAkhir += $jumlahNilaiEssay;
             }
+
+            $adaEssayBelumDiperiksa = $jawabanSiswa->contains(function ($j) {
+                return $j->soal?->tipe === SoalType::ESSAY->value 
+                    && $j->jawaban !== null 
+                    && trim($j->jawaban) !== '' 
+                    && $j->skor === null;
+            });
         }
 
         $peserta->update([
@@ -302,7 +310,7 @@ class UjianService
             'nilai_essay' => $adaEssay ? ($jumlahNilaiEssay ?? null) : null,
             'nilai_akhir' => $nilaiAkhir,
             'sudah_dikoreksi' => true,
-            'essay_sudah_dinilai' => ! $adaEssay || ($jumlahNilaiEssay ?? 0) === ($peserta->nilai_essay ?? 0),
+            'essay_sudah_dinilai' => ! $adaEssay || ! $adaEssayBelumDiperiksa,
         ]);
     }
 }

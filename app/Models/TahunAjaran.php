@@ -6,9 +6,11 @@ use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class TahunAjaran extends Model
 {
-    use HasHashId;
+    use HasFactory, HasHashId;
 
     protected $table = 'tahun_ajaran';
 

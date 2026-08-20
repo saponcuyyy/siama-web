@@ -27,7 +27,7 @@ class SecurityHeaders
             $externalStorageUrl = null;
         }
 
-        $imgSrc = 'img-src \'self\' data: https://ui-avatars.com https://*.tile.openstreetmap.org https://cdnjs.cloudflare.com https://images.unsplash.com https://unpkg.com';
+        $imgSrc = 'img-src \'self\' data: https://ui-avatars.com https://*.tile.openstreetmap.org';
 
         if ($externalStorageUrl) {
             $imgSrc .= ' '.$externalStorageUrl;

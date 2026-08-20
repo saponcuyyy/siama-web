@@ -191,6 +191,9 @@ Route::prefix('admin/jadwal')
         Route::post('/generate', [\App\Http\Controllers\Admin\Akademik\JadwalController::class, 'generate'])
             ->name('generate')
             ->middleware('can:jadwal.manage');
+        Route::post('/hari-aktif', [\App\Http\Controllers\Admin\Akademik\JadwalController::class, 'updateHariAktif'])
+            ->name('update-hari-aktif')
+            ->middleware('can:jadwal.manage');
     });
 
 // ─── PERPUSTAKAAN ───────────────────────────────────────────────────────────

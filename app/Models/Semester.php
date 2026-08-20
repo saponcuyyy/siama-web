@@ -5,9 +5,11 @@ namespace App\Models;
 use App\Traits\HasHashId;
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class Semester extends Model
 {
-    use HasHashId;
+    use HasFactory, HasHashId;
 
     protected $table = 'semester';
 

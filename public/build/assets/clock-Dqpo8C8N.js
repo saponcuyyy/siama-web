@@ -1,1 +1,0 @@
-import{c}from"./file-text-t8ZYq5LY.js";const e=c("chevron-down",[["path",{d:"m6 9 6 6 6-6",key:"qrunsl"}]]);const r=c("clock",[["circle",{cx:"12",cy:"12",r:"10",key:"1mglay"}],["path",{d:"M12 6v6l4 2",key:"mmk7yg"}]]);export{r as C,e as a};

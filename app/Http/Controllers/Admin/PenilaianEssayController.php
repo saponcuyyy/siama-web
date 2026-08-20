@@ -62,15 +62,28 @@ class PenilaianEssayController extends Controller
             $peserta = $jawaban->pesertaUjian;
 
             $totalSkorEssay = JawabanSiswa::where('peserta_ujian_id', $peserta->id)
+                ->whereHas('soal', fn ($q) => $q->where('tipe', 'essay'))
                 ->whereNotNull('skor')
                 ->sum('skor');
+
+            // Cek apakah masih ada soal essay yang dijawab tetapi belum diperiksa/dinilai
+            $adaBelumDinilai = JawabanSiswa::where('peserta_ujian_id', $peserta->id)
+                ->whereHas('soal', fn ($q) => $q->where('tipe', 'essay'))
+                ->whereNotNull('jawaban')
+                ->whereRaw("TRIM(jawaban) != ''")
+                ->whereNull('skor')
+                ->exists();
 
             $nilaiAkhir = ($peserta->nilai_pg ?? 0)
                 + ($peserta->nilai_bs ?? 0)
                 + ($peserta->nilai_menjodohkan ?? 0)
                 + $totalSkorEssay;
 
-            $peserta->update(['nilai_akhir' => $nilaiAkhir]);
+            $peserta->update([
+                'nilai_essay' => $totalSkorEssay,
+                'nilai_akhir' => $nilaiAkhir,
+                'essay_sudah_dinilai' => !$adaBelumDinilai,
+            ]);
         });
 
         return back()->with('success', 'Nilai essay berhasil disimpan.');

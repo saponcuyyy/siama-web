@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class BankSoal extends Model
 {
-    use HasHashId;
-    use SoftDeletes;
+    use HasFactory, HasHashId, SoftDeletes;
 
     protected $table = 'bank_soal';
 

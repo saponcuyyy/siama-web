@@ -7,12 +7,28 @@ use App\Models\Guru;
 use App\Models\Jadwal;
 use App\Models\MataPelajaran;
 use App\Models\Rombel;
+use App\Models\Setting;
 use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class JadwalController extends Controller
 {
+    public const HARI_ALL = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+
+    private function getHariAktif(): array
+    {
+        $setting = Setting::get('hari_aktif_sekolah');
+        if ($setting) {
+            $days = is_array($setting) ? $setting : json_decode($setting, true);
+            if (is_array($days) && !empty($days)) {
+                return array_values(array_intersect(self::HARI_ALL, $days));
+            }
+        }
+        return ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    }
+
     public function index(Request $request)
     {
         $tahunAjaranAktif = TahunAjaran::where('is_active', true)->first();
@@ -29,7 +45,7 @@ class JadwalController extends Controller
         $jadwal = $jadwalQuery->orderBy('hari')->orderBy('jam_ke')->get();
 
         $grouped = [];
-        $hariUrutan = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        $hariUrutan = $this->getHariAktif();
         $maxJam = $jadwal->max('jam_ke') ?? 10;
 
         if ($rombelId) {
@@ -79,6 +95,7 @@ class JadwalController extends Controller
             'filters' => $request->only(['rombel_id', 'tahun_ajaran_id']),
             'selectedRombelId' => $rombelId,
             'hariList' => $hariUrutan,
+            'semuaHariList' => self::HARI_ALL,
             'maxJam' => $maxJam,
         ]);
     }
@@ -90,7 +107,7 @@ class JadwalController extends Controller
             'mata_pelajaran_id' => 'required|exists:mata_pelajaran,id',
             'guru_id' => 'required|exists:guru,id',
             'tahun_ajaran_id' => 'required|exists:tahun_ajaran,id',
-            'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
+            'hari' => ['required', Rule::in($this->getHariAktif())],
             'jam_ke' => 'required|integer|min:1|max:20',
         ]);
 
@@ -115,7 +132,7 @@ class JadwalController extends Controller
         $validated = $request->validate([
             'mata_pelajaran_id' => 'required|exists:mata_pelajaran,id',
             'guru_id' => 'required|exists:guru,id',
-            'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
+            'hari' => ['required', Rule::in($this->getHariAktif())],
             'jam_ke' => 'required|integer|min:1|max:20',
         ]);
 
@@ -142,6 +159,20 @@ class JadwalController extends Controller
         return back()->with('success', 'Jadwal berhasil dihapus.');
     }
 
+    public function updateHariAktif(Request $request)
+    {
+        $validated = $request->validate([
+            'hari' => 'required|array|min:1',
+            'hari.*' => Rule::in(self::HARI_ALL),
+        ]);
+
+        $sortedDays = array_values(array_intersect(self::HARI_ALL, $validated['hari']));
+
+        Setting::set('hari_aktif_sekolah', json_encode($sortedDays), 'akademik');
+
+        return back()->with('success', 'Hari aktif sekolah berhasil diperbarui.');
+    }
+
     public function generate(Request $request)
     {
         $validated = $request->validate([
@@ -153,7 +184,7 @@ class JadwalController extends Controller
 
         $tahunAjaranId = $validated['tahun_ajaran_id'];
         $maxJam = $validated['max_jam'] ?? 10;
-        $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        $hariList = $this->getHariAktif();
 
         $rombels = Rombel::where('tahun_ajaran_id', $tahunAjaranId)
             ->when(isset($validated['rombel_ids']), fn($q) => $q->whereIn('id', $validated['rombel_ids']))
@@ -260,3 +291,4 @@ class JadwalController extends Controller
         return back()->with('success', $message);
     }
 }
+

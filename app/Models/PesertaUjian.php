@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class PesertaUjian extends Model
 {
-    use HasHashId;
+    use HasFactory, HasHashId;
 
     protected $table = 'peserta_ujian';
 

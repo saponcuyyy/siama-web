@@ -73,8 +73,8 @@ const formatNilaiPreview = (p) => {
     if (p.status === 'belum_mulai') return null;
     if (p.status === 'mengerjakan') return null;
     if (p.status === 'didiskualifikasi') return 0;
-    if (p.nilai_akhir !== null && p.nilai_akhir !== undefined) return Number(p.nilai_akhir).toFixed(2);
     if (p.sudah_dikoreksi && !p.essay_sudah_dinilai) return 'Essay';
+    if (p.nilai_akhir !== null && p.nilai_akhir !== undefined) return Number(p.nilai_akhir).toFixed(2);
     return null;
 };
 
