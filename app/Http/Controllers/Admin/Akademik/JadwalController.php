@@ -112,15 +112,28 @@ class JadwalController extends Controller
             'jam_ke' => 'required|integer|min:1|max:20',
         ]);
 
-        $exists = Jadwal::where([
+        $rombelConflict = Jadwal::where([
             'rombel_id' => $validated['rombel_id'],
             'hari' => $validated['hari'],
             'jam_ke' => $validated['jam_ke'],
             'tahun_ajaran_id' => $validated['tahun_ajaran_id'],
-        ])->exists();
+        ])->first();
 
-        if ($exists) {
-            return back()->with('error', 'Sudah ada mata pelajaran pada jam tersebut.');
+        if ($rombelConflict) {
+            return back()->with('error', 'Gagal: Rombel ini sudah memiliki mata pelajaran lain pada hari ' . $validated['hari'] . ' jam ke-' . $validated['jam_ke'] . '.');
+        }
+
+        $guruConflict = Jadwal::with('rombel')->where([
+            'guru_id' => $validated['guru_id'],
+            'hari' => $validated['hari'],
+            'jam_ke' => $validated['jam_ke'],
+            'tahun_ajaran_id' => $validated['tahun_ajaran_id'],
+        ])->first();
+
+        if ($guruConflict) {
+            $guruNama = Guru::find($validated['guru_id'])?->nama ?? 'Guru';
+            $rombelNama = $guruConflict->rombel?->nama ?? 'lain';
+            return back()->with('error', "Gagal: Guru {$guruNama} sudah ada jadwal mengajar di kelas {$rombelNama} pada hari {$validated['hari']} jam ke-{$validated['jam_ke']}.");
         }
 
         Jadwal::create($validated);
@@ -137,15 +150,28 @@ class JadwalController extends Controller
             'jam_ke' => 'required|integer|min:1|max:20',
         ]);
 
-        $exists = Jadwal::where([
+        $rombelConflict = Jadwal::where([
             'rombel_id' => $jadwal->rombel_id,
             'hari' => $validated['hari'],
             'jam_ke' => $validated['jam_ke'],
             'tahun_ajaran_id' => $jadwal->tahun_ajaran_id,
-        ])->where('id', '!=', $jadwal->id)->exists();
+        ])->where('id', '!=', $jadwal->id)->first();
 
-        if ($exists) {
-            return back()->with('error', 'Sudah ada mata pelajaran pada jam tersebut.');
+        if ($rombelConflict) {
+            return back()->with('error', 'Gagal: Rombel ini sudah memiliki mata pelajaran lain pada hari ' . $validated['hari'] . ' jam ke-' . $validated['jam_ke'] . '.');
+        }
+
+        $guruConflict = Jadwal::with('rombel')->where([
+            'guru_id' => $validated['guru_id'],
+            'hari' => $validated['hari'],
+            'jam_ke' => $validated['jam_ke'],
+            'tahun_ajaran_id' => $jadwal->tahun_ajaran_id,
+        ])->where('id', '!=', $jadwal->id)->first();
+
+        if ($guruConflict) {
+            $guruNama = Guru::find($validated['guru_id'])?->nama ?? 'Guru';
+            $rombelNama = $guruConflict->rombel?->nama ?? 'lain';
+            return back()->with('error', "Gagal: Guru {$guruNama} sudah ada jadwal mengajar di kelas {$rombelNama} pada hari {$validated['hari']} jam ke-{$validated['jam_ke']}.");
         }
 
         $jadwal->update($validated);
@@ -177,14 +203,23 @@ class JadwalController extends Controller
     public function generate(Request $request)
     {
         $validated = $request->validate([
-            'tahun_ajaran_id' => 'required|exists:tahun_ajaran,id',
-            'rombel_ids' => 'nullable|array',
-            'rombel_ids.*' => 'exists:rombel,id',
-            'max_jam' => 'nullable|integer|min:1|max:20',
+            'tahun_ajaran_id'    => 'required|exists:tahun_ajaran,id',
+            'rombel_ids'         => 'nullable|array',
+            'rombel_ids.*'       => 'exists:rombel,id',
+            'max_jam'            => 'nullable|integer|min:1|max:20',
+            'max_jam_tingkat'    => 'nullable|array',
+            'max_jam_tingkat.X'  => 'nullable|integer|min:1|max:20',
+            'max_jam_tingkat.XI' => 'nullable|integer|min:1|max:20',
+            'max_jam_tingkat.XII'=> 'nullable|integer|min:1|max:20',
         ]);
 
         $tahunAjaranId = $validated['tahun_ajaran_id'];
-        $maxJam = $validated['max_jam'] ?? 10;
+        $defaultMaxJam = $validated['max_jam'] ?? 8;
+        $maxJamTingkat = [
+            'X'   => (int)($validated['max_jam_tingkat']['X']   ?? $defaultMaxJam),
+            'XI'  => (int)($validated['max_jam_tingkat']['XI']  ?? $defaultMaxJam),
+            'XII' => (int)($validated['max_jam_tingkat']['XII'] ?? $defaultMaxJam),
+        ];
         $hariList = $this->getHariAktif();
 
         $rombels = Rombel::where('tahun_ajaran_id', $tahunAjaranId)
@@ -200,97 +235,187 @@ class JadwalController extends Controller
             ->where('tahun_ajaran_id', $tahunAjaranId)
             ->delete();
 
-        $subjects = MataPelajaran::with(['gurus' => function ($q) {
-            $q->select('guru.id', 'guru.nama');
-        }])->get();
+        $subjects = MataPelajaran::with(['gurus' => fn($q) => $q->select('guru.id', 'guru.nama')])->get();
 
+        // Initialize teacher schedule from existing schedules (e.g. for rombels not being re-generated)
+        $existingJadwals = Jadwal::where('tahun_ajaran_id', $tahunAjaranId)->get();
         $teacherSchedule = [];
+        foreach ($existingJadwals as $j) {
+            $teacherSchedule[$j->guru_id][$j->hari][$j->jam_ke] = true;
+        }
+
         $created = 0;
-        $errors = [];
+        $errors  = [];
 
         foreach ($rombels as $rombel) {
-            $matchingSubjects = $subjects->filter(function ($subject) use ($rombel) {
-                if ($subject->tingkat !== $rombel->tingkat) {
-                    return false;
-                }
-                if ($subject->jurusan && $subject->jurusan !== $rombel->jurusan) {
-                    return false;
-                }
-                return $subject->jam_per_minggu > 0 && $subject->gurus->isNotEmpty();
+            $maxJam = $maxJamTingkat[$rombel->tingkat] ?? $defaultMaxJam;
+
+            $matchingSubjects = $subjects->filter(function ($s) use ($rombel) {
+                if ($s->tingkat !== $rombel->tingkat) return false;
+                if ($s->jurusan && $s->jurusan !== $rombel->jurusan) return false;
+                return $s->jam_per_minggu > 0 && $s->gurus->isNotEmpty();
             })->values();
 
             if ($matchingSubjects->isEmpty()) {
-                $errors[] = "{$rombel->nama}: tidak ada mata pelajaran cocok dengan guru pengampu.";
+                $errors[] = "{$rombel->nama}: tidak ada mata pelajaran cocok.";
                 continue;
             }
 
-            $totalJam = $matchingSubjects->sum('jam_per_minggu');
+            $totalJam       = $matchingSubjects->sum('jam_per_minggu');
             $availableSlots = count($hariList) * $maxJam;
 
             if ($totalJam > $availableSlots) {
-                $errors[] = "{$rombel->nama}: total jam ({$totalJam}) melebihi slot ({$availableSlots}).";
+                $errors[] = "{$rombel->nama}: total jam ({$totalJam}) melebihi kapasitas ({$availableSlots}).";
                 continue;
             }
 
-            $remaining = [];
-            foreach ($matchingSubjects as $s) {
-                $remaining[$s->id] = $s->jam_per_minggu;
+            // ── 1. Pecah semua mapel menjadi blok 2-jam dan sisa 1-jam ──
+            $pool = [];
+            foreach ($matchingSubjects as $subject) {
+                $guru  = $subject->gurus->first();
+                $hours = $subject->jam_per_minggu;
+                while ($hours >= 2) {
+                    $pool[] = ['s' => $subject, 'g' => $guru, 'dur' => 2];
+                    $hours -= 2;
+                }
+                if ($hours === 1) {
+                    $pool[] = ['s' => $subject, 'g' => $guru, 'dur' => 1];
+                }
             }
+            // Prioritaskan blok 2 jam agar terisi teratur
+            usort($pool, fn($a, $b) => $b['dur'] <=> $a['dur']);
 
-            foreach ($hariList as $hari) {
-                for ($jam = 1; $jam <= $maxJam; $jam++) {
-                    $candidates = [];
-                    foreach ($remaining as $subjectId => $hours) {
-                        if ($hours <= 0) {
-                            continue;
+            // Backtracking variables
+            $dayDurations = [];
+            $subjectDays = [];
+            $assignments = [];
+
+            // Solver closure
+            $solve = function($blockIdx, $allowSameDaySubject, $minHours) use (
+                &$solve, $pool, $hariList, $maxJam, $totalJam,
+                &$teacherSchedule, &$dayDurations, &$subjectDays, &$assignments
+            ) {
+                if ($blockIdx >= count($pool)) {
+                    $effectiveMin = min($minHours, $totalJam);
+                    foreach ($hariList as $hari) {
+                        $dur = $dayDurations[$hari] ?? 0;
+                        if ($totalJam >= count($hariList) && $dur === 0) {
+                            return false; // Day cannot be empty if we have enough total hours
                         }
-                        $subject = $matchingSubjects->firstWhere('id', $subjectId);
-                        if (!$subject) {
-                            continue;
-                        }
-                        foreach ($subject->gurus as $guru) {
-                            if (!isset($teacherSchedule[$guru->id][$hari][$jam])) {
-                                $candidates[] = [
-                                    'subject' => $subject,
-                                    'guru' => $guru,
-                                    'remaining' => $hours,
-                                ];
-                                break;
-                            }
+                        if ($dur > 0 && $dur < $effectiveMin) {
+                            return false;
                         }
                     }
+                    return true;
+                }
 
-                    if (empty($candidates)) {
+                $block = $pool[$blockIdx];
+                $subjectId = $block['s']->id;
+                $guruId = $block['g']->id;
+                $dur = $block['dur'];
+
+                foreach ($hariList as $hari) {
+                    $start = ($dayDurations[$hari] ?? 0) + 1;
+                    $end = $start + $dur - 1;
+
+                    if ($end > $maxJam) {
                         continue;
                     }
 
-                    usort($candidates, fn($a, $b) => $b['remaining'] <=> $a['remaining']);
+                    if (!$allowSameDaySubject && isset($subjectDays[$subjectId][$hari])) {
+                        continue;
+                    }
 
-                    $best = $candidates[0];
+                    // Check teacher availability
+                    $clash = false;
+                    for ($jam = $start; $jam <= $end; $jam++) {
+                        if (isset($teacherSchedule[$guruId][$hari][$jam])) {
+                            $clash = true;
+                            break;
+                        }
+                    }
+                    if ($clash) {
+                        continue;
+                    }
 
-                    Jadwal::create([
-                        'rombel_id' => $rombel->id,
-                        'mata_pelajaran_id' => $best['subject']->id,
-                        'guru_id' => $best['guru']->id,
-                        'tahun_ajaran_id' => $tahunAjaranId,
-                        'hari' => $hari,
-                        'jam_ke' => $jam,
-                    ]);
+                    // Place block
+                    $prevDur = $dayDurations[$hari] ?? 0;
+                    $dayDurations[$hari] = $end;
+                    for ($jam = $start; $jam <= $end; $jam++) {
+                        $teacherSchedule[$guruId][$hari][$jam] = true;
+                    }
+                    $subjectDays[$subjectId][$hari] = true;
+                    $assignments[$blockIdx] = ['hari' => $hari, 'start' => $start];
 
-                    $teacherSchedule[$best['guru']->id][$hari][$jam] = true;
-                    $remaining[$best['subject']->id]--;
-                    $created++;
+                    if ($solve($blockIdx + 1, $allowSameDaySubject, $minHours)) {
+                        return true;
+                    }
+
+                    // Backtrack
+                    $dayDurations[$hari] = $prevDur;
+                    for ($jam = $start; $jam <= $end; $jam++) {
+                        unset($teacherSchedule[$guruId][$hari][$jam]);
+                    }
+                    unset($subjectDays[$subjectId][$hari]);
+                    unset($assignments[$blockIdx]);
                 }
+
+                return false;
+            };
+
+            $teacherScheduleBackup = $teacherSchedule;
+            $solved = false;
+
+            // Strategy relaxation cascade
+            foreach ([
+                ['sameDay' => false, 'min' => 4],
+                ['sameDay' => true, 'min' => 4],
+                ['sameDay' => false, 'min' => 1],
+                ['sameDay' => true, 'min' => 1]
+            ] as $strategy) {
+                $dayDurations = [];
+                foreach ($hariList as $hari) {
+                    $dayDurations[$hari] = 0;
+                }
+                $subjectDays = [];
+                $assignments = [];
+                $teacherSchedule = $teacherScheduleBackup;
+
+                if ($solve(0, $strategy['sameDay'], $strategy['min'])) {
+                    $solved = true;
+                    break;
+                }
+            }
+
+            if ($solved) {
+                foreach ($assignments as $blockIdx => $assign) {
+                    $block = $pool[$blockIdx];
+                    $hari = $assign['hari'];
+                    $start = $assign['start'];
+                    $dur = $block['dur'];
+                    for ($k = 0; $k < $dur; $k++) {
+                        $jamPos = $start + $k;
+                        Jadwal::create([
+                            'rombel_id'         => $rombel->id,
+                            'mata_pelajaran_id' => $block['s']->id,
+                            'guru_id'           => $block['g']->id,
+                            'tahun_ajaran_id'   => $tahunAjaranId,
+                            'hari'              => $hari,
+                            'jam_ke'            => $jamPos,
+                        ]);
+                        $created++;
+                    }
+                }
+            } else {
+                $errors[] = "{$rombel->nama}: Gagal menjadwalkan kelas karena bentrok guru atau slot tidak mencukupi.";
             }
         }
 
-        $message = "Jadwal berhasil digenerate: {$created} entries.";
-        if (!empty($errors)) {
-            $message .= ' ' . implode(' ', $errors);
-        }
-
+        $message = "Jadwal berhasil digenerate: {$created} entri jadwal dibuat.";
+        if (!empty($errors)) $message .= ' ' . implode(' ', $errors);
         return back()->with('success', $message);
     }
+
 
     public function exportPdf(Request $request)
     {

@@ -95,10 +95,94 @@ const submitForm = () => {
 };
 
 const hapus = (entry) => {
-    if (confirm(`Hapus jadwal ${entry.mata_pelajaran?.nama} pada ${entry.hari} jam ke-${entry.jam_ke}?`)) {
-        router.delete(route('admin.jadwal.destroy', entry.hashid));
-    }
+    deleteTarget.value = entry;
+    showDeleteModal.value = true;
 };
+
+const showDeleteModal = ref(false);
+const deleteTarget = ref(null);
+const isDeleting = ref(false);
+
+const confirmHapus = () => {
+    if (!deleteTarget.value) return;
+    isDeleting.value = true;
+    router.delete(route('admin.jadwal.destroy', deleteTarget.value.hashid), {
+        onSuccess: () => {
+            showDeleteModal.value = false;
+            deleteTarget.value = null;
+        },
+        onFinish: () => {
+            isDeleting.value = false;
+        },
+    });
+};
+
+const conflictWarning = computed(() => {
+    if (!form.guru_id || !form.hari || !form.jam_ke) {
+        return null;
+    }
+
+    const currentHashid = editTarget.value?.hashid;
+    const selectedGuru = props.guruList.find(g => g.id == form.guru_id);
+    const targetJam = Number(form.jam_ke);
+    const targetTaId = form.tahun_ajaran_id || (props.filters.tahun_ajaran_id || props.tahunAjaranList.find(t => t.is_active)?.id);
+
+    let allEntries = [];
+    if (Array.isArray(props.jadwalGrouped)) {
+        props.jadwalGrouped.forEach(group => {
+            if (group.grid) {
+                Object.values(group.grid).forEach(daySlots => {
+                    Object.values(daySlots).forEach(entry => {
+                        if (entry) allEntries.push(entry);
+                    });
+                });
+            }
+        });
+    } else if (props.jadwalGrouped?.grid) {
+        Object.values(props.jadwalGrouped.grid).forEach(daySlots => {
+            Object.values(daySlots).forEach(entry => {
+                if (entry) allEntries.push(entry);
+            });
+        });
+    }
+
+    const guruConflict = allEntries.find(item =>
+        item.guru_id == form.guru_id &&
+        item.hari === form.hari &&
+        Number(item.jam_ke) === targetJam &&
+        (!targetTaId || item.tahun_ajaran_id == targetTaId) &&
+        item.hashid !== currentHashid
+    );
+
+    if (guruConflict) {
+        return {
+            type: 'guru',
+            title: 'Bentrok Jadwal Guru!',
+            message: `Guru ${selectedGuru?.nama || 'Guru'} sudah ada jadwal mengajar di kelas ${guruConflict.rombel?.nama || 'lain'} pada hari ${form.hari} jam ke-${form.jam_ke}.`
+        };
+    }
+
+    const targetRombelId = form.rombel_id || props.selectedRombelId;
+    if (targetRombelId) {
+        const rombelConflict = allEntries.find(item =>
+            item.rombel_id == targetRombelId &&
+            item.hari === form.hari &&
+            Number(item.jam_ke) === targetJam &&
+            (!targetTaId || item.tahun_ajaran_id == targetTaId) &&
+            item.hashid !== currentHashid
+        );
+
+        if (rombelConflict) {
+            return {
+                type: 'rombel',
+                title: 'Jam Pelajaran Terisi!',
+                message: `Kelas ini sudah terisi jadwal ${rombelConflict.mata_pelajaran?.nama || ''} (${rombelConflict.guru?.nama || ''}) pada hari ${form.hari} jam ke-${form.jam_ke}.`
+            };
+        }
+    }
+
+    return null;
+});
 
 const isGroupMode = computed(() => !filterRombel.value);
 
@@ -175,14 +259,20 @@ const isGenerating = ref(false);
 const generateForm = useForm({
     tahun_ajaran_id: '',
     rombel_ids: [],
-    max_jam: 10,
+    max_jam: 8,
+    max_jam_tingkat: {
+        X: 8,
+        XI: 8,
+        XII: 8,
+    },
 });
 
 const openGenerate = () => {
     const aktifTa = props.tahunAjaranList.find(t => t.is_active);
     generateForm.tahun_ajaran_id = aktifTa?.id || '';
     generateForm.rombel_ids = [];
-    generateForm.max_jam = 10;
+    generateForm.max_jam = 8;
+    generateForm.max_jam_tingkat = { X: 8, XI: 8, XII: 8 };
     showGenerateModal.value = true;
 };
 
@@ -579,7 +669,7 @@ watch(showHariAktifModal, (v) => {
                                         <div>
                                             <label class="block text-sm font-bold text-slate-700 mb-1.5">
                                                 <Clock class="w-3.5 h-3.5 inline mr-1.5 text-slate-400" />
-                                                Maks Jam Per Hari
+                                                Maks Jam Per Hari (Default)
                                             </label>
                                             <select v-model="generateForm.max_jam" required
                                                 class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-medium text-sm transition-shadow"
@@ -587,6 +677,31 @@ watch(showHariAktifModal, (v) => {
                                                 <option v-for="j in [6,7,8,9,10,11,12]" :key="j" :value="j">{{ j }} Jam Pelajaran</option>
                                             </select>
                                         </div>
+                                    </div>
+
+                                    <!-- Max Jam Per Tingkat Settings -->
+                                    <div class="bg-slate-50/80 border border-slate-200 rounded-2xl p-4 space-y-2">
+                                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                            Maksimal Jam per Hari per Tingkat Kelas
+                                        </label>
+                                        <div class="grid grid-cols-3 gap-3">
+                                            <div class="bg-white border border-slate-200 rounded-xl p-2.5 text-center shadow-xs">
+                                                <span class="text-[11px] font-black text-purple-700 uppercase tracking-wider block mb-1">Tingkat X</span>
+                                                <input type="number" v-model.number="generateForm.max_jam_tingkat.X" min="1" max="15"
+                                                    class="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg font-extrabold text-center text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500" />
+                                            </div>
+                                            <div class="bg-white border border-slate-200 rounded-xl p-2.5 text-center shadow-xs">
+                                                <span class="text-[11px] font-black text-sky-700 uppercase tracking-wider block mb-1">Tingkat XI</span>
+                                                <input type="number" v-model.number="generateForm.max_jam_tingkat.XI" min="1" max="15"
+                                                    class="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg font-extrabold text-center text-sm focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500" />
+                                            </div>
+                                            <div class="bg-white border border-slate-200 rounded-xl p-2.5 text-center shadow-xs">
+                                                <span class="text-[11px] font-black text-emerald-700 uppercase tracking-wider block mb-1">Tingkat XII</span>
+                                                <input type="number" v-model.number="generateForm.max_jam_tingkat.XII" min="1" max="15"
+                                                    class="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg font-extrabold text-center text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500" />
+                                            </div>
+                                        </div>
+                                        <p class="text-[11px] text-slate-500 font-medium pt-1">💡 Algoritma akan menyusun mapel dalam 2 jam berurutan dan memisah jam ganjil (1 jam) ke hari yang berbeda.</p>
                                     </div>
 
                                     <!-- Pilih Rombel -->
@@ -959,14 +1074,23 @@ watch(showHariAktifModal, (v) => {
                         </select>
                     </div>
 
+                    <!-- Conflict Warning Banner -->
+                    <div v-if="conflictWarning" class="p-4 bg-rose-50 border-2 border-rose-200 rounded-2xl flex items-start gap-3 text-rose-900 animate-pulse">
+                        <AlertCircle class="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                        <div>
+                            <h4 class="font-black text-xs uppercase tracking-wider text-rose-700">{{ conflictWarning.title }}</h4>
+                            <p class="text-xs font-semibold mt-0.5 text-rose-800 leading-snug">{{ conflictWarning.message }}</p>
+                        </div>
+                    </div>
+
                     <div class="flex justify-end gap-3 pt-2">
                         <button type="button" @click="showModal = false"
                             class="px-5 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
                         >
                             Batal
                         </button>
-                        <button type="submit" :disabled="form.processing"
-                            class="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-60"
+                        <button type="submit" :disabled="form.processing || !!conflictWarning"
+                            class="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                             <Check class="w-4 h-4" />
                             {{ form.processing ? 'Menyimpan...' : (editTarget ? 'Perbarui' : 'Simpan') }}
@@ -975,6 +1099,55 @@ watch(showHariAktifModal, (v) => {
                 </form>
             </div>
         </div>
+
+        <!-- Modal Konfirmasi Hapus Profesional -->
+        <Transition name="modal">
+            <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" @click.self="showDeleteModal = false">
+                <div class="modal-card bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden p-6 space-y-5">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 ring-4 ring-rose-50">
+                            <Trash2 class="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-slate-900">Hapus Jam Jadwal?</h3>
+                            <p class="text-xs font-medium text-slate-500 mt-0.5">Tindakan ini akan menghapus entri pelajaran dari jadwal.</p>
+                        </div>
+                    </div>
+
+                    <div v-if="deleteTarget" class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2 text-xs">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Mata Pelajaran:</span>
+                            <span class="font-extrabold text-slate-900">{{ deleteTarget.mata_pelajaran?.nama || '-' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Guru Pengampu:</span>
+                            <span class="font-bold text-slate-700">{{ deleteTarget.guru?.nama || '-' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Hari & Jam Ke:</span>
+                            <span class="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
+                                {{ deleteTarget.hari }}, Jam Ke-{{ deleteTarget.jam_ke }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-2">
+                        <button type="button" @click="showDeleteModal = false"
+                            class="px-5 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+                        >
+                            Batal
+                        </button>
+                        <button type="button" @click="confirmHapus" :disabled="isDeleting"
+                            class="px-5 py-2.5 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors flex items-center gap-2 shadow-lg shadow-rose-200 disabled:opacity-60"
+                        >
+                            <span v-if="isDeleting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <Trash2 v-else class="w-4 h-4" />
+                            {{ isDeleting ? 'Menghapus...' : 'Ya, Hapus' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
     </AuthenticatedLayout>
 </template>
 
