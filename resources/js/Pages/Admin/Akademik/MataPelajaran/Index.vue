@@ -29,7 +29,7 @@ const tingkatList = ['X', 'XI', 'XII'];
 const jurusanList = ['IPA', 'IPS'];
 
 const showCreateModal = ref(false);
-const createForm = useForm({ nama: '', kode: '', tingkat: 'X', jurusan: '', jam_per_minggu: 4 });
+const createForm = useForm({ nama: '', kode: '', tingkat: 'X', jurusan: '' });
 
 const submitCreate = () => {
     createForm.post(route('admin.web.mata-pelajaran.store'), {
@@ -38,14 +38,13 @@ const submitCreate = () => {
             createForm.reset();
             createForm.tingkat = 'X';
             createForm.jurusan = '';
-            createForm.jam_per_minggu = 4;
         },
     });
 };
 
 const showEditModal = ref(false);
 const editTarget = ref(null);
-const editForm = useForm({ nama: '', kode: '', tingkat: '', jurusan: '', jam_per_minggu: 4 });
+const editForm = useForm({ nama: '', kode: '', tingkat: '', jurusan: '' });
 
 const openEdit = (mapel) => {
     editTarget.value = mapel;
@@ -53,7 +52,6 @@ const openEdit = (mapel) => {
     editForm.kode = mapel.kode;
     editForm.tingkat = mapel.tingkat;
     editForm.jurusan = mapel.jurusan || '';
-    editForm.jam_per_minggu = mapel.jam_per_minggu ?? 4;
     showEditModal.value = true;
 };
 
@@ -110,7 +108,7 @@ const teacherList = (mapel) => {
 
 const totalJamMingguan = computed(() => {
     if (!props.mapelList?.data) return 0;
-    return props.mapelList.data.reduce((acc, curr) => acc + (Number(curr.jam_per_minggu) || 4), 0);
+    return props.mapelList.data.reduce((acc, curr) => acc + (Number(curr.jam_per_minggu) || 0), 0);
 });
 </script>
 
@@ -268,7 +266,7 @@ const totalJamMingguan = computed(() => {
                                             <Clock class="w-3.5 h-3.5" />
                                         </div>
                                         <div class="flex items-baseline gap-1 text-left">
-                                            <span class="font-black text-sm text-slate-900 tracking-tight leading-none">{{ mapel.jam_per_minggu || 4 }}</span>
+                                            <span class="font-black text-sm text-slate-900 tracking-tight leading-none">{{ mapel.jam_per_minggu || 0 }}</span>
                                             <span class="text-[10px] font-black uppercase tracking-wider text-indigo-600">JP/Mgg</span>
                                         </div>
                                     </div>
@@ -407,24 +405,8 @@ const totalJamMingguan = computed(() => {
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">
-                            Jumlah Jam per Minggu <span class="text-rose-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <input
-                                type="number"
-                                v-model="createForm.jam_per_minggu"
-                                required
-                                min="1"
-                                max="40"
-                                placeholder="4"
-                                class="w-full px-4 py-2.5 bg-slate-50 border rounded-xl focus:ring-indigo-600 focus:border-indigo-600 font-medium transition-colors"
-                                :class="createForm.errors.jam_per_minggu ? 'border-rose-400 bg-rose-50' : 'border-slate-200'"
-                            >
-                            <span class="absolute right-3.5 top-2.5 text-xs font-bold text-slate-400">Jam / Minggu</span>
-                        </div>
-                        <p v-if="createForm.errors.jam_per_minggu" class="text-rose-600 text-xs font-bold mt-1.5">{{ createForm.errors.jam_per_minggu }}</p>
+                    <div class="bg-indigo-50/60 border border-indigo-100 rounded-xl p-3.5 text-xs text-indigo-700 font-medium">
+                        💡 Jumlah jam per minggu tidak diisi di sini — otomatis dihitung dari jumlah jam yang diinput pada setiap guru pengampu di halaman Data Guru.
                     </div>
 
                     <div class="flex gap-3 pt-2">
@@ -532,24 +514,8 @@ const totalJamMingguan = computed(() => {
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">
-                            Jumlah Jam per Minggu <span class="text-rose-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <input
-                                type="number"
-                                v-model="editForm.jam_per_minggu"
-                                required
-                                min="1"
-                                max="40"
-                                placeholder="4"
-                                class="w-full px-4 py-2.5 bg-slate-50 border rounded-xl focus:ring-indigo-600 focus:border-indigo-600 font-medium transition-colors"
-                                :class="editForm.errors.jam_per_minggu ? 'border-rose-400 bg-rose-50' : 'border-slate-200'"
-                            >
-                            <span class="absolute right-3.5 top-2.5 text-xs font-bold text-slate-400">Jam / Minggu</span>
-                        </div>
-                        <p v-if="editForm.errors.jam_per_minggu" class="text-rose-600 text-xs font-bold mt-1.5">{{ editForm.errors.jam_per_minggu }}</p>
+                    <div class="bg-indigo-50/60 border border-indigo-100 rounded-xl p-3.5 text-xs text-indigo-700 font-medium">
+                        💡 Jumlah jam per minggu otomatis dihitung dari jumlah jam yang diinput pada setiap guru pengampu di halaman Data Guru.
                     </div>
 
                     <div class="flex gap-3 pt-2">

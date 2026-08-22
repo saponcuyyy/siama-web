@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -47,13 +46,14 @@ class GuruController extends Controller
             'jabatan' => 'nullable|string|max:100',
             'email' => 'required|email|max:255|unique:users,email',
             'tanggal_lahir' => 'nullable|date',
-            'mata_pelajaran_ids' => 'nullable|array',
-            'mata_pelajaran_ids.*' => 'exists:mata_pelajaran,id',
+            'mata_pelajaran' => 'nullable|array',
+            'mata_pelajaran.*.id' => 'required|exists:mata_pelajaran,id',
+            'mata_pelajaran.*.jam' => 'nullable|integer|min:0|max:40',
         ]);
 
-        $defaultPassword = Str::password(10);
+        $defaultPassword = Guru::defaultPassword($validated['tanggal_lahir']);
 
-        DB::transaction(function () use ($validated, $defaultPassword) {
+        $guru = DB::transaction(function () use ($validated, $defaultPassword) {
             $user = User::create([
                 'name' => $validated['nama'],
                 'email' => $validated['email'],
@@ -70,9 +70,9 @@ class GuruController extends Controller
                 'tanggal_lahir' => $validated['tanggal_lahir'],
             ]);
 
-            if (! empty($validated['mata_pelajaran_ids'])) {
-                $guru->mataPelajarans()->sync($validated['mata_pelajaran_ids']);
-            }
+            $this->syncMataPelajaran($guru, $validated['mata_pelajaran'] ?? null);
+
+            return $guru;
         });
 
         return back()->with('success', 'Data guru berhasil ditambahkan. Akun login telah dibuat.');
@@ -86,8 +86,9 @@ class GuruController extends Controller
             'jabatan' => 'nullable|string|max:100',
             'email' => 'required|email|max:255|unique:users,email,'.$guru->user_id,
             'tanggal_lahir' => 'nullable|date',
-            'mata_pelajaran_ids' => 'nullable|array',
-            'mata_pelajaran_ids.*' => 'exists:mata_pelajaran,id',
+            'mata_pelajaran' => 'nullable|array',
+            'mata_pelajaran.*.id' => 'required|exists:mata_pelajaran,id',
+            'mata_pelajaran.*.jam' => 'nullable|integer|min:0|max:40',
         ]);
 
         DB::transaction(function () use ($guru, $validated) {
@@ -105,12 +106,42 @@ class GuruController extends Controller
                 ]);
             }
 
-            if (array_key_exists('mata_pelajaran_ids', $validated)) {
-                $guru->mataPelajarans()->sync($validated['mata_pelajaran_ids'] ?? []);
+            if (array_key_exists('mata_pelajaran', $validated)) {
+                $this->syncMataPelajaran($guru, $validated['mata_pelajaran']);
             }
         });
 
         return back()->with('success', 'Data guru berhasil diperbarui.');
+    }
+
+    private function syncMataPelajaran(Guru $guru, ?array $assignments): void
+    {
+        $pivotData = collect($assignments ?? [])
+            ->filter(fn ($m) => ! empty($m['id']))
+            ->mapWithKeys(fn ($m) => [(int) $m['id'] => ['jam_per_minggu' => (int) ($m['jam'] ?? 0)]])
+            ->all();
+
+        $oldIds = $guru->mataPelajarans()->pluck('mata_pelajaran_id')->all();
+
+        $guru->mataPelajarans()->sync($pivotData);
+
+        $this->recalculateJamMapel(array_merge($oldIds, array_keys($pivotData)));
+    }
+
+    private function recalculateJamMapel(array $mapelIds): void
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $mapelIds))));
+        if (empty($ids)) {
+            return;
+        }
+
+        foreach (MataPelajaran::withTrashed()->whereIn('id', $ids)->get() as $mapel) {
+            $total = (int) DB::table('guru_mata_pelajaran')
+                ->where('mata_pelajaran_id', $mapel->id)
+                ->sum('jam_per_minggu');
+
+            $mapel->update(['jam_per_minggu' => $total]);
+        }
     }
 
     public function destroy(Guru $guru)

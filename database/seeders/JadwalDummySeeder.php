@@ -3,220 +3,204 @@
 namespace Database\Seeders;
 
 use App\Models\Guru;
+use App\Models\Jadwal;
 use App\Models\MataPelajaran;
 use App\Models\Rombel;
+use App\Models\TahunAjaran;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class JadwalDummySeeder extends Seeder
 {
+    /**
+     * Struktur mapel & alokasi JP mengikuti tabel beban mengajar sekolah.
+     *
+     * Format: [Nama Mapel, Kode, Tingkat, Jurusan, JP/Kelas, [Guru]]
+     * Kelompok kelas: -1 s/d -3 = IPA, -4 s/d -6 = IPS.
+     */
     public function run(): void
     {
-        $tahunAjaranId = 1;
+        $tahunAjaran = TahunAjaran::where('is_active', true)->first()
+            ?? TahunAjaran::create(['nama' => '2025/2026', 'is_active' => true]);
 
-        // ─── 1. Update Jurusan Rombel ─────────────────────────────────────────
-        $rombelMap = [
-            1 => ['jurusan' => 'IPA'],  // XII IPA 1
-            2 => ['jurusan' => null],   // X IPA 1 (X = umum)
-            3 => ['jurusan' => null],   // X IPS 1 (X = umum)
-            4 => ['jurusan' => 'IPA'],  // XI IPA 1
-            5 => ['jurusan' => 'IPS'],  // XI IPS 1
-            6 => ['jurusan' => 'IPA'],  // XII IPA 2
-            7 => ['jurusan' => 'IPA'],  // XI-IPA 2
-        ];
-
-        foreach ($rombelMap as $id => $data) {
-            Rombel::where('id', $id)->update($data);
-        }
-
-        $this->command->info('Rombel jurusan updated.');
-
-        // ─── 2. Create Mata Pelajaran ──────────────────────────────────────────
-
-        // Kelas X (Umum) — semua jurusan
-        $kelasX = [
-            ['nama' => 'Pendidikan Agama',       'kode' => 'AGM', 'tingkat' => 'X',  'jurusan' => null, 'jam' => 3],
-            ['nama' => 'PPKn',                    'kode' => 'PPK', 'tingkat' => 'X',  'jurusan' => null, 'jam' => 2],
-            ['nama' => 'Bahasa Indonesia',        'kode' => 'BIN', 'tingkat' => 'X',  'jurusan' => null, 'jam' => 4],
-            ['nama' => 'Matematika',              'kode' => 'MTK', 'tingkat' => 'X',  'jurusan' => null, 'jam' => 4],
-            ['nama' => 'Bahasa Inggris',          'kode' => 'BIG', 'tingkat' => 'X',  'jurusan' => null, 'jam' => 3],
-            ['nama' => 'PJOK',                    'kode' => 'PJO', 'tingkat' => 'X',  'jurusan' => null, 'jam' => 3],
-            ['nama' => 'Sejarah',                 'kode' => 'SEJ', 'tingkat' => 'X',  'jurusan' => null, 'jam' => 2],
-            ['nama' => 'Seni Budaya',             'kode' => 'SBD', 'tingkat' => 'X',  'jurusan' => null, 'jam' => 2],
-            ['nama' => 'Prakarya & Kewirausahaan', 'kode' => 'PKW', 'tingkat' => 'X',  'jurusan' => null, 'jam' => 2],
-            ['nama' => 'Informatika',             'kode' => 'INF', 'tingkat' => 'X',  'jurusan' => null, 'jam' => 3],
-        ];
-
-        // Kelas XI IPA
-        $kelasXI_IPA = [
-            ['nama' => 'Pendidikan Agama',       'kode' => 'AGM', 'tingkat' => 'XI', 'jurusan' => 'IPA', 'jam' => 3],
-            ['nama' => 'PPKn',                    'kode' => 'PPK', 'tingkat' => 'XI', 'jurusan' => 'IPA', 'jam' => 2],
-            ['nama' => 'Bahasa Indonesia',        'kode' => 'BIN', 'tingkat' => 'XI', 'jurusan' => 'IPA', 'jam' => 4],
-            ['nama' => 'Matematika',              'kode' => 'MTK', 'tingkat' => 'XI', 'jurusan' => 'IPA', 'jam' => 4],
-            ['nama' => 'Bahasa Inggris',          'kode' => 'BIG', 'tingkat' => 'XI', 'jurusan' => 'IPA', 'jam' => 3],
-            ['nama' => 'Fisika',                  'kode' => 'FIS', 'tingkat' => 'XI', 'jurusan' => 'IPA', 'jam' => 4],
-            ['nama' => 'Kimia',                   'kode' => 'KIM', 'tingkat' => 'XI', 'jurusan' => 'IPA', 'jam' => 4],
-            ['nama' => 'Biologi',                 'kode' => 'BIO', 'tingkat' => 'XI', 'jurusan' => 'IPA', 'jam' => 4],
-            ['nama' => 'PJOK',                    'kode' => 'PJO', 'tingkat' => 'XI', 'jurusan' => 'IPA', 'jam' => 2],
-            ['nama' => 'Sejarah',                 'kode' => 'SEJ', 'tingkat' => 'XI', 'jurusan' => 'IPA', 'jam' => 2],
-            ['nama' => 'Seni Budaya',             'kode' => 'SBD', 'tingkat' => 'XI', 'jurusan' => 'IPA', 'jam' => 2],
-        ];
-
-        // Kelas XI IPS
-        $kelasXI_IPS = [
-            ['nama' => 'Pendidikan Agama',       'kode' => 'AGM', 'tingkat' => 'XI', 'jurusan' => 'IPS', 'jam' => 3],
-            ['nama' => 'PPKn',                    'kode' => 'PPK', 'tingkat' => 'XI', 'jurusan' => 'IPS', 'jam' => 2],
-            ['nama' => 'Bahasa Indonesia',        'kode' => 'BIN', 'tingkat' => 'XI', 'jurusan' => 'IPS', 'jam' => 4],
-            ['nama' => 'Matematika',              'kode' => 'MTK', 'tingkat' => 'XI', 'jurusan' => 'IPS', 'jam' => 4],
-            ['nama' => 'Bahasa Inggris',          'kode' => 'BIG', 'tingkat' => 'XI', 'jurusan' => 'IPS', 'jam' => 3],
-            ['nama' => 'Ekonomi',                 'kode' => 'EKO', 'tingkat' => 'XI', 'jurusan' => 'IPS', 'jam' => 4],
-            ['nama' => 'Sosiologi',               'kode' => 'SOS', 'tingkat' => 'XI', 'jurusan' => 'IPS', 'jam' => 4],
-            ['nama' => 'Geografi',                'kode' => 'GEO', 'tingkat' => 'XI', 'jurusan' => 'IPS', 'jam' => 4],
-            ['nama' => 'PJOK',                    'kode' => 'PJO', 'tingkat' => 'XI', 'jurusan' => 'IPS', 'jam' => 2],
-            ['nama' => 'Sejarah',                 'kode' => 'SEJ', 'tingkat' => 'XI', 'jurusan' => 'IPS', 'jam' => 2],
-            ['nama' => 'Seni Budaya',             'kode' => 'SBD', 'tingkat' => 'XI', 'jurusan' => 'IPS', 'jam' => 2],
-        ];
-
-        // Kelas XII IPA
-        $kelasXII_IPA = [
-            ['nama' => 'Pendidikan Agama',       'kode' => 'AGM', 'tingkat' => 'XII', 'jurusan' => 'IPA', 'jam' => 3],
-            ['nama' => 'PPKn',                    'kode' => 'PPK', 'tingkat' => 'XII', 'jurusan' => 'IPA', 'jam' => 2],
-            ['nama' => 'Bahasa Indonesia',        'kode' => 'BIN', 'tingkat' => 'XII', 'jurusan' => 'IPA', 'jam' => 4],
-            ['nama' => 'Matematika',              'kode' => 'MTK', 'tingkat' => 'XII', 'jurusan' => 'IPA', 'jam' => 4],
-            ['nama' => 'Bahasa Inggris',          'kode' => 'BIG', 'tingkat' => 'XII', 'jurusan' => 'IPA', 'jam' => 3],
-            ['nama' => 'Fisika',                  'kode' => 'FIS', 'tingkat' => 'XII', 'jurusan' => 'IPA', 'jam' => 4],
-            ['nama' => 'Kimia',                   'kode' => 'KIM', 'tingkat' => 'XII', 'jurusan' => 'IPA', 'jam' => 4],
-            ['nama' => 'Biologi',                 'kode' => 'BIO', 'tingkat' => 'XII', 'jurusan' => 'IPA', 'jam' => 4],
-            ['nama' => 'PJOK',                    'kode' => 'PJO', 'tingkat' => 'XII', 'jurusan' => 'IPA', 'jam' => 2],
-            ['nama' => 'Sejarah',                 'kode' => 'SEJ', 'tingkat' => 'XII', 'jurusan' => 'IPA', 'jam' => 2],
-            ['nama' => 'Seni Budaya',             'kode' => 'SBD', 'tingkat' => 'XII', 'jurusan' => 'IPA', 'jam' => 2],
-        ];
-
-        // Kelas XII IPS
-        $kelasXII_IPS = [
-            ['nama' => 'Pendidikan Agama',       'kode' => 'AGM', 'tingkat' => 'XII', 'jurusan' => 'IPS', 'jam' => 3],
-            ['nama' => 'PPKn',                    'kode' => 'PPK', 'tingkat' => 'XII', 'jurusan' => 'IPS', 'jam' => 2],
-            ['nama' => 'Bahasa Indonesia',        'kode' => 'BIN', 'tingkat' => 'XII', 'jurusan' => 'IPS', 'jam' => 4],
-            ['nama' => 'Matematika',              'kode' => 'MTK', 'tingkat' => 'XII', 'jurusan' => 'IPS', 'jam' => 4],
-            ['nama' => 'Bahasa Inggris',          'kode' => 'BIG', 'tingkat' => 'XII', 'jurusan' => 'IPS', 'jam' => 3],
-            ['nama' => 'Ekonomi',                 'kode' => 'EKO', 'tingkat' => 'XII', 'jurusan' => 'IPS', 'jam' => 4],
-            ['nama' => 'Sosiologi',               'kode' => 'SOS', 'tingkat' => 'XII', 'jurusan' => 'IPS', 'jam' => 4],
-            ['nama' => 'Geografi',                'kode' => 'GEO', 'tingkat' => 'XII', 'jurusan' => 'IPS', 'jam' => 4],
-            ['nama' => 'PJOK',                    'kode' => 'PJO', 'tingkat' => 'XII', 'jurusan' => 'IPS', 'jam' => 2],
-            ['nama' => 'Sejarah',                 'kode' => 'SEJ', 'tingkat' => 'XII', 'jurusan' => 'IPS', 'jam' => 2],
-            ['nama' => 'Seni Budaya',             'kode' => 'SBD', 'tingkat' => 'XII', 'jurusan' => 'IPS', 'jam' => 2],
-        ];
-
-        $allMapel = array_merge($kelasX, $kelasXI_IPA, $kelasXI_IPS, $kelasXII_IPA, $kelasXII_IPS);
-
-        $createdIds = [];
-        foreach ($allMapel as $item) {
-            $mapel = MataPelajaran::create([
-                'nama' => $item['nama'],
-                'kode' => $item['kode'] . '_' . $item['tingkat'] . '_' . ($item['jurusan'] ?? 'U'),
-                'tingkat' => $item['tingkat'],
-                'jurusan' => $item['jurusan'],
-                'jam_per_minggu' => $item['jam'],
-            ]);
-            $createdIds[] = $mapel->id;
-        }
-
-        $this->command->info('Mata Pelajaran created: ' . count($createdIds));
-
-        // ─── 3. Assign Guru ke Mata Pelajaran ──────────────────────────────────
-
-        $guru = Guru::where('id', '!=', 22)->get()->keyBy('id');
-
-        $assignments = [
-            // Agama → guru Agama
-            'AGM' => [10, 18],          // Agus Salim, H. Syamsul Arifin
-
-            // PPKn
-            'PPK' => [2, 7],            // Drs. H. Ahmad Fauzi, Dra. Hj. Nurhayati
-
-            // Bahasa Indonesia
-            'BIN' => [1, 9, 13],        // Budi Guru, Yuni Astuti, Dewi Sartika
-
-            // Matematika
-            'MTK' => [5, 6, 14, 15],    // Siti Rahmawati, Dedi Iskandar, Dr. Muhammad Ridwan, Nina Marlina
-
-            // Bahasa Inggris
-            'BIG' => [3, 11],           // Rina Wijayanti, Fitri Handayani
-
-            // PJOK
-            'PJO' => [16, 21],          // Rudi Hartono, Ratna Dewi
-
-            // Sejarah
-            'SEJ' => [2, 8],            // Drs. H. Ahmad Fauzi, Dr. Hendra Gunawan
-
-            // Seni Budaya
-            'SBD' => [13, 17],          // Dewi Sartika, Lilis Suryani
-
-            // Fisika
-            'FIS' => [6, 14],           // Dedi Iskandar, Dr. Muhammad Ridwan
-
-            // Kimia
-            'KIM' => [5, 15],           // Siti Rahmawati, Nina Marlina
-
-            // Biologi
-            'BIO' => [7, 17],           // Dra. Hj. Nurhayati, Lilis Suryani
-
-            // Ekonomi
-            'EKO' => [1, 8],            // Budi Guru, Dr. Hendra Gunawan
-
-            // Sosiologi
-            'SOS' => [2, 9],            // Drs. H. Ahmad Fauzi, Yuni Astuti
-
-            // Geografi
-            'GEO' => [11, 17],          // Fitri Handayani, Lilis Suryani
-
-            // Informatika
-            'INF' => [4, 20],           // Eko Prasetyo, Dr. Antonius Wibowo
-
-            // Prakarya
-            'PKW' => [19, 20],          // Maria Ulfah, Dr. Antonius Wibowo
-        ];
-
-        $pivotData = [];
-        $mapelByKodePrefix = MataPelajaran::all()->groupBy(fn($m) => explode('_', $m->kode)[0]);
-
-        foreach ($assignments as $prefix => $guruIds) {
-            $mapels = $mapelByKodePrefix->get($prefix, collect());
-            foreach ($mapels as $mapel) {
-                foreach ($guruIds as $guruId) {
-                    if ($guru->has($guruId)) {
-                        $pivotData[] = [
-                            'guru_id' => $guruId,
-                            'mata_pelajaran_id' => $mapel->id,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ];
-                    }
-                }
+        // ─── 1. Rombel X-1 .. XII-6 ────────────────────────────────────────────
+        foreach (['X', 'XI', 'XII'] as $tingkat) {
+            for ($i = 1; $i <= 6; $i++) {
+                Rombel::updateOrCreate(
+                    ['nama' => "{$tingkat}-{$i}", 'tahun_ajaran_id' => $tahunAjaran->id],
+                    ['tingkat' => $tingkat, 'jurusan' => $i <= 3 ? 'IPA' : 'IPS']
+                );
             }
         }
 
-        DB::table('guru_mata_pelajaran')->insert($pivotData);
+        $this->command->info('Rombel X-1 s.d. XII-6 disiapkan.');
 
-        $this->command->info('Guru-Mapel assignments created: ' . count($pivotData));
+        // ─── 2. Bersihkan jadwal & mapel lama ──────────────────────────────────
+        Jadwal::query()->delete();
+
+        DB::table('guru_mata_pelajaran')->delete();
+        $mapelTerhapus = 0;
+        $mapelTerlewat = 0;
+        foreach (MataPelajaran::withTrashed()->get() as $m) {
+            try {
+                $m->forceDelete();
+                $mapelTerhapus++;
+            } catch (\Throwable $e) {
+                // Masih dipakai modul lain (mis. bank soal): sembunyikan via soft delete.
+                // Pakai query langsung karena flag forceDeleting pada instance sudah aktif.
+                DB::table('mata_pelajaran')->where('id', $m->id)->update(['deleted_at' => now()]);
+                $mapelTerlewat++;
+            }
+        }
+
+        $this->command->info("Mapel lama dihapus: {$mapelTerhapus}".($mapelTerlewat > 0 ? " ({$mapelTerlewat} terlewat karena masih dipakai modul lain)" : '').'.');
+
+        // ─── 3. Kurikulum & penugasan guru ─────────────────────────────────────
+        $mapelData = [
+            // ── Kelas X (umum) ──
+            ['Bahasa Indonesia',        'BIND', 'X', null, 4, ['Nuradliani']],
+            ['Pendidikan Pancasila',    'PP',   'X', null, 2, ['Kiki Octania']],
+            ['Bahasa Inggris Wajib',    'BIGW', 'X', null, 3, ['Gunawan']],
+            ['Matematika',              'MTK',  'X', null, 4, ['Yuanda Elsa Zahara']],
+            ['Fisika',                  'FIS',  'X', null, 3, ['Nurjanna Lubis']],
+            ['Kimia',                   'KIM',  'X', null, 3, ['Meylia Syahfitri']],
+            ['Biologi',                 'BIO',  'X', null, 3, ['Nong Suita']],
+            ['Sejarah Indonesia',       'SEJ',  'X', null, 3, ['Chusnul Khotimah']],
+            ['Ekonomi',                 'EKO',  'X', null, 3, ['Darmilawati Pohan']],
+            ['TIK',                     'TIK',  'X', null, 2, ['Setya Hadi Utomo']],
+            ['PJOK',                    'PJO',  'X', null, 3, ['Muhammad Andre']],
+            ['Agama Islam',             'AGM',  'X', null, 3, ['Nuramalina']],
+
+            // ── Kelas X IPA (X-1 s/d X-3) ──
+            ['Geografi',                'GEO',  'X', 'IPA', 3, ['Asna Susanti']],
+            ['Sosiologi',               'SOS',  'X', 'IPA', 3, ['Kiki Octania']],
+            ['Prakarya',                'PKW',  'X', 'IPA', 2, ['Darmilawati Pohan']],
+            ['Agama Kristen',           'AGK',  'X', 'IPA', 3, ['Gustina Gultom']],
+
+            // ── Kelas X IPS (X-4 s/d X-6) ──
+            ['Geografi',                'GEO',  'X', 'IPS', 3, ['Tukini']],
+            ['Sosiologi',               'SOS',  'X', 'IPS', 3, ['Sasmitha Putri']],
+            ['Prakarya',                'PKW',  'X', 'IPS', 2, ['Meylia Syahfitri']],
+
+            // ── Kelas XI (umum) ──
+            ['Bahasa Indonesia',        'BIND', 'XI', null, 4, ['Agustinawaty']],
+            ['Pendidikan Pancasila',    'PP',   'XI', null, 2, ['Sasmitha Putri']],
+            ['Seni Budaya',             'SBD',  'XI', null, 2, ['Siti Khodijah Batu Bara']],
+            ['Matematika',              'MTK',  'XI', null, 4, ['Cut Mutiara']],
+            ['PJOK',                    'PJO',  'XI', null, 3, ['Apriani']],
+
+            // ── Kelas XI IPA (XI-1 s/d XI-3) ──
+            ['Bahasa Inggris Wajib',    'BIGW', 'XI', 'IPA', 3, ['Gunawan']],
+            ['Fisika',                  'FIS',  'XI', 'IPA', 5, ['Nurjanna Lubis']],
+            ['Kimia',                   'KIM',  'XI', 'IPA', 5, ['Murnihayati Purba']],
+            ['Biologi',                 'BIO',  'XI', 'IPA', 5, ['Lasmauli Tampubolon']],
+            ['TIK',                     'TIK',  'XI', 'IPA', 5, ['Setya Hadi Utomo']],
+            ['Agama Islam',             'AGM',  'XI', 'IPA', 3, ['Fatimah']],
+            ['Matematika Lanjutan',     'MLJ',  'XI', 'IPA', 5, ['Syahriani Efendi']],
+
+            // ── Kelas XI IPS (XI-4 s/d XI-6) ──
+            ['Bahasa Inggris Wajib',    'BIGW', 'XI', 'IPS', 3, ['Sartika Panjaitan']],
+            ['Sejarah Indonesia',       'SEJ',  'XI', 'IPS', 2, ['Chusnul Khotimah']],
+            ['Ekonomi',                 'EKO',  'XI', 'IPS', 5, ['Maya Sari']],
+            ['Agama Islam',             'AGM',  'XI', 'IPS', 3, ['M. Irfan']],
+            ['Prakarya',                'PKW',  'XI', 'IPS', 2, ['Helena CH J Pasaribu']],
+
+            // ── Kelas XII (umum) ──
+            ['Pendidikan Pancasila',    'PP',   'XII', null, 2, ['Abdul Wahid']],
+            ['Bahasa Indonesia',        'BIND', 'XII', null, 4, ['Suningsih']],
+            ['Seni Budaya',             'SBD',  'XII', null, 2, ['Siti Khodijah Batu Bara']],
+            ['Matematika',              'MTK',  'XII', null, 4, ['Lisna Sujati']],
+            ['Bahasa Inggris Wajib',    'BIGW', 'XII', null, 3, ['Sartika Panjaitan']],
+            ['Sejarah Indonesia',       'SEJ',  'XII', null, 2, ['Arbaiyah Batubara']],
+
+            // ── Kelas XII IPA (XII-1 s/d XII-3) ──
+            ['Biologi',                 'BIO',  'XII', 'IPA', 5, ['Nong Suita']],
+            ['Kimia',                   'KIM',  'XII', 'IPA', 5, ['Murnihayati Purba']],
+            ['Ekonomi',                 'EKO',  'XII', 'IPA', 5, ['Maya Sari']],
+            ['Prakarya',                'PKW',  'XII', 'IPA', 2, ['Fatimah']],
+            ['Agama Kristen',           'AGK',  'XII', 'IPA', 3, ['Gustina Gultom']],
+
+            // ── Kelas XII IPS (XII-4 s/d XII-6) ──
+            ['Biologi',                 'BIO',  'XII', 'IPS', 5, ['Lasmauli Tampubolon']],
+            ['Ekonomi',                 'EKO',  'XII', 'IPS', 5, ['Helena CH J Pasaribu']],
+            ['Prakarya',                'PKW',  'XII', 'IPS', 2, ['Setya Hadi Utomo']],
+            ['Agama Islam',             'AGM',  'XII', 'IPS', 3, ['Fatimah']],
+            ['Geografi',                'GEO',  'XII', 'IPS', 5, ['Asna Susanti']],
+            ['Agama Kristen',           'AGK',  'XII', 'IPS', 3, ['Gustina Gultom']],
+
+            // ── Mapel literasi (tanpa alokasi jam tetap; hanya inventaris) ──
+            ['Bahasa Inggris Literasi', 'BIGL', 'XII', null,  0, ['Gunawan', 'Sartika Panjaitan']],
+            ['Sejarah Literasi',        'SEJL', 'XII', null,  0, ['Arbaiyah Batubara']],
+            ['Matematika Literasi',     'MTKL', 'XI',  null,  0, ['Setya Hadi Utomo']],
+        ];
+
+        $guruByNama = Guru::get()->keyBy(
+            fn ($g) => strtolower(trim(explode(',', $g->nama)[0]))
+        );
+        $pivotRows = [];
+        $mapelDibuat = 0;
+
+        foreach ($mapelData as [$nama, $kode, $tingkat, $jurusan, $jam, $guruNamaList]) {
+            $mapel = MataPelajaran::create([
+                'nama' => $nama,
+                'kode' => $kode.'_'.$tingkat.'_'.($jurusan ?? 'U'),
+                'tingkat' => $tingkat,
+                'jurusan' => $jurusan,
+                'jam_per_minggu' => 0,
+            ]);
+
+            $totalJpMapel = 0;
+            foreach ($guruNamaList as $guruNama) {
+                $guru = $guruByNama->get(strtolower(trim($guruNama)));
+                if (! $guru) {
+                    $this->command->warn("Guru tidak ditemukan: {$guruNama}");
+                    continue;
+                }
+
+                $pivotRows[] = [
+                    'guru_id' => $guru->id,
+                    'mata_pelajaran_id' => $mapel->id,
+                    'jam_per_minggu' => $jam,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+                $totalJpMapel += $jam;
+            }
+
+            $mapel->update(['jam_per_minggu' => $totalJpMapel]);
+            $mapelDibuat++;
+        }
+
+        foreach (array_chunk($pivotRows, 200) as $chunk) {
+            DB::table('guru_mata_pelajaran')->insert($chunk);
+        }
+
+        $this->command->info("Mapel dibuat: {$mapelDibuat}, penugasan guru: ".count($pivotRows).'.');
         $this->command->info('');
 
         // ─── 4. Summary ────────────────────────────────────────────────────────
-        $totalJamX = collect($kelasX)->sum('jam');
-        $totalJamXIIPA = collect($kelasXI_IPA)->sum('jam');
-        $totalJamXIIPS = collect($kelasXI_IPS)->sum('jam');
+        $rombelsBaru = Rombel::where('tahun_ajaran_id', $tahunAjaran->id)
+            ->whereIn('nama', collect(['X', 'XI', 'XII'])->flatMap(
+                fn ($t) => collect(range(1, 6))->map(fn ($i) => "{$t}-{$i}")
+            ))
+            ->get();
 
-        $this->command->table(
-            ['Rombel', 'Total Jam/Minggu', 'Keterangan'],
-            [
-                ['Kelas X (Umum)', $totalJamX, '10 mapel — ' . count($kelasX) . ' mapel'],
-                ['Kelas XI IPA', $totalJamXIIPA, '11 mapel'],
-                ['Kelas XI IPS', $totalJamXIIPS, '11 mapel'],
-                ['Kelas XII IPA', collect($kelasXII_IPA)->sum('jam'), '11 mapel'],
-                ['Kelas XII IPS', collect($kelasXII_IPS)->sum('jam'), '11 mapel'],
-            ]
-        );
+        $summary = [];
+        foreach (['X', 'XI', 'XII'] as $tingkat) {
+            foreach ($rombelsBaru->where('tingkat', $tingkat) as $rombel) {
+                $totalJp = MataPelajaran::query()
+                    ->where('tingkat', $tingkat)
+                    ->where(function ($q) use ($rombel) {
+                        $q->whereNull('jurusan')->orWhere('jurusan', $rombel->jurusan);
+                    })
+                    ->where('jam_per_minggu', '>', 0)
+                    ->sum('jam_per_minggu');
 
+                $summary[] = [$rombel->nama, $rombel->jurusan ?? 'Umum', $totalJp];
+            }
+        }
+
+        $this->command->table(['Rombel', 'Jurusan', 'Total JP/Minggu'], $summary);
         $this->command->info("\nSiap! Buka menu Jadwal dan klik Generate Jadwal untuk testing.");
     }
 }

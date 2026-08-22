@@ -12,51 +12,68 @@ class GuruSeeder extends Seeder
     public function run(): void
     {
         $dataGuru = [
-            ['nama' => 'Drs. H. Ahmad Fauzi, M.Pd',               'nip' => '197508122000031001', 'email' => 'ahmad.fauzi@siama.sch.id',          'tanggal_lahir' => '1975-08-12'],
-            ['nama' => 'Rina Wijayanti, S.Pd',                     'nip' => '198504232009042002', 'email' => 'rina.wijayanti@siama.sch.id',       'tanggal_lahir' => '1985-04-23'],
-            ['nama' => 'Eko Prasetyo, S.Kom',                      'nip' => '199011052015021003', 'email' => 'eko.prasetyo@siama.sch.id',         'tanggal_lahir' => '1990-11-05'],
-            ['nama' => 'Siti Rahmawati, S.Si',                     'nip' => '198802152010122001', 'email' => 'siti.rahmawati@siama.sch.id',       'tanggal_lahir' => '1988-02-15'],
-            ['nama' => 'Dedi Iskandar, M.Si',                      'nip' => '198207192008011002', 'email' => 'dedi.iskandar@siama.sch.id',         'tanggal_lahir' => '1982-07-19'],
-            ['nama' => 'Dra. Hj. Nurhayati, M.Pd',                 'nip' => '197003122005012001', 'email' => 'nurhayati@siama.sch.id',             'tanggal_lahir' => '1970-03-12'],
-            ['nama' => 'Dr. Hendra Gunawan, S.Pd, M.Pd',           'nip' => '197806252006041002', 'email' => 'hendra.gunawan@siama.sch.id',        'tanggal_lahir' => '1978-06-25'],
-            ['nama' => 'Yuni Astuti, S.Pd',                        'nip' => '199208142019032001', 'email' => 'yuni.astuti@siama.sch.id',            'tanggal_lahir' => '1992-08-14'],
-            ['nama' => 'Agus Salim, S.Ag',                         'nip' => '197512102005011003', 'email' => 'agus.salim@siama.sch.id',            'tanggal_lahir' => '1975-12-10'],
-            ['nama' => 'Fitri Handayani, S.Pd, M.Pd',              'nip' => '198612242009022002', 'email' => 'fitri.handayani@siama.sch.id',       'tanggal_lahir' => '1986-12-24'],
-            ['nama' => 'Ir. Bambang Wijaya, M.T',                  'nip' => '197901152006031004', 'email' => 'bambang.wijaya@siama.sch.id',         'tanggal_lahir' => '1979-01-15'],
-            ['nama' => 'Dewi Sartika, S.Pd',                       'nip' => '199103052018012001', 'email' => 'dewi.sartika@siama.sch.id',           'tanggal_lahir' => '1991-03-05'],
-            ['nama' => 'Dr. Muhammad Ridwan, M.Si',                'nip' => '197408152000121001', 'email' => 'm.ridwan@siama.sch.id',               'tanggal_lahir' => '1974-08-15'],
-            ['nama' => 'Nina Marlina, S.Si, M.Si',                 'nip' => '198710172011012002', 'email' => 'nina.marlina@siama.sch.id',           'tanggal_lahir' => '1987-10-17'],
-            ['nama' => 'Rudi Hartono, S.Pd',                       'nip' => '199505062020011001', 'email' => 'rudi.hartono@siama.sch.id',           'tanggal_lahir' => '1995-05-06'],
-            ['nama' => 'Lilis Suryani, S.Pd, M.Pd',                'nip' => '198308192007012003', 'email' => 'lilis.suryani@siama.sch.id',          'tanggal_lahir' => '1983-08-19'],
-            ['nama' => 'H. Syamsul Arifin, S.Pd.I',                'nip' => '197612202006041002', 'email' => 'syamsul.arifin@siama.sch.id',         'tanggal_lahir' => '1976-12-20'],
-            ['nama' => 'Maria Ulfah, S.T',                         'nip' => '199009112013092001', 'email' => 'maria.ulfah@siama.sch.id',            'tanggal_lahir' => '1990-09-11'],
-            ['nama' => 'Dr. Antonius Wibowo, M.Kom',               'nip' => '198106232005021003', 'email' => 'antonius.wibowo@siama.sch.id',        'tanggal_lahir' => '1981-06-23'],
-            ['nama' => 'Ratna Dewi, S.Pd',                         'nip' => '199312172020022001', 'email' => 'ratna.dewi@siama.sch.id',             'tanggal_lahir' => '1993-12-17'],
+            // [nama, nip, slug-email, tanggal_lahir]
+            ['Juliartono, S.Pd',              '197905052006011001', 'juliartono',          '1979-05-05'],
+            ['Abdul Wahid, S.Pd',             '198203182008021002', 'abdul.wahid',         '1982-03-18'],
+            ['Sasmitha Putri, S.Pd',          '199107252015042003', 'sasmitha.putri',      '1991-07-25'],
+            ['Kiki Octania, S.Pd',            '198909122013012004', 'kiki.octania',        '1989-09-12'],
+            ['Siti Khodijah Batu Bara,S.Pd',  '198604202010022005', 'siti.khodijah',       '1986-04-20'],
+            ['Nuradliani, S.Pd',              '198501152009011006', 'nuradliani',          '1985-01-15'],
+            ['Agustinawaty, S.Pd',            '198406232008042007', 'agustinawaty',        '1984-06-23'],
+            ['Suningsih, S.Pd',               '198710302011012008', 'suningsih',           '1987-10-30'],
+            ['Gunawan, S.Pd',                 '198302142007011009', 'gunawan',             '1983-02-14'],
+            ['Sartika Panjaitan, S.Pd',       '199002262014022010', 'sartika.panjaitan',   '1990-02-26'],
+            ['Lisna Sujati, S.Pd',            '198108172006012011', 'lisna.sujati',        '1981-08-17'],
+            ['Cut Mutiara, S.Pd',             '198812052012012012', 'cut.mutiara',         '1988-12-05'],
+            ['Yuanda Elsa Zahara,S.Pd',       '199306102018032013', 'yuanda.elsa',         '1993-06-10'],
+            ['Syahriani Efendi, S.Pd',        '198708212011021014', 'syahriani.efendi',    '1987-08-21'],
+            ['Setya Hadi Utomo,S.Pd',         '198211082007011015', 'setya.hadi',          '1982-11-08'],
+            ['Maya Sari, S.Pd',               '199104182016022016', 'maya.sari',           '1991-04-18'],
+            ['Helena CH J Pasaribu, S.Pd',    '198206272006021017', 'helena.pasaribu',     '1982-06-27'],
+            ['Darmilawati Pohan,S.Pd',        '198903092013011018', 'darmilawati.pohan',   '1989-03-09'],
+            ['Nurjanna Lubis, S.Pd',          '198507142009022019', 'nurjanna.lubis',      '1985-07-14'],
+            ['Arbaiyah Batubara, S.Pd',       '198401292008012020', 'arbaiyah.batubara',   '1984-01-29'],
+            ['Chusnul Khotimah, S.Pd',        '198808072012022021', 'chusnul.khotimah',    '1988-08-07'],
+            ['Nong Suita, S.Pd',              '199002032014012022', 'nong.suita',          '1990-02-03'],
+            ['Lasmauli Tampubolon, S.Pd',     '198310202008011023', 'lasmauli.tampubolon', '1983-10-20'],
+            ['Nuramalina, S.Pd',              '198906162013022024', 'nuramalina',          '1989-06-16'],
+            ['M. Irfan, S.Hi',                '199209242017012025', 'm.irfan',             '1992-09-24'],
+            ['Fatimah, S.PdI',                '199305082018012026', 'fatimah',             '1993-05-08'],
+            ['Gustina Gultom, S.Th',          '198404112008022027', 'gustina.gultom',      '1984-04-11'],
+            ['Murnihayati Purba, S.Pd',       '198611222010012028', 'murnihayati.purba',   '1986-11-22'],
+            ['Meylia Syahfitri, S.Pd',        '199208302017022029', 'meylia.syahfitri',    '1992-08-30'],
+            ['Asna Susanti, S.Pd',            '199001192013012030', 'asna.susanti',        '1990-01-19'],
+            ['Tukini,S.Pd',                   '198509282009022031', 'tukini',              '1985-09-28'],
+            ['Jeniwati Br Tarigan, S.Sos',    '198707062011012032', 'jeniwati.tarigan',    '1987-07-06'],
+            ['Apriani, S.Pd',                 '199211132016012033', 'apriani',             '1992-11-13'],
+            ['Muhammad Andre,S.Pd',           '199304022017011034', 'muhammad.andre',      '1993-04-02'],
         ];
 
-        foreach ($dataGuru as $g) {
-            $user = User::where('email', $g['email'])->first();
+        foreach ($dataGuru as [$nama, $nip, $slug, $tgl]) {
+            $email = $slug.'@siama.sch.id';
+
+            $user = User::where('email', $email)->first();
             if (! $user) {
                 $user = User::create([
-                    'name' => $g['nama'],
-                    'email' => $g['email'],
-                    'password' => Hash::make('guru123'),
+                    'name' => $nama,
+                    'email' => $email,
+                    'password' => Hash::make(Guru::defaultPassword($tgl)),
                 ]);
                 $user->assignRole('guru');
             }
 
-            Guru::withoutEvents(function () use ($g, $user) {
+            Guru::withoutEvents(function () use ($nip, $user, $nama, $tgl) {
                 Guru::firstOrCreate(
-                    ['nip' => $g['nip']],
+                    ['nip' => $nip],
                     [
                         'user_id' => $user->id,
-                        'nama' => $g['nama'],
-                        'tanggal_lahir' => $g['tanggal_lahir'],
+                        'nama' => $nama,
+                        'tanggal_lahir' => $tgl,
                     ]
                 );
             });
         }
 
-        $this->command->info('20 data guru dummy berhasil dibuat.');
+        $this->command->info(count($dataGuru).' data guru berhasil dibuat.');
     }
 }

@@ -21,6 +21,7 @@ const editTarget = ref(null);
 const form = useForm({
     nama: '',
     tingkat: '',
+    jurusan: '',
     tahun_ajaran_id: '',
     guru_id: '',
 });
@@ -38,6 +39,7 @@ const openEdit = (rombel) => {
     editTarget.value = rombel;
     form.nama = rombel.nama;
     form.tingkat = rombel.tingkat;
+    form.jurusan = rombel.jurusan || '';
     form.tahun_ajaran_id = rombel.tahun_ajaran_id;
     form.guru_id = rombel.guru_id || '';
     showModal.value = true;
@@ -187,7 +189,13 @@ const submitSalin = () => {
                         </div>
                     </div>
 
-                    <h3 class="text-lg font-black text-slate-900 mb-1">{{ rombel.nama }}</h3>
+                    <h3 class="text-lg font-black text-slate-900 mb-1 flex items-center gap-2 flex-wrap">
+                        {{ rombel.nama }}
+                        <span v-if="rombel.jurusan"
+                            class="px-2 py-0.5 bg-amber-50 text-amber-700 font-black text-[10px] rounded-md border border-amber-100 uppercase tracking-wider">
+                            {{ rombel.jurusan }}
+                        </span>
+                    </h3>
                     <p class="text-sm text-indigo-600 font-bold mb-3">{{ rombel.tahun_ajaran?.nama }}</p>
 
                     <div class="space-y-2 text-sm text-slate-600">
@@ -233,6 +241,17 @@ const submitSalin = () => {
                             <option value="">-- Pilih Tingkat --</option>
                             <option v-for="t in tingkatOptions" :key="t" :value="t">Kelas {{ t }}</option>
                         </select>
+                        <p v-if="form.errors.tingkat" class="text-xs text-rose-500 mt-1 font-bold">{{ form.errors.tingkat }}</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Jurusan (Opsional)</label>
+                        <select v-model="form.jurusan" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-indigo-600 focus:border-indigo-600">
+                            <option value="">Umum / Tanpa Jurusan</option>
+                            <option value="IPA">IPA</option>
+                            <option value="IPS">IPS</option>
+                        </select>
+                        <p v-if="form.errors.jurusan" class="text-xs text-rose-500 mt-1 font-bold">{{ form.errors.jurusan }}</p>
                     </div>
 
                     <div>

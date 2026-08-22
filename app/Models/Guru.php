@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,6 +25,15 @@ class Guru extends Model
         return [
             'tanggal_lahir' => 'date',
         ];
+    }
+
+    public static function defaultPassword(?string $tanggalLahir): string
+    {
+        if ($tanggalLahir) {
+            return date('dmY', strtotime($tanggalLahir)).'*';
+        }
+
+        return Str::password(10);
     }
 
     public function user(): BelongsTo
@@ -49,6 +59,7 @@ class Guru extends Model
     public function mataPelajarans(): BelongsToMany
     {
         return $this->belongsToMany(MataPelajaran::class, 'guru_mata_pelajaran')
+            ->withPivot('jam_per_minggu')
             ->withTimestamps();
     }
 }

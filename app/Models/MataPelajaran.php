@@ -31,6 +31,7 @@ class MataPelajaran extends Model
     public function gurus(): BelongsToMany
     {
         return $this->belongsToMany(Guru::class, 'guru_mata_pelajaran')
+            ->withPivot('jam_per_minggu')
             ->withTimestamps();
     }
 

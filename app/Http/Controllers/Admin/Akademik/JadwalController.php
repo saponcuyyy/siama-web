@@ -279,6 +279,7 @@ class JadwalController extends Controller
         $created = 0;
         $errors  = [];
 
+        $konteksList = [];
         foreach ($rombels as $rombel) {
             $maxJam = $maxJamTingkat[$rombel->tingkat] ?? $defaultMaxJam;
 
@@ -295,7 +296,7 @@ class JadwalController extends Controller
             })->values();
 
             if ($matchingSubjects->isEmpty()) {
-                $errors[] = "{$rombel->nama}: tidak ada mata pelajaran cocok.";
+                $errors[] = "{$rombel->nama}: tidak ada mata pelajaran cocok. Pastikan mapel tingkat {$rombel->tingkat} memiliki guru pengampu dengan jumlah jam di halaman Data Guru.";
                 continue;
             }
 
@@ -308,7 +309,8 @@ class JadwalController extends Controller
                     array_keys($limitPerHari),
                     $limitPerHari
                 ));
-                $errors[] = "{$rombel->nama}: total jam ({$totalJam}) melebihi kapasitas ({$availableSlots} slot; {$detailKapasitas}).";
+                $kurang = $totalJam - $availableSlots;
+                $errors[] = "{$rombel->nama}: total jam ({$totalJam}) melebihi kapasitas mingguan ({$availableSlots} slot; {$detailKapasitas}). Tambah {$kurang} slot melalui opsi \"Kapasitas Jam Pelajaran per Hari\" pada modal Generate.";
                 continue;
             }
 
@@ -328,156 +330,311 @@ class JadwalController extends Controller
                 }
             }
             // Prioritaskan blok 2 jam agar terisi teratur
-            usort($pool, fn($a, $b) => $b['dur'] <=> $a['dur']);
+            usort($pool, fn($a, $b) => [$b['dur'], $a['s']->id] <=> [$a['dur'], $b['s']->id]);
 
-            // Backtracking variables
-            $dayDurations = [];
-            $subjectDays = [];
-            $subjectGuru = [];
-            $assignments = [];
+            $konteksList[] = [
+                'rombel'       => $rombel,
+                'pool'         => $pool,
+                'limitPerHari' => $limitPerHari,
+                'totalJam'     => $totalJam,
+            ];
+        }
 
-            // Solver closure
-            $solve = function($blockIdx, $allowSameDaySubject, $minHours) use (
-                &$solve, $pool, $hariList, &$limitPerHari, $totalJam,
-                &$teacherSchedule, &$dayDurations, &$subjectDays, &$subjectGuru, &$assignments
-            ) {
-                if ($blockIdx >= count($pool)) {
-                    foreach ($hariList as $hari) {
-                        $dur = $dayDurations[$hari] ?? 0;
-                        if ($totalJam >= count($hariList) && $dur === 0) {
-                            return false; // Day cannot be empty if we have enough total hours
-                        }
-                        $dayMin = min($minHours, $limitPerHari[$hari]);
-                        if ($dur > 0 && $dur < $dayMin) {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
+        // Rombel dengan beban terbesar diproses lebih dulu agar tidak kehabisan
+        // kombinasi slot guru oleh rombel ringan yang diproses sebelumnya.
+        usort($konteksList, fn($a, $b) => $b['totalJam'] <=> $a['totalJam']);
 
-                $block = $pool[$blockIdx];
-                $subjectId = $block['s']->id;
-                $dur = $block['dur'];
+        $strategi = [
+            ['sameDay' => false, 'min' => 4],
+            ['sameDay' => true,  'min' => 4],
+            ['sameDay' => false, 'min' => 1],
+            ['sameDay' => true,  'min' => 1],
+        ];
 
-                // Guru tetap mapel ini di rombel ini; jika belum ada,
-                // semua guru pengampu menjadi kandidat (beda guru antar rombel diperbolehkan).
-                $candidates = isset($subjectGuru[$subjectId])
-                    ? [$subjectGuru[$subjectId]]
-                    : $block['gurus']->all();
+        $berhasil    = [];
+        $daftarGagal = [];
 
-                foreach ($hariList as $hari) {
-                    $start = ($dayDurations[$hari] ?? 0) + 1;
-                    $end = $start + $dur - 1;
+        // Batas waktu total untuk seluruh proses pencarian solusi (solver
+        // backtracking bersifat eksponensial). Setelah lewat, solver gagal cepat
+        // dan rombel yang tersisa ditangani fase best-effort yang linear.
+        $deadline = microtime(true) + 15.0;
 
-                    if ($end > $limitPerHari[$hari]) {
-                        continue;
-                    }
+        // ── Fase 1: solver penuh per rombel ──
+        foreach ($konteksList as $ctx) {
+            $assign = null;
+            foreach ($strategi as $s) {
+                $assign = $this->cobaSelesaikan($ctx['pool'], $hariList, $ctx['limitPerHari'], $ctx['totalJam'], $teacherSchedule, $s['sameDay'], $s['min'], $deadline);
+                if ($assign !== null) break;
+            }
 
-                    if (!$allowSameDaySubject && isset($subjectDays[$subjectId][$hari])) {
-                        continue;
-                    }
+            if ($assign !== null) {
+                $berhasil[$ctx['rombel']->id] = ['ctx' => $ctx, 'assignments' => $assign];
+            } else {
+                $daftarGagal[] = $ctx;
+            }
+        }
 
-                    foreach ($candidates as $guru) {
-                        $guruId = $guru->id;
+        // ── Fase 2: percobaan ulang dengan urutan acak (tetap tanpa bentrok guru) ──
+        $masihGagal = [];
+        foreach ($daftarGagal as $ctx) {
+            $assign = null;
 
-                        // Check teacher availability: 1 guru tidak boleh mengajar
-                        // di hari & jam yang sama di kelas manapun.
-                        $clash = false;
-                        for ($jam = $start; $jam <= $end; $jam++) {
-                            if (isset($teacherSchedule[$guruId][$hari][$jam])) {
-                                $clash = true;
-                                break;
-                            }
-                        }
-                        if ($clash) {
-                            continue;
-                        }
+            if (microtime(true) >= $deadline) {
+                $masihGagal[] = $ctx;
+                continue;
+            }
 
-                        // Place block
-                        $prevDur = $dayDurations[$hari] ?? 0;
-                        $dayDurations[$hari] = $end;
-                        $assignedHere = !isset($subjectGuru[$subjectId]);
-                        for ($jam = $start; $jam <= $end; $jam++) {
-                            $teacherSchedule[$guruId][$hari][$jam] = true;
-                        }
-                        if ($assignedHere) {
-                            $subjectGuru[$subjectId] = $guru;
-                        }
-                        $subjectDays[$subjectId][$hari] = true;
-                        $assignments[$blockIdx] = ['hari' => $hari, 'start' => $start, 'guru_id' => $guruId];
-
-                        if ($solve($blockIdx + 1, $allowSameDaySubject, $minHours)) {
-                            return true;
-                        }
-
-                        // Backtrack
-                        $dayDurations[$hari] = $prevDur;
-                        for ($jam = $start; $jam <= $end; $jam++) {
-                            unset($teacherSchedule[$guruId][$hari][$jam]);
-                        }
-                        unset($subjectDays[$subjectId][$hari]);
-                        if ($assignedHere) {
-                            unset($subjectGuru[$subjectId]);
-                        }
-                        unset($assignments[$blockIdx]);
-                    }
-                }
-
-                return false;
-            };
-
-            $teacherScheduleBackup = $teacherSchedule;
-            $solved = false;
-
-            // Strategy relaxation cascade
-            foreach ([
-                ['sameDay' => false, 'min' => 4],
-                ['sameDay' => true, 'min' => 4],
-                ['sameDay' => false, 'min' => 1],
-                ['sameDay' => true, 'min' => 1]
-            ] as $strategy) {
-                $dayDurations = [];
-                foreach ($hariList as $hari) {
-                    $dayDurations[$hari] = 0;
-                }
-                $subjectDays = [];
-                $subjectGuru = [];
-                $assignments = [];
-                $teacherSchedule = $teacherScheduleBackup;
-
-                if ($solve(0, $strategy['sameDay'], $strategy['min'])) {
-                    $solved = true;
-                    break;
+            foreach ([1, 2, 3, 4, 5] as $seed) {
+                foreach ($strategi as $s) {
+                    $assign = $this->cobaSelesaikan($ctx['pool'], $hariList, $ctx['limitPerHari'], $ctx['totalJam'], $teacherSchedule, $s['sameDay'], $s['min'], $deadline, $seed);
+                    if ($assign !== null) break 2;
                 }
             }
 
-            if ($solved) {
-                foreach ($assignments as $blockIdx => $assign) {
-                    $block = $pool[$blockIdx];
-                    $hari = $assign['hari'];
-                    $start = $assign['start'];
-                    $dur = $block['dur'];
-                    for ($k = 0; $k < $dur; $k++) {
-                        $jamPos = $start + $k;
-                        Jadwal::create([
-                            'rombel_id'         => $rombel->id,
-                            'mata_pelajaran_id' => $block['s']->id,
-                            'guru_id'           => $assign['guru_id'],
-                            'tahun_ajaran_id'   => $tahunAjaranId,
-                            'hari'              => $hari,
-                            'jam_ke'            => $jamPos,
-                        ]);
-                        $created++;
-                    }
-                }
+            if ($assign !== null) {
+                $berhasil[$ctx['rombel']->id] = ['ctx' => $ctx, 'assignments' => $assign];
             } else {
-                $errors[] = "{$rombel->nama}: Gagal menjadwalkan kelas karena bentrok guru atau slot tidak mencukupi.";
+                $masihGagal[] = $ctx;
+            }
+        }
+
+        // ── Fase 3: best-effort — tempatkan sebanyak mungkin blok tanpa bentrok ──
+        foreach ($masihGagal as $ctx) {
+            [$placements, $blokSisa] = $this->isiSisaSecaraRakus($ctx['pool'], $hariList, $ctx['limitPerHari'], $teacherSchedule);
+
+            if (!empty($placements)) {
+                $berhasil[$ctx['rombel']->id] = ['ctx' => $ctx, 'assignments' => $placements];
+            }
+
+            if (!empty($blokSisa)) {
+                $perMapel = [];
+                foreach ($blokSisa as $blk) {
+                    $perMapel[$blk['s']->nama] = ($perMapel[$blk['s']->nama] ?? 0) + $blk['dur'];
+                }
+                $totalSisa = array_sum($perMapel);
+                $detail    = implode(', ', array_map(fn($n, $jp) => "{$n} {$jp} JP", array_keys($perMapel), $perMapel));
+                $errors[]  = "{$ctx['rombel']->nama}: {$totalSisa} JP tidak dapat dijadwalkan tanpa bentrok guru ({$detail}).";
+            }
+        }
+
+        // Simpan entri jadwal hasil seluruh fase
+        foreach ($berhasil as $entry) {
+            $ctx = $entry['ctx'];
+            foreach ($entry['assignments'] as $blockIdx => $assign) {
+                $block = $ctx['pool'][$blockIdx];
+                for ($k = 0; $k < $block['dur']; $k++) {
+                    Jadwal::create([
+                        'rombel_id'         => $ctx['rombel']->id,
+                        'mata_pelajaran_id' => $block['s']->id,
+                        'guru_id'           => $assign['guru_id'],
+                        'tahun_ajaran_id'   => $tahunAjaranId,
+                        'hari'              => $assign['hari'],
+                        'jam_ke'            => $assign['start'] + $k,
+                    ]);
+                    $created++;
+                }
             }
         }
 
         $message = "Jadwal berhasil digenerate: {$created} entri jadwal dibuat.";
         if (!empty($errors)) $message .= ' ' . implode(' ', $errors);
         return back()->with('success', $message);
+    }
+
+    /**
+     * Coba selesaikan satu rombel dengan backtracking penuh.
+     * Mengembalikan assignments [blockIdx => hari/start/guru_id] saat berhasil,
+     * atau null saat gagal / melebihi $deadline (state guruSchedule dikembalikan seperti semula).
+     */
+    private function cobaSelesaikan(
+        array $pool,
+        array $hariList,
+        array $limitPerHari,
+        int $totalJam,
+        array &$guruSchedule,
+        bool $allowSameDaySubject,
+        int $minHours,
+        float $deadline,
+        ?int $seed = null
+    ): ?array {
+        $urutanHari = $hariList;
+
+        if ($seed !== null) {
+            mt_srand($seed * 7919 + $totalJam + array_sum($limitPerHari));
+            shuffle($urutanHari);
+            foreach ($pool as $i => $blk) {
+                $pool[$i]['_acak'] = mt_rand();
+            }
+            usort($pool, fn($a, $b) => [$b['dur'], $a['_acak']] <=> [$a['dur'], $b['_acak']]);
+        }
+
+        $dayDurations = array_fill_keys($hariList, 0);
+        $subjectDays  = [];
+        $subjectGuru  = [];
+        $assignments  = [];
+        $nodes        = 0;
+        $timedOut     = false;
+
+        $solve = function ($blockIdx) use (
+            &$solve, $pool, $urutanHari, $limitPerHari, $totalJam,
+            &$guruSchedule, &$dayDurations, &$subjectDays, &$subjectGuru, &$assignments,
+            $allowSameDaySubject, $minHours, $deadline, &$nodes, &$timedOut
+        ) {
+            if ($timedOut) {
+                return false;
+            }
+            if ((++$nodes & 255) === 0 && microtime(true) >= $deadline) {
+                $timedOut = true;
+                return false;
+            }
+            if ($blockIdx >= count($pool)) {
+                foreach ($urutanHari as $hari) {
+                    $dur = $dayDurations[$hari] ?? 0;
+                    if ($totalJam >= count($urutanHari) && $dur === 0) {
+                        return false;
+                    }
+                    $dayMin = min($minHours, $limitPerHari[$hari]);
+                    if ($dur > 0 && $dur < $dayMin) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            $block     = $pool[$blockIdx];
+            $subjectId = $block['s']->id;
+            $dur       = $block['dur'];
+
+            $candidates = isset($subjectGuru[$subjectId])
+                ? [$subjectGuru[$subjectId]]
+                : $block['gurus']->all();
+
+            foreach ($urutanHari as $hari) {
+                $start = ($dayDurations[$hari] ?? 0) + 1;
+                $end   = $start + $dur - 1;
+
+                if ($end > $limitPerHari[$hari]) {
+                    continue;
+                }
+
+                if (!$allowSameDaySubject && isset($subjectDays[$subjectId][$hari])) {
+                    continue;
+                }
+
+                foreach ($candidates as $guru) {
+                    $guruId = $guru->id;
+
+                    $clash = false;
+                    for ($jam = $start; $jam <= $end; $jam++) {
+                        if (isset($guruSchedule[$guruId][$hari][$jam])) {
+                            $clash = true;
+                            break;
+                        }
+                    }
+                    if ($clash) {
+                        continue;
+                    }
+
+                    $prevDur = $dayDurations[$hari] ?? 0;
+                    $dayDurations[$hari] = $end;
+                    $assignedHere = !isset($subjectGuru[$subjectId]);
+                    for ($jam = $start; $jam <= $end; $jam++) {
+                        $guruSchedule[$guruId][$hari][$jam] = true;
+                    }
+                    if ($assignedHere) {
+                        $subjectGuru[$subjectId] = $guru;
+                    }
+                    $subjectDays[$subjectId][$hari] = true;
+                    $assignments[$blockIdx] = ['hari' => $hari, 'start' => $start, 'guru_id' => $guruId];
+
+                    if ($solve($blockIdx + 1)) {
+                        return true;
+                    }
+
+                    $dayDurations[$hari] = $prevDur;
+                    for ($jam = $start; $jam <= $end; $jam++) {
+                        unset($guruSchedule[$guruId][$hari][$jam]);
+                    }
+                    unset($subjectDays[$subjectId][$hari]);
+                    if ($assignedHere) {
+                        unset($subjectGuru[$subjectId]);
+                    }
+                    unset($assignments[$blockIdx]);
+                }
+            }
+
+            return false;
+        };
+
+        $ok = $solve(0);
+
+        // Solusi parsial akibat timeout tidak boleh dipakai.
+        return ($ok && !$timedOut) ? $assignments : null;
+    }
+
+    /**
+     * Fase best-effort: tempatkan blok sebanyak mungkin hanya dengan aturan keras
+     * (kapasitas hari, slot bebas, tanpa bentrok guru). Mengisi pula lubang jam.
+     */
+    private function isiSisaSecaraRakus(array $pool, array $hariList, array $limitPerHari, array &$guruSchedule): array
+    {
+        $grid        = [];
+        $subjectDays = [];
+        $subjectGuru = [];
+        $placements  = [];
+        $sisa        = [];
+
+        foreach ($pool as $idx => $block) {
+            $subjectId = $block['s']->id;
+            $dur       = $block['dur'];
+
+            $candidates = isset($subjectGuru[$subjectId])
+                ? [$subjectGuru[$subjectId]]
+                : $block['gurus']->all();
+
+            $ditempatkan = false;
+
+            foreach ($candidates as $guru) {
+                if ($ditempatkan) break;
+                $guruId = $guru->id;
+
+                foreach ($hariList as $hari) {
+                    if ($ditempatkan) break;
+                    $batas = $limitPerHari[$hari];
+
+                    for ($start = 1; $start <= $batas - $dur + 1; $start++) {
+                        $end   = $start + $dur - 1;
+                        $bebas = true;
+
+                        for ($j = $start; $j <= $end; $j++) {
+                            if (isset($grid[$hari][$j]) || isset($guruSchedule[$guruId][$hari][$j])) {
+                                $bebas = false;
+                                break;
+                            }
+                        }
+                        if (!$bebas) continue;
+
+                        for ($j = $start; $j <= $end; $j++) {
+                            $grid[$hari][$j] = true;
+                            $guruSchedule[$guruId][$hari][$j] = true;
+                        }
+                        $subjectDays[$subjectId][$hari] = true;
+                        if (!isset($subjectGuru[$subjectId])) {
+                            $subjectGuru[$subjectId] = $guru;
+                        }
+                        $placements[$idx] = ['hari' => $hari, 'start' => $start, 'guru_id' => $guruId];
+                        $ditempatkan = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!$ditempatkan) {
+                $sisa[$idx] = $block;
+            }
+        }
+
+        return [$placements, $sisa];
     }
 
 

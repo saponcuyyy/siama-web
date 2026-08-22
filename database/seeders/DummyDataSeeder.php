@@ -30,11 +30,11 @@ class DummyDataSeeder extends Seeder
 
         // 2. Data Guru Dummy
         $dataGuru = [
-            ['nama' => 'Drs. H. Ahmad Fauzi, M.Pd', 'nip' => '197508122000031001', 'email' => 'ahmad.fauzi@siama.sch.id'],
-            ['nama' => 'Rina Wijayanti, S.Pd', 'nip' => '198504232009042002', 'email' => 'rina.wijayanti@siama.sch.id'],
-            ['nama' => 'Eko Prasetyo, S.Kom', 'nip' => '199011052015021003', 'email' => 'eko.prasetyo@siama.sch.id'],
-            ['nama' => 'Siti Rahmawati, S.Si', 'nip' => '198802152010122001', 'email' => 'siti.rahmawati@siama.sch.id'],
-            ['nama' => 'Dedi Iskandar, M.Si', 'nip' => '198207192008011002', 'email' => 'dedi.iskandar@siama.sch.id'],
+            ['nama' => 'Drs. H. Ahmad Fauzi, M.Pd', 'nip' => '197508122000031001', 'email' => 'ahmad.fauzi@siama.sch.id', 'tanggal_lahir' => '1975-08-12'],
+            ['nama' => 'Rina Wijayanti, S.Pd', 'nip' => '198504232009042002', 'email' => 'rina.wijayanti@siama.sch.id', 'tanggal_lahir' => '1985-04-23'],
+            ['nama' => 'Eko Prasetyo, S.Kom', 'nip' => '199011052015021003', 'email' => 'eko.prasetyo@siama.sch.id', 'tanggal_lahir' => '1990-11-05'],
+            ['nama' => 'Siti Rahmawati, S.Si', 'nip' => '198802152010122001', 'email' => 'siti.rahmawati@siama.sch.id', 'tanggal_lahir' => '1988-02-15'],
+            ['nama' => 'Dedi Iskandar, M.Si', 'nip' => '198207192008011002', 'email' => 'dedi.iskandar@siama.sch.id', 'tanggal_lahir' => '1982-07-19'],
         ];
 
         $gurus = [];
@@ -44,7 +44,7 @@ class DummyDataSeeder extends Seeder
                 $user = User::create([
                     'name' => $g['nama'],
                     'email' => $g['email'],
-                    'password' => Hash::make('password'),
+                    'password' => Hash::make(Guru::defaultPassword($g['tanggal_lahir'])),
                 ]);
                 $user->assignRole('guru');
             }

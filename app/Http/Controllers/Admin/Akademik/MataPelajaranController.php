@@ -46,18 +46,17 @@ class MataPelajaranController extends Controller
             'kode' => 'required|string|max:20',
             'tingkat' => 'required|in:X,XI,XII',
             'jurusan' => 'nullable|in:IPA,IPS',
-            'jam_per_minggu' => 'required|integer|min:1|max:40',
         ], [
             'nama.required' => 'Nama mata pelajaran wajib diisi.',
             'kode.required' => 'Kode mata pelajaran wajib diisi.',
             'tingkat.required' => 'Tingkat kelas wajib dipilih.',
             'tingkat.in' => 'Tingkat kelas tidak valid.',
             'jurusan.in' => 'Jurusan tidak valid.',
-            'jam_per_minggu.required' => 'Jumlah jam per minggu wajib diisi.',
-            'jam_per_minggu.integer' => 'Jumlah jam per minggu harus berupa angka.',
-            'jam_per_minggu.min' => 'Jumlah jam per minggu minimal 1 jam.',
-            'jam_per_minggu.max' => 'Jumlah jam per minggu maksimal 40 jam.',
         ]);
+
+        // jam_per_minggu dihitung otomatis dari jumlah jam yang diinput
+        // pada masing-masing guru pengampu (halaman Data Guru).
+        $validated['jam_per_minggu'] = 0;
 
         MataPelajaran::create($validated);
 
@@ -71,7 +70,6 @@ class MataPelajaranController extends Controller
             'kode' => 'required|string|max:20|unique:mata_pelajaran,kode,' . $mataPelajaran->id,
             'tingkat' => 'required|in:X,XI,XII',
             'jurusan' => 'nullable|in:IPA,IPS',
-            'jam_per_minggu' => 'required|integer|min:1|max:40',
         ], [
             'nama.required' => 'Nama mata pelajaran wajib diisi.',
             'kode.required' => 'Kode mata pelajaran wajib diisi.',
@@ -79,12 +77,9 @@ class MataPelajaranController extends Controller
             'tingkat.required' => 'Tingkat kelas wajib dipilih.',
             'tingkat.in' => 'Tingkat kelas tidak valid.',
             'jurusan.in' => 'Jurusan tidak valid.',
-            'jam_per_minggu.required' => 'Jumlah jam per minggu wajib diisi.',
-            'jam_per_minggu.integer' => 'Jumlah jam per minggu harus berupa angka.',
-            'jam_per_minggu.min' => 'Jumlah jam per minggu minimal 1 jam.',
-            'jam_per_minggu.max' => 'Jumlah jam per minggu maksimal 40 jam.',
         ]);
 
+        // jam_per_minggu tidak diubah manual; dihitung ulang saat guru disimpan.
         $mataPelajaran->update($validated);
 
         return back()->with('success', 'Mata pelajaran berhasil diperbarui.');

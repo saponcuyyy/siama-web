@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
@@ -61,6 +61,13 @@ const form = useForm({
     mata_pelajaran_ids: [],
 });
 
+// Jumlah jam pelajaran per mapel yang diampu: { [mapelId]: jp }
+const jamMap = ref({});
+
+const totalJpDiampu = computed(() =>
+    form.mata_pelajaran_ids.reduce((sum, id) => sum + (Number(jamMap.value[id]) || 0), 0)
+);
+
 const mapelDropdown = ref(false);
 
 const importForm = useForm({
@@ -75,6 +82,7 @@ const openCreate = () => {
     editTarget.value = null;
     form.reset();
     form.jabatan = 'Guru';
+    jamMap.value = {};
     showModal.value = true;
 };
 
@@ -121,6 +129,9 @@ const openEdit = (guru) => {
     form.email               = guru.user?.email || '';
     form.tanggal_lahir       = guru.tanggal_lahir || '';
     form.mata_pelajaran_ids  = (guru.mata_pelajarans || []).map(m => m.id);
+    jamMap.value = Object.fromEntries(
+        (guru.mata_pelajarans || []).map(m => [m.id, m.pivot?.jam_per_minggu ?? ''])
+    );
     showModal.value = true;
 };
 
@@ -132,6 +143,15 @@ const handleSearch = () => {
 
 const submitForm = () => {
     mapelDropdown.value = false;
+
+    form.transform((data) => ({
+        ...data,
+        mata_pelajaran: data.mata_pelajaran_ids.map(id => ({
+            id,
+            jam: Number(jamMap.value[id]) || 0,
+        })),
+    }));
+
     if (editTarget.value) {
         form.put(route('admin.web.guru.update', editTarget.value.hashid), {
             onSuccess: () => { showModal.value = false; form.reset(); },
@@ -232,7 +252,7 @@ const mapelLabel = (mapel) => {
             <div class="p-4 bg-indigo-50 border border-indigo-100 text-indigo-700 font-medium rounded-2xl text-sm flex items-start gap-3">
                 <Info class="w-5 h-5 shrink-0 mt-0.5" />
                 <div>
-                    Saat menambahkan guru baru, sistem akan <strong>otomatis membuat akun login</strong> dengan role <strong>Guru</strong>. Username: <code class="bg-white px-1.5 py-0.5 rounded font-mono text-xs">{email}</code> dan password default: <code class="bg-white px-1.5 py-0.5 rounded font-mono text-xs">guru123</code>.
+                    Saat menambahkan guru baru, sistem akan <strong>otomatis membuat akun login</strong> dengan role <strong>Guru</strong>. Username: <code class="bg-white px-1.5 py-0.5 rounded font-mono text-xs">{email}</code> dan password default: <code class="bg-white px-1.5 py-0.5 rounded font-mono text-xs">ddmmyyyy*</code> (tanggal lahir guru).
                 </div>
             </div>
 
@@ -294,11 +314,12 @@ const mapelLabel = (mapel) => {
                                     </span>
                                 </td>
                                 <td class="p-4">
-                                    <div class="flex flex-wrap gap-1">
+                                    <div class="flex flex-wrap gap-1 items-center">
                                         <span v-if="!guru.mata_pelajarans?.length" class="text-slate-400 text-xs">-</span>
                                         <span v-for="mapel in (guru.mata_pelajarans || [])" :key="mapel.id"
-                                            class="inline-flex items-center px-2 py-0.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-lg">
+                                            class="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-lg">
                                             {{ mapelLabel(mapel) }}
+                                            <span class="text-[10px] text-indigo-400">{{ mapel.pivot?.jam_per_minggu || 0 }} JP</span>
                                         </span>
                                     </div>
                                 </td>
@@ -376,7 +397,12 @@ const mapelLabel = (mapel) => {
                     </div>
 
                     <div class="relative">
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Mata Pelajaran Diampu</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
+                            Mata Pelajaran Diampu &amp; Jumlah Jam
+                            <span v-if="form.mata_pelajaran_ids.length > 0" class="text-indigo-600 font-black ml-1">
+                                (Total {{ totalJpDiampu }} JP/minggu)
+                            </span>
+                        </label>
                         <button type="button" @click="mapelDropdown = !mapelDropdown"
                             class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-left flex items-center justify-between gap-2 hover:border-indigo-400 transition-colors">
                             <span v-if="form.mata_pelajaran_ids.length === 0" class="text-slate-400">Pilih mata pelajaran...</span>
@@ -384,15 +410,25 @@ const mapelLabel = (mapel) => {
                             <svg class="w-4 h-4 text-slate-400 transition-transform" :class="{'rotate-180': mapelDropdown}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>
                         <div v-if="mapelDropdown"
-                            class="absolute z-10 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
-                            <label v-for="mapel in mapelList" :key="mapel.id"
-                                class="flex items-center gap-2.5 px-4 py-2 hover:bg-slate-50 cursor-pointer text-sm">
-                                <input type="checkbox" :value="mapel.id" v-model="form.mata_pelajaran_ids"
-                                    class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
-                                {{ mapelLabel(mapel) }}
-                            </label>
+                            class="absolute z-10 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-lg max-h-64 overflow-y-auto divide-y divide-slate-50">
+                            <div v-for="mapel in mapelList" :key="mapel.id"
+                                class="flex items-center gap-2.5 px-4 py-2 hover:bg-slate-50 text-sm">
+                                <label class="flex items-center gap-2.5 flex-1 cursor-pointer">
+                                    <input type="checkbox" :value="mapel.id" v-model="form.mata_pelajaran_ids"
+                                        class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                                    <span>{{ mapelLabel(mapel) }}</span>
+                                </label>
+                                <div v-if="form.mata_pelajaran_ids.includes(mapel.id)" class="flex items-center gap-1 shrink-0">
+                                    <input type="number" min="0" max="40"
+                                        v-model.number="jamMap[mapel.id]"
+                                        placeholder="JP"
+                                        class="w-16 px-2 py-1 bg-white border border-indigo-200 rounded-lg text-center font-extrabold text-xs focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase">JP</span>
+                                </div>
+                            </div>
                         </div>
-                        <p v-if="form.errors.mata_pelajaran_ids" class="text-xs text-rose-500 mt-1 font-bold">{{ form.errors.mata_pelajaran_ids }}</p>
+                        <p v-if="form.errors.mata_pelajaran" class="text-xs text-rose-500 mt-1 font-bold">{{ form.errors.mata_pelajaran }}</p>
+                        <p v-else class="text-[11px] text-slate-400 mt-1">Isi jumlah jam mengajar per minggu untuk tiap mapel yang dicentang. Total ini yang menjadi dasar perhitungan jam pada menu Mata Pelajaran.</p>
                     </div>
 
                     <div>

@@ -9,7 +9,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -41,7 +40,7 @@ class GuruImport implements SkipsEmptyRows, ToCollection, WithHeadingRow
                     $tgl = Carbon::parse($row['tanggal_lahir'])->format('Y-m-d');
                 }
 
-                $password = Str::password(10);
+                $password = Guru::defaultPassword($tgl);
 
                 // Check if user already exists
                 $userExists = User::where('email', $email)->exists();

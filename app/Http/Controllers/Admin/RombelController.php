@@ -41,6 +41,7 @@ class RombelController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:100',
             'tingkat' => 'required|string|max:20',
+            'jurusan' => 'nullable|in:IPA,IPS',
             'tahun_ajaran_id' => 'required|exists:tahun_ajaran,id',
             'guru_id' => 'nullable|exists:guru,id',
         ]);
@@ -112,6 +113,7 @@ class RombelController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:100',
             'tingkat' => 'required|string|max:20',
+            'jurusan' => 'nullable|in:IPA,IPS',
             'tahun_ajaran_id' => 'required|exists:tahun_ajaran,id',
             'guru_id' => 'nullable|exists:guru,id',
         ]);
