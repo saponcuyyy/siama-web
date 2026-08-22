@@ -108,25 +108,25 @@ const navigation = [
         name: 'Data Rombel', 
         href: route('admin.web.rombel.index'), 
         icon: 'GraduationCap', 
-        permission: 'siswa.view' 
+        permission: 'rombel.view' 
     },
     { 
         name: 'Kartu Ujian', 
         href: route('admin.web.kartu-ujian.index'), 
         icon: 'Printer', 
-        permission: 'siswa.view' 
+        permission: 'kartu-ujian.view' 
     },
     { 
         name: 'Tahun Ajaran', 
         href: route('admin.web.tahun-ajaran.index'), 
         icon: 'Calendar', 
-        permission: 'dashboard.view' 
+        permission: 'tahun-ajaran.view' 
     },
     { 
         name: 'Semester', 
         href: route('admin.web.semester.index'), 
         icon: 'Layers', 
-        permission: 'dashboard.view' 
+        permission: 'semester.view' 
     },
     { 
         name: 'Guru', 
@@ -138,7 +138,7 @@ const navigation = [
         name: 'Mata Pelajaran',
         href: route('admin.web.mata-pelajaran.index'),
         icon: 'BookOpen',
-        permission: 'dashboard.view'
+        permission: 'mapel.view'
     },
     { 
         name: 'Jadwal', 

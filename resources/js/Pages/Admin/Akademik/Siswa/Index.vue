@@ -1,10 +1,21 @@
 <script setup>
 import { ref } from 'vue';
-import { Head, Link, useForm, router } from '@inertiajs/vue3';
+import { Head, Link, useForm, router, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { UserCheck, Plus, Search, Pencil, Trash2, X, Check, Users, Info, Upload, Download, FileSpreadsheet } from 'lucide-vue-next';
 import dayjs from 'dayjs';
+
+const page = usePage();
+const authUser = page.props.auth?.user;
+
+const can = (perm) => {
+    if (!authUser) return false;
+    if (authUser.roles?.includes('super_admin')) return true;
+    return authUser.permissions?.includes(perm);
+};
+
+const canManage = () => can('siswa.manage');
 
 const props = defineProps({
     siswaList: Object,
@@ -135,15 +146,15 @@ const submitImport = () => {
                     <p class="text-slate-500 font-medium mt-1">Kelola data siswa aktif beserta akun akses ujian CBT.</p>
                 </div>
                 <div class="flex gap-3">
-                    <button @click="openUploadModal"
+                    <button v-if="canManage()" @click="openUploadModal"
                         class="px-5 py-2.5 bg-white hover:bg-slate-50 text-indigo-600 text-sm font-bold rounded-xl flex items-center gap-2 transition-colors border border-indigo-200 shadow-sm">
                         <Upload class="w-5 h-5" /> Import Excel
                     </button>
-                    <a :href="route('admin.web.siswa.template')"
+                    <a v-if="canManage()" :href="route('admin.web.siswa.template')"
                        class="px-5 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-sm font-bold rounded-xl flex items-center gap-2 transition-colors border border-emerald-200">
                         <Download class="w-5 h-5" /> Template
                     </a>
-                    <button @click="openCreate" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-indigo-200">
+                    <button v-if="canManage()" @click="openCreate" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-indigo-200">
                         <Plus class="w-5 h-5" /> Tambah Siswa
                     </button>
                 </div>
@@ -207,7 +218,7 @@ const submitImport = () => {
                                 <th class="p-4">Tanggal Lahir</th>
                                 <th class="p-4">Agama</th>
                                 <th class="p-4">Rombel</th>
-                                <th class="p-4 pr-6 text-right">Aksi</th>
+                                <th v-if="canManage()" class="p-4 pr-6 text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm">
@@ -239,7 +250,7 @@ const submitImport = () => {
                                     </span>
                                     <span v-else class="text-slate-400 text-xs">Belum ada rombel</span>
                                 </td>
-                                <td class="p-4 pr-6 text-right">
+                                <td v-if="canManage()" class="p-4 pr-6 text-right">
                                     <div class="flex items-center justify-end gap-2">
                                         <button @click="openEdit(siswa)" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors">
                                             <Pencil class="w-4 h-4" />

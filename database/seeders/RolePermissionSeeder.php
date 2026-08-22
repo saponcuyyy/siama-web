@@ -26,6 +26,11 @@ class RolePermissionSeeder extends Seeder
             'jadwal.view', 'jadwal.manage',
             'siswa.view', 'siswa.manage',
             'guru.view', 'guru.manage',
+            'rombel.view', 'rombel.manage',
+            'kartu-ujian.view',
+            'tahun-ajaran.view', 'tahun-ajaran.manage',
+            'semester.view', 'semester.manage',
+            'mapel.view', 'mapel.manage',
             'perpustakaan.view', 'perpustakaan.manage',
             'ujian.view', 'ujian.manage', 'ujian.participate',
             // CBT Permissions
@@ -49,11 +54,11 @@ class RolePermissionSeeder extends Seeder
         // Create Roles and Assign Permissions
         $roles = [
             'super_admin' => $permissions,
-            'kepala_sekolah' => ['dashboard.view', 'nilai.view', 'siswa.view', 'guru.view', 'audit.view', 'ujian.laporan.view', 'ujian.laporan.export'],
-            'wakil_kepala' => ['dashboard.view', 'jadwal.manage', 'nilai.view', 'siswa.view', 'guru.view', 'ujian.bank-soal.manage', 'ujian.soal.manage', 'ujian.paket.manage', 'ujian.sesi.manage', 'ujian.sesi.monitor', 'ujian.penilaian.essay', 'ujian.laporan.view', 'ujian.laporan.export', 'ujian.view'],
-            'tata_usaha' => ['dashboard.view', 'users.view', 'users.create', 'users.edit', 'users.delete', 'roles.view', 'roles.create', 'roles.edit', 'roles.delete', 'siswa.manage', 'guru.manage', 'settings.view'],
-            'wali_kelas' => ['dashboard.view', 'nilai.create', 'nilai.edit', 'siswa.view'],
-            'guru' => ['dashboard.view', 'nilai.create', 'nilai.edit', 'jadwal.view', 'ujian.bank-soal.manage', 'ujian.soal.manage', 'ujian.paket.manage', 'ujian.sesi.manage', 'ujian.penilaian.essay', 'ujian.laporan.view', 'ujian.laporan.export', 'ujian.view'],
+            'kepala_sekolah' => ['dashboard.view', 'nilai.view', 'siswa.view', 'guru.view', 'audit.view', 'ujian.laporan.view', 'ujian.laporan.export', 'rombel.view', 'kartu-ujian.view', 'tahun-ajaran.view', 'semester.view', 'mapel.view'],
+            'wakil_kepala' => ['dashboard.view', 'jadwal.manage', 'nilai.view', 'siswa.view', 'guru.view', 'rombel.view', 'rombel.manage', 'kartu-ujian.view', 'tahun-ajaran.view', 'tahun-ajaran.manage', 'semester.view', 'semester.manage', 'mapel.view', 'mapel.manage', 'ujian.bank-soal.manage', 'ujian.soal.manage', 'ujian.paket.manage', 'ujian.sesi.manage', 'ujian.sesi.monitor', 'ujian.penilaian.essay', 'ujian.laporan.view', 'ujian.laporan.export', 'ujian.view'],
+            'tata_usaha' => ['dashboard.view', 'users.view', 'users.create', 'users.edit', 'users.delete', 'roles.view', 'roles.create', 'roles.edit', 'roles.delete', 'siswa.manage', 'guru.manage', 'settings.view', 'rombel.view', 'rombel.manage', 'kartu-ujian.view', 'tahun-ajaran.view', 'tahun-ajaran.manage', 'semester.view', 'semester.manage', 'mapel.view', 'mapel.manage'],
+            'wali_kelas' => ['dashboard.view', 'nilai.create', 'nilai.edit', 'siswa.view', 'rombel.view', 'kartu-ujian.view', 'mapel.view'],
+            'guru' => ['dashboard.view', 'nilai.create', 'nilai.edit', 'jadwal.view', 'siswa.view', 'mapel.view', 'ujian.bank-soal.manage', 'ujian.soal.manage', 'ujian.paket.manage', 'ujian.sesi.manage', 'ujian.penilaian.essay', 'ujian.laporan.view', 'ujian.laporan.export', 'ujian.view'],
             'siswa' => ['ujian.view', 'ujian.participate'],
             'pustakawan' => ['dashboard.view', 'perpustakaan.manage'],
         ];

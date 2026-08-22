@@ -87,7 +87,7 @@ class JadwalController extends Controller
 
         return Inertia::render('Admin/Akademik/Jadwal/Index', [
             'jadwalGrouped' => $grouped,
-            'rombels' => Rombel::select('id', 'nama', 'tingkat')
+            'rombels' => Rombel::select('id', 'nama', 'tingkat', 'tahun_ajaran_id')
                 ->orderBy('tingkat')->orderBy('nama')->get(),
             'guruList' => Guru::select('id', 'nama', 'nip')->orderBy('nama')->get(),
             'mapelList' => MataPelajaran::select('id', 'nama', 'kode')->orderBy('nama')->get(),
@@ -228,7 +228,12 @@ class JadwalController extends Controller
             ->get();
 
         if ($rombels->isEmpty()) {
-            return back()->with('error', 'Tidak ada rombel yang dipilih.');
+            if (isset($validated['rombel_ids']) && count($validated['rombel_ids']) === 0) {
+                return back()->with('error', 'Gagal: Pilih minimal satu rombel terlebih dahulu.');
+            }
+
+            $tahunAjaranNama = TahunAjaran::find($tahunAjaranId)?->nama ?? 'tersebut';
+            return back()->with('error', "Gagal: Rombel yang dipilih tidak ada yang termasuk tahun ajaran {$tahunAjaranNama}. Pastikan tahun ajaran pada modal generate sesuai dengan tahun ajaran rombel.");
         }
 
         Jadwal::whereIn('rombel_id', $rombels->pluck('id'))
@@ -270,16 +275,18 @@ class JadwalController extends Controller
             }
 
             // ── 1. Pecah semua mapel menjadi blok 2-jam dan sisa 1-jam ──
+            // Semua guru pengampu ikut disimpan sebagai kandidat agar solver
+            // dapat memilih guru lain yang tidak bentrok di hari & jam tersebut.
             $pool = [];
             foreach ($matchingSubjects as $subject) {
-                $guru  = $subject->gurus->first();
+                $gurus = $subject->gurus->values();
                 $hours = $subject->jam_per_minggu;
                 while ($hours >= 2) {
-                    $pool[] = ['s' => $subject, 'g' => $guru, 'dur' => 2];
+                    $pool[] = ['s' => $subject, 'gurus' => $gurus, 'dur' => 2];
                     $hours -= 2;
                 }
                 if ($hours === 1) {
-                    $pool[] = ['s' => $subject, 'g' => $guru, 'dur' => 1];
+                    $pool[] = ['s' => $subject, 'gurus' => $gurus, 'dur' => 1];
                 }
             }
             // Prioritaskan blok 2 jam agar terisi teratur
@@ -288,12 +295,13 @@ class JadwalController extends Controller
             // Backtracking variables
             $dayDurations = [];
             $subjectDays = [];
+            $subjectGuru = [];
             $assignments = [];
 
             // Solver closure
             $solve = function($blockIdx, $allowSameDaySubject, $minHours) use (
                 &$solve, $pool, $hariList, $maxJam, $totalJam,
-                &$teacherSchedule, &$dayDurations, &$subjectDays, &$assignments
+                &$teacherSchedule, &$dayDurations, &$subjectDays, &$subjectGuru, &$assignments
             ) {
                 if ($blockIdx >= count($pool)) {
                     $effectiveMin = min($minHours, $totalJam);
@@ -311,8 +319,13 @@ class JadwalController extends Controller
 
                 $block = $pool[$blockIdx];
                 $subjectId = $block['s']->id;
-                $guruId = $block['g']->id;
                 $dur = $block['dur'];
+
+                // Guru tetap mapel ini di rombel ini; jika belum ada,
+                // semua guru pengampu menjadi kandidat (beda guru antar rombel diperbolehkan).
+                $candidates = isset($subjectGuru[$subjectId])
+                    ? [$subjectGuru[$subjectId]]
+                    : $block['gurus']->all();
 
                 foreach ($hariList as $hari) {
                     $start = ($dayDurations[$hari] ?? 0) + 1;
@@ -326,38 +339,50 @@ class JadwalController extends Controller
                         continue;
                     }
 
-                    // Check teacher availability
-                    $clash = false;
-                    for ($jam = $start; $jam <= $end; $jam++) {
-                        if (isset($teacherSchedule[$guruId][$hari][$jam])) {
-                            $clash = true;
-                            break;
+                    foreach ($candidates as $guru) {
+                        $guruId = $guru->id;
+
+                        // Check teacher availability: 1 guru tidak boleh mengajar
+                        // di hari & jam yang sama di kelas manapun.
+                        $clash = false;
+                        for ($jam = $start; $jam <= $end; $jam++) {
+                            if (isset($teacherSchedule[$guruId][$hari][$jam])) {
+                                $clash = true;
+                                break;
+                            }
                         }
-                    }
-                    if ($clash) {
-                        continue;
-                    }
+                        if ($clash) {
+                            continue;
+                        }
 
-                    // Place block
-                    $prevDur = $dayDurations[$hari] ?? 0;
-                    $dayDurations[$hari] = $end;
-                    for ($jam = $start; $jam <= $end; $jam++) {
-                        $teacherSchedule[$guruId][$hari][$jam] = true;
-                    }
-                    $subjectDays[$subjectId][$hari] = true;
-                    $assignments[$blockIdx] = ['hari' => $hari, 'start' => $start];
+                        // Place block
+                        $prevDur = $dayDurations[$hari] ?? 0;
+                        $dayDurations[$hari] = $end;
+                        $assignedHere = !isset($subjectGuru[$subjectId]);
+                        for ($jam = $start; $jam <= $end; $jam++) {
+                            $teacherSchedule[$guruId][$hari][$jam] = true;
+                        }
+                        if ($assignedHere) {
+                            $subjectGuru[$subjectId] = $guru;
+                        }
+                        $subjectDays[$subjectId][$hari] = true;
+                        $assignments[$blockIdx] = ['hari' => $hari, 'start' => $start, 'guru_id' => $guruId];
 
-                    if ($solve($blockIdx + 1, $allowSameDaySubject, $minHours)) {
-                        return true;
-                    }
+                        if ($solve($blockIdx + 1, $allowSameDaySubject, $minHours)) {
+                            return true;
+                        }
 
-                    // Backtrack
-                    $dayDurations[$hari] = $prevDur;
-                    for ($jam = $start; $jam <= $end; $jam++) {
-                        unset($teacherSchedule[$guruId][$hari][$jam]);
+                        // Backtrack
+                        $dayDurations[$hari] = $prevDur;
+                        for ($jam = $start; $jam <= $end; $jam++) {
+                            unset($teacherSchedule[$guruId][$hari][$jam]);
+                        }
+                        unset($subjectDays[$subjectId][$hari]);
+                        if ($assignedHere) {
+                            unset($subjectGuru[$subjectId]);
+                        }
+                        unset($assignments[$blockIdx]);
                     }
-                    unset($subjectDays[$subjectId][$hari]);
-                    unset($assignments[$blockIdx]);
                 }
 
                 return false;
@@ -378,6 +403,7 @@ class JadwalController extends Controller
                     $dayDurations[$hari] = 0;
                 }
                 $subjectDays = [];
+                $subjectGuru = [];
                 $assignments = [];
                 $teacherSchedule = $teacherScheduleBackup;
 
@@ -398,7 +424,7 @@ class JadwalController extends Controller
                         Jadwal::create([
                             'rombel_id'         => $rombel->id,
                             'mata_pelajaran_id' => $block['s']->id,
-                            'guru_id'           => $block['g']->id,
+                            'guru_id'           => $assign['guru_id'],
                             'tahun_ajaran_id'   => $tahunAjaranId,
                             'hari'              => $hari,
                             'jam_ke'            => $jamPos,

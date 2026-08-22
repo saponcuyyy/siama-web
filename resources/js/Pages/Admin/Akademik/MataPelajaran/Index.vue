@@ -1,9 +1,20 @@
 <script setup>
 import { ref, computed } from 'vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
+import { Head, useForm, router, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { BookOpen, Plus, Search, Pencil, Trash2, X, Check, AlertTriangle, BookMarked, Users, Clock, Filter } from 'lucide-vue-next';
+
+const page = usePage();
+const authUser = page.props.auth?.user;
+
+const can = (perm) => {
+    if (!authUser) return false;
+    if (authUser.roles?.includes('super_admin')) return true;
+    return authUser.permissions?.includes(perm);
+};
+
+const canManage = computed(() => can('mapel.manage'));
 
 const props = defineProps({
     mapelList: Object,
@@ -119,6 +130,7 @@ const totalJamMingguan = computed(() => {
                     <p class="text-slate-500 font-medium mt-1">Kelola daftar mata pelajaran, guru pengampu, dan alokasi jam mengajar.</p>
                 </div>
                 <button
+                    v-if="canManage"
                     @click="showCreateModal = true"
                     class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-indigo-200"
                 >
@@ -212,7 +224,7 @@ const totalJamMingguan = computed(() => {
                                 <th class="p-4 text-center">Jumlah Jam</th>
                                 <th class="p-4 text-center">Kelas</th>
                                 <th class="p-4 text-center">Jurusan</th>
-                                <th class="p-4 pr-6 text-right">Aksi</th>
+                                <th v-if="canManage" class="p-4 pr-6 text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm">
@@ -281,7 +293,7 @@ const totalJamMingguan = computed(() => {
                                         Umum
                                     </span>
                                 </td>
-                                <td class="p-4 pr-6 text-right">
+                                <td v-if="canManage" class="p-4 pr-6 text-right">
                                     <div class="flex items-center justify-end gap-2">
                                         <button
                                             @click="openEdit(mapel)"
@@ -301,7 +313,7 @@ const totalJamMingguan = computed(() => {
                                 </td>
                             </tr>
                             <tr v-if="mapelList.data.length === 0">
-                                <td colspan="8" class="p-12 text-center">
+                                <td :colspan="canManage ? 8 : 7" class="p-12 text-center">
                                     <BookOpen class="w-12 h-12 text-slate-300 mx-auto mb-3" />
                                     <p class="text-slate-500 font-bold">Tidak ada mata pelajaran ditemukan.</p>
                                     <p class="text-slate-400 text-sm mt-1">Sesuaikan filter atau tambahkan mata pelajaran baru.</p>

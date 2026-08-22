@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
+import { Head, useForm, router, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import {
     Calendar,
@@ -38,6 +38,13 @@ const props = defineProps({
     maxJam: Number,
 });
 
+const authUser = usePage().props.auth?.user;
+const canManage = computed(() => {
+    if (!authUser) return false;
+    if (authUser.roles?.includes('super_admin')) return true;
+    return authUser.permissions?.includes('jadwal.manage');
+});
+
 const filterRombel = ref(props.filters.rombel_id || '');
 const filterTahun = ref(props.filters.tahun_ajaran_id || '');
 
@@ -70,6 +77,11 @@ const openCreate = (hari, jam) => {
     if (jam) form.jam_ke = jam;
     showModal.value = true;
 };
+
+// Rombel pada form tambah hanya milik tahun ajaran yang dipilih di form
+const formRombels = computed(() =>
+    props.rombels.filter(r => !form.tahun_ajaran_id || r.tahun_ajaran_id == form.tahun_ajaran_id)
+);
 
 const openEdit = (entry) => {
     editTarget.value = entry;
@@ -276,6 +288,17 @@ const openGenerate = () => {
     showGenerateModal.value = true;
 };
 
+// Rombel yang tersedia di modal generate hanya milik tahun ajaran terpilih
+const generateRombels = computed(() =>
+    props.rombels.filter(r => !generateForm.tahun_ajaran_id || r.tahun_ajaran_id == generateForm.tahun_ajaran_id)
+);
+
+// Jika tahun ajaran diganti, buang pilihan rombel yang tidak termasuk tahun ajaran baru
+watch(() => generateForm.tahun_ajaran_id, () => {
+    const valid = new Set(generateRombels.value.map(r => r.id));
+    generateForm.rombel_ids = generateForm.rombel_ids.filter(id => valid.has(id));
+});
+
 const toggleRombel = (id) => {
     const idx = generateForm.rombel_ids.indexOf(id);
     if (idx === -1) {
@@ -286,7 +309,7 @@ const toggleRombel = (id) => {
 };
 
 const selectAllRombel = () => {
-    generateForm.rombel_ids = props.rombels.map(r => r.id);
+    generateForm.rombel_ids = generateRombels.value.map(r => r.id);
 };
 
 const submitGenerate = () => {
@@ -346,6 +369,7 @@ watch(showHariAktifModal, (v) => {
                         <span>Cetak PDF</span>
                     </button>
                     <button
+                        v-if="canManage"
                         @click="openHariAktifModal"
                         class="px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-slate-200"
                     >
@@ -353,12 +377,14 @@ watch(showHariAktifModal, (v) => {
                         <span>Hari Aktif ({{ hariList.length }} Hari)</span>
                     </button>
                     <button
+                        v-if="canManage"
                         @click="openGenerate"
                         class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-emerald-200"
                     >
                         <Zap class="w-5 h-5" /> Generate Jadwal
                     </button>
                     <button
+                        v-if="canManage"
                         @click="openCreate(null, null)"
                         class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-indigo-200"
                     >
@@ -479,7 +505,7 @@ watch(showHariAktifModal, (v) => {
                                                     <div class="text-xs font-medium text-slate-500 mt-1 leading-tight">
                                                         {{ jadwalGrouped.grid[hari][j].guru?.nama }}
                                                     </div>
-                                                    <div class="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover/cell:opacity-100 transition-opacity">
+                                                    <div v-if="canManage" class="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover/cell:opacity-100 transition-opacity">
                                                         <button
                                                             @click="openEdit(jadwalGrouped.grid[hari][j])"
                                                             class="p-1 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-100 rounded-lg transition-colors"
@@ -497,11 +523,13 @@ watch(showHariAktifModal, (v) => {
                                             </div>
                                             <div v-else>
                                                 <button
+                                                    v-if="canManage"
                                                     @click="openCreate(hari, j)"
                                                     class="w-full min-h-[72px] border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-300 hover:text-indigo-500 hover:border-indigo-300 hover:bg-indigo-50/50 transition-all"
                                                 >
                                                     <Plus class="w-5 h-5" />
                                                 </button>
+                                                <div v-else class="w-full min-h-[72px]"></div>
                                             </div>
                                         </td>
                                     </tr>
@@ -562,7 +590,7 @@ watch(showHariAktifModal, (v) => {
                                                     <div class="text-xs font-medium text-slate-500 mt-1 leading-tight">
                                                         {{ group.grid[hari][j].guru?.nama }}
                                                     </div>
-                                                    <div class="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover/cell:opacity-100 transition-opacity">
+                                                    <div v-if="canManage" class="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover/cell:opacity-100 transition-opacity">
                                                         <button @click="openEdit(group.grid[hari][j])" class="p-1 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-100 rounded-lg transition-colors">
                                                             <Pencil class="w-3.5 h-3.5" />
                                                         </button>
@@ -573,9 +601,10 @@ watch(showHariAktifModal, (v) => {
                                                 </div>
                                             </div>
                                             <div v-else>
-                                                <button @click="openCreate(hari, j)" class="w-full min-h-[72px] border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-300 hover:text-indigo-500 hover:border-indigo-300 hover:bg-indigo-50/50 transition-all">
+                                                <button v-if="canManage" @click="openCreate(hari, j)" class="w-full min-h-[72px] border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-300 hover:text-indigo-500 hover:border-indigo-300 hover:bg-indigo-50/50 transition-all">
                                                     <Plus class="w-5 h-5" />
                                                 </button>
+                                                <div v-else class="w-full min-h-[72px]"></div>
                                             </div>
                                         </td>
                                     </tr>
@@ -730,9 +759,9 @@ watch(showHariAktifModal, (v) => {
                                                 </button>
                                             </div>
                                         </div>
-                                        <div class="border border-slate-200 rounded-xl divide-y divide-slate-100 bg-white">
+                                        <div class="border border-slate-200 rounded-xl divide-y divide-slate-100 bg-white max-h-56 overflow-y-auto">
                                             <label
-                                                v-for="r in rombels"
+                                                v-for="r in generateRombels"
                                                 :key="r.id"
                                                 class="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors hover:bg-slate-50 group"
                                             >
@@ -759,9 +788,10 @@ watch(showHariAktifModal, (v) => {
                                                 >{{ r.tingkat }}</span>
                                                 <input type="checkbox" :value="r.id" v-model="generateForm.rombel_ids" class="sr-only" />
                                             </label>
-                                            <div v-if="rombels.length === 0" class="p-6 text-center text-slate-400 text-sm">
+                                            <div v-if="generateRombels.length === 0" class="p-6 text-center text-slate-400 text-sm">
                                                 <School class="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                                                Tidak ada rombel tersedia.
+                                                <p>Tidak ada rombel pada tahun ajaran ini.</p>
+                                                <p v-if="generateForm.tahun_ajaran_id" class="text-xs mt-1">Pilih tahun ajaran lain yang memiliki rombel.</p>
                                             </div>
                                         </div>
                                         <p v-if="generateForm.errors.rombel_ids" class="text-rose-600 text-xs font-bold mt-1.5">{{ generateForm.errors.rombel_ids }}</p>
@@ -1010,7 +1040,7 @@ watch(showHariAktifModal, (v) => {
                             class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-indigo-600 focus:border-indigo-600"
                         >
                             <option value="">-- Pilih Rombel --</option>
-                            <option v-for="r in rombels" :key="r.id" :value="r.id">{{ r.nama }}</option>
+                            <option v-for="r in formRombels" :key="r.id" :value="r.id">{{ r.nama }}</option>
                         </select>
                         <p v-if="form.errors.rombel_id" class="text-xs text-rose-500 mt-1 font-bold">{{ form.errors.rombel_id }}</p>
                     </div>

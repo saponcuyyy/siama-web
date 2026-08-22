@@ -144,31 +144,43 @@ Route::prefix('admin/web')
         });
 
         // ── Master Akademik ──────────────────────────────────────────────────
-        Route::resource('rombel', RombelController::class)->except(['create', 'edit', 'show'])->middleware('can:siswa.view');
+        // Rombel: lihat (rombel.view), kelola (rombel.manage)
+        Route::get('rombel', [RombelController::class, 'index'])->name('rombel.index')->middleware('can:rombel.view');
+        Route::post('rombel/salin', [RombelController::class, 'salin'])->name('rombel.salin')->middleware('can:rombel.manage');
+        Route::resource('rombel', RombelController::class)->except(['create', 'edit', 'show', 'index'])->middleware('can:rombel.manage');
         Route::get('rombel/{rombel}/kartu-ujian',
             [KartuUjianController::class, 'perRombel'])
-            ->name('rombel.kartu-ujian')->middleware('can:siswa.view');
+            ->name('rombel.kartu-ujian')->middleware('can:kartu-ujian.view');
         Route::get('kartu-ujian', [KartuUjianController::class, 'index'])
-            ->name('kartu-ujian.index')->middleware('can:siswa.view');
+            ->name('kartu-ujian.index')->middleware('can:kartu-ujian.view');
 
         Route::post('guru/import', [GuruController::class, 'import'])->name('guru.import')->middleware('can:guru.manage');
         Route::get('guru/template', [GuruController::class, 'downloadTemplate'])->name('guru.template')->middleware('can:guru.view');
         Route::resource('guru', GuruController::class)->except(['create', 'edit', 'show'])->middleware('can:guru.view');
 
+        // Tahun Ajaran: lihat (tahun-ajaran.view), kelola (tahun-ajaran.manage)
+        Route::get('tahun-ajaran', [TahunAjaranController::class, 'index'])->name('tahun-ajaran.index')->middleware('can:tahun-ajaran.view');
         Route::resource('tahun-ajaran', TahunAjaranController::class)
-            ->except(['create', 'edit', 'show'])->middleware('can:dashboard.view');
+            ->except(['create', 'edit', 'show', 'index'])->middleware('can:tahun-ajaran.manage');
 
+        // Semester: lihat (semester.view), kelola (semester.manage)
+        Route::get('semester', [SemesterController::class, 'index'])->name('semester.index')->middleware('can:semester.view');
         Route::resource('semester', SemesterController::class)
-            ->except(['create', 'edit', 'show'])->middleware('can:dashboard.view');
+            ->except(['create', 'edit', 'show', 'index'])->middleware('can:semester.manage');
 
-        Route::resource('siswa', SiswaController::class)->except(['create', 'edit', 'show'])->middleware('can:siswa.view');
+        // Siswa: index read-only (siswa.view), CUD butuh siswa.manage
+        Route::get('siswa', [SiswaController::class, 'index'])->name('siswa.index')->middleware('can:siswa.view');
+        Route::resource('siswa', SiswaController::class)->except(['create', 'edit', 'show', 'index'])->middleware('can:siswa.manage');
         Route::post('siswa/import', [SiswaController::class, 'import'])->name('siswa.import')->middleware('can:siswa.manage');
         Route::get('siswa/template', [SiswaController::class, 'downloadTemplate'])->name('siswa.template')->middleware('can:siswa.view');
 
         // ── Mata Pelajaran (Akademik) ──────────────────────────────────────────
+        // Lihat data (mapel.view), kelola CUD (mapel.manage)
+        Route::get('mata-pelajaran', [AkademikMataPelajaranController::class, 'index'])
+            ->name('mata-pelajaran.index')->middleware('can:mapel.view');
         Route::resource('mata-pelajaran', AkademikMataPelajaranController::class)
-            ->except(['create', 'edit', 'show'])
-            ->middleware('can:dashboard.view');
+            ->except(['create', 'edit', 'show', 'index'])
+            ->middleware('can:mapel.manage');
     });
 
 // ─── JADWAL ─────────────────────────────────────────────────────────────────

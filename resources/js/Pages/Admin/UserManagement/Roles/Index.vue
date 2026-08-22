@@ -55,6 +55,15 @@ const permLabels = {
     'roles.delete': 'Hapus Role',
     'siswa.view': 'Lihat Siswa',
     'siswa.manage': 'Kelola Siswa',
+    'rombel.view': 'Lihat Rombel',
+    'rombel.manage': 'Kelola Rombel',
+    'kartu-ujian.view': 'Lihat Kartu Ujian',
+    'tahun-ajaran.view': 'Lihat Tahun Ajaran',
+    'tahun-ajaran.manage': 'Kelola Tahun Ajaran',
+    'semester.view': 'Lihat Semester',
+    'semester.manage': 'Kelola Semester',
+    'mapel.view': 'Lihat Mata Pelajaran',
+    'mapel.manage': 'Kelola Mata Pelajaran',
     'guru.view': 'Lihat Guru',
     'guru.manage': 'Kelola Guru',
     'nilai.view': 'Lihat Nilai',
@@ -94,7 +103,7 @@ const permLabels = {
     'audit.view': 'Lihat Audit Trail',
 };
 
-const groupOrder = ['dashboard', 'users', 'roles', 'siswa', 'guru', 'nilai', 'jadwal', 'ujian', 'perpustakaan', 'web', 'settings', 'audit'];
+const groupOrder = ['dashboard', 'users', 'roles', 'siswa', 'rombel', 'guru', 'mapel', 'nilai', 'jadwal', 'kartu-ujian', 'tahun-ajaran', 'semester', 'ujian', 'perpustakaan', 'web', 'settings', 'audit'];
 
 const groupedPermissions = computed(() => {
     const groups = {};
