@@ -15,7 +15,7 @@ class MataPelajaranController extends Controller
         $query = MataPelajaran::with(['gurus' => function ($q) {
             $q->select('guru.id', 'guru.nama');
         }])
-            ->withCount(['gurus as jumlah_guru', 'jadwal as jumlah_jam'])
+            ->withCount(['gurus as jumlah_guru' => fn ($q) => $q->selectRaw('COUNT(DISTINCT guru.id)'), 'jadwal as jumlah_jam'])
             ->latest();
 
         if ($request->search) {
@@ -34,7 +34,9 @@ class MataPelajaranController extends Controller
         }
 
         return Inertia::render('Admin/Akademik/MataPelajaran/Index', [
-            'mapelList' => $query->paginate(15)->withQueryString(),
+            'mapelList' => tap($query->paginate(15)->withQueryString(), fn ($page) => $page->getCollection()->each(
+                fn (MataPelajaran $mapel) => $mapel->setRelation('gurus', $mapel->gurus->unique('id')->values())
+            )),
             'filters' => $request->only('search', 'tingkat', 'jurusan'),
         ]);
     }

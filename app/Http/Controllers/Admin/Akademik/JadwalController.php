@@ -319,7 +319,7 @@ class JadwalController extends Controller
             // dapat memilih guru lain yang tidak bentrok di hari & jam tersebut.
             $pool = [];
             foreach ($matchingSubjects as $subject) {
-                $gurus = $subject->gurus->values();
+                $gurus = $subject->gurus->unique('id')->values();
                 $hours = $subject->jam_per_minggu;
                 while ($hours >= 2) {
                     $pool[] = ['s' => $subject, 'gurus' => $gurus, 'dur' => 2];
