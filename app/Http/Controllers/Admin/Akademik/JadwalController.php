@@ -18,6 +18,19 @@ class JadwalController extends Controller
 {
     public const HARI_ALL = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
+    /**
+     * Kebijakan standar kapasitas JP per hari.
+     * Senin-Kamis penuh 10 JP, Jumat hari pendek maksimal 6 JP.
+     * Hari di luar daftar (mis. Sabtu) mengikuti nilai "max_jam" umum.
+     */
+    public const MAX_JAM_PER_HARI_DEFAULT = [
+        'Senin'  => 10,
+        'Selasa' => 10,
+        'Rabu'   => 10,
+        'Kamis'  => 10,
+        'Jumat'  => 6,
+    ];
+
     private function getHariAktif(): array
     {
         $setting = Setting::get('hari_aktif_sekolah');
@@ -98,6 +111,7 @@ class JadwalController extends Controller
             'hariList' => $hariUrutan,
             'semuaHariList' => self::HARI_ALL,
             'maxJam' => $maxJam,
+            'maxJamPerHariDefault' => self::MAX_JAM_PER_HARI_DEFAULT,
         ]);
     }
 
@@ -211,6 +225,8 @@ class JadwalController extends Controller
             'max_jam_tingkat.X'  => 'nullable|integer|min:1|max:20',
             'max_jam_tingkat.XI' => 'nullable|integer|min:1|max:20',
             'max_jam_tingkat.XII'=> 'nullable|integer|min:1|max:20',
+            'max_jam_hari'       => 'nullable|array',
+            'max_jam_hari.*'     => 'nullable|integer|min:1|max:20',
         ]);
 
         $tahunAjaranId = $validated['tahun_ajaran_id'];
@@ -221,6 +237,17 @@ class JadwalController extends Controller
             'XII' => (int)($validated['max_jam_tingkat']['XII'] ?? $defaultMaxJam),
         ];
         $hariList = $this->getHariAktif();
+
+        // Kapasitas per hari: input manual > kebijakan default > max_jam umum.
+        // Batas efektif tiap rombel = min(kapasitas hari, batas tingkat).
+        $kapasitasHari = [];
+        foreach ($hariList as $hari) {
+            $kapasitasHari[$hari] = (int)(
+                $validated['max_jam_hari'][$hari]
+                ?? self::MAX_JAM_PER_HARI_DEFAULT[$hari]
+                ?? $defaultMaxJam
+            );
+        }
 
         $rombels = Rombel::where('tahun_ajaran_id', $tahunAjaranId)
             ->when(isset($validated['rombel_ids']), fn($q) => $q->whereIn('id', $validated['rombel_ids']))
@@ -255,6 +282,12 @@ class JadwalController extends Controller
         foreach ($rombels as $rombel) {
             $maxJam = $maxJamTingkat[$rombel->tingkat] ?? $defaultMaxJam;
 
+            // Batas JP efektif per hari untuk rombel ini
+            $limitPerHari = [];
+            foreach ($hariList as $hari) {
+                $limitPerHari[$hari] = min($kapasitasHari[$hari], $maxJam);
+            }
+
             $matchingSubjects = $subjects->filter(function ($s) use ($rombel) {
                 if ($s->tingkat !== $rombel->tingkat) return false;
                 if ($s->jurusan && $s->jurusan !== $rombel->jurusan) return false;
@@ -267,10 +300,15 @@ class JadwalController extends Controller
             }
 
             $totalJam       = $matchingSubjects->sum('jam_per_minggu');
-            $availableSlots = count($hariList) * $maxJam;
+            $availableSlots = array_sum($limitPerHari);
 
             if ($totalJam > $availableSlots) {
-                $errors[] = "{$rombel->nama}: total jam ({$totalJam}) melebihi kapasitas ({$availableSlots}).";
+                $detailKapasitas = implode(', ', array_map(
+                    fn($hari, $limit) => "{$hari}: {$limit} JP",
+                    array_keys($limitPerHari),
+                    $limitPerHari
+                ));
+                $errors[] = "{$rombel->nama}: total jam ({$totalJam}) melebihi kapasitas ({$availableSlots} slot; {$detailKapasitas}).";
                 continue;
             }
 
@@ -300,17 +338,17 @@ class JadwalController extends Controller
 
             // Solver closure
             $solve = function($blockIdx, $allowSameDaySubject, $minHours) use (
-                &$solve, $pool, $hariList, $maxJam, $totalJam,
+                &$solve, $pool, $hariList, &$limitPerHari, $totalJam,
                 &$teacherSchedule, &$dayDurations, &$subjectDays, &$subjectGuru, &$assignments
             ) {
                 if ($blockIdx >= count($pool)) {
-                    $effectiveMin = min($minHours, $totalJam);
                     foreach ($hariList as $hari) {
                         $dur = $dayDurations[$hari] ?? 0;
                         if ($totalJam >= count($hariList) && $dur === 0) {
                             return false; // Day cannot be empty if we have enough total hours
                         }
-                        if ($dur > 0 && $dur < $effectiveMin) {
+                        $dayMin = min($minHours, $limitPerHari[$hari]);
+                        if ($dur > 0 && $dur < $dayMin) {
                             return false;
                         }
                     }
@@ -331,7 +369,7 @@ class JadwalController extends Controller
                     $start = ($dayDurations[$hari] ?? 0) + 1;
                     $end = $start + $dur - 1;
 
-                    if ($end > $maxJam) {
+                    if ($end > $limitPerHari[$hari]) {
                         continue;
                     }
 

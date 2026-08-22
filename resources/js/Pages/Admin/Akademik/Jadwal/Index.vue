@@ -36,6 +36,10 @@ const props = defineProps({
         default: () => ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
     },
     maxJam: Number,
+    maxJamPerHariDefault: {
+        type: Object,
+        default: () => ({ Senin: 10, Selasa: 10, Rabu: 10, Kamis: 10, Jumat: 6 }),
+    },
 });
 
 const authUser = usePage().props.auth?.user;
@@ -277,16 +281,47 @@ const generateForm = useForm({
         XI: 8,
         XII: 8,
     },
+    max_jam_hari: {},
 });
+
+const defaultMaxJamHari = (hari) => props.maxJamPerHariDefault[hari] ?? 8;
+
+const initMaxJamHari = () => {
+    const map = {};
+    for (const hari of props.hariList) {
+        map[hari] = defaultMaxJamHari(hari);
+    }
+    generateForm.max_jam_hari = map;
+};
 
 const openGenerate = () => {
     const aktifTa = props.tahunAjaranList.find(t => t.is_active);
     generateForm.tahun_ajaran_id = aktifTa?.id || '';
     generateForm.rombel_ids = [];
-    generateForm.max_jam = 8;
-    generateForm.max_jam_tingkat = { X: 8, XI: 8, XII: 8 };
+    generateForm.max_jam = Math.max(...props.hariList.map(h => defaultMaxJamHari(h)), 8);
+    generateForm.max_jam_tingkat = {
+        X: generateForm.max_jam,
+        XI: generateForm.max_jam,
+        XII: generateForm.max_jam,
+    };
+    initMaxJamHari();
     showGenerateModal.value = true;
 };
+
+// Total slot per rombel mengikuti kapasitas tiap hari aktif (bukan seragam)
+const totalSlotPerRombel = computed(() =>
+    Object.values(generateForm.max_jam_hari).reduce((sum, v) => sum + (Number(v) || 0), 0)
+);
+
+const hariText = (hari) => ({
+    Senin: 'text-blue-700',
+    Selasa: 'text-emerald-700',
+    Rabu: 'text-violet-700',
+    Kamis: 'text-rose-700',
+    Jumat: 'text-amber-700',
+    Sabtu: 'text-cyan-700',
+    Minggu: 'text-pink-700',
+}[hari] || 'text-slate-700');
 
 // Rombel yang tersedia di modal generate hanya milik tahun ajaran terpilih
 const generateRombels = computed(() =>
@@ -733,6 +768,24 @@ watch(showHariAktifModal, (v) => {
                                         <p class="text-[11px] text-slate-500 font-medium pt-1">💡 Algoritma akan menyusun mapel dalam 2 jam berurutan dan memisah jam ganjil (1 jam) ke hari yang berbeda.</p>
                                     </div>
 
+                                    <!-- Max Jam Per Hari -->
+                                    <div class="bg-slate-50/80 border border-slate-200 rounded-2xl p-4 space-y-2">
+                                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                            Kapasitas Jam Pelajaran per Hari
+                                        </label>
+                                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                                            <div v-for="hari in hariList" :key="hari"
+                                                class="bg-white border border-slate-200 rounded-xl p-2.5 text-center shadow-xs">
+                                                <span class="text-[11px] font-black uppercase tracking-wider block mb-1"
+                                                    :class="hariText(hari)">{{ hari }}</span>
+                                                <input type="number" v-model.number="generateForm.max_jam_hari[hari]" min="1" max="20"
+                                                    class="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg font-extrabold text-center text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500" />
+                                                <span class="text-[10px] text-slate-400 font-semibold">JP</span>
+                                            </div>
+                                        </div>
+                                        <p class="text-[11px] text-slate-500 font-medium pt-1">💡 Senin–Kamis penuh 10 JP dan Jumat maksimal 6 JP sesuai kebijakan sekolah. Hari pendek otomatis diisi lebih sedikit.</p>
+                                    </div>
+
                                     <!-- Pilih Rombel -->
                                     <div>
                                         <div class="flex items-center justify-between mb-2">
@@ -808,11 +861,11 @@ watch(showHariAktifModal, (v) => {
                                                 <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Rombel</p>
                                             </div>
                                             <div class="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2.5 text-center border border-emerald-100">
-                                                <p class="text-lg font-black text-emerald-700">{{ generateForm.max_jam * hariList.length }}</p>
+                                                <p class="text-lg font-black text-emerald-700">{{ totalSlotPerRombel }}</p>
                                                 <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Slot/Rombel</p>
                                             </div>
                                             <div class="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2.5 text-center border border-emerald-100">
-                                                <p class="text-lg font-black text-emerald-700">{{ (generateForm.rombel_ids.length * generateForm.max_jam * hariList.length).toLocaleString() }}</p>
+                                                <p class="text-lg font-black text-emerald-700">{{ (generateForm.rombel_ids.length * totalSlotPerRombel).toLocaleString() }}</p>
                                                 <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Total Slot</p>
                                             </div>
                                             <div class="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2.5 text-center border border-emerald-100">
